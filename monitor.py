@@ -39,6 +39,8 @@ class Config:
     naver_client_id: str
     naver_client_secret: str
     naver_search_queries: tuple[str, ...]
+    naver_pokemon_queries: tuple[str, ...]
+    check_naver_public: bool
     scan_full_catalog: bool
 
     @classmethod
@@ -47,6 +49,9 @@ class Config:
         watchlist_products = load_watchlist(os.getenv("WATCHLIST_PATH", "watchlist.json"))
         keywords = os.getenv("WATCH_KEYWORDS", "")
         queries = os.getenv("NAVER_XOPLAY_QUERIES", "포켓몬카드,포켓몬 카드").split(",")
+        pokemon_queries = os.getenv(
+            "NAVER_POKEMON_QUERIES", "포켓몬센터,포켓몬 스토어,포켓몬 카드"
+        ).split(",")
         return cls(
             webhook_url=os.getenv("DISCORD_WEBHOOK_URL", ""),
             product_nos=tuple(sorted({
@@ -62,6 +67,10 @@ class Config:
             naver_client_id=os.getenv("NAVER_CLIENT_ID", ""),
             naver_client_secret=os.getenv("NAVER_CLIENT_SECRET", ""),
             naver_search_queries=tuple(query.strip() for query in queries if query.strip()),
+            naver_pokemon_queries=tuple(
+                query.strip() for query in pokemon_queries if query.strip()
+            ),
+            check_naver_public=os.getenv("CHECK_NAVER_PUBLIC", "true").casefold() == "true",
             scan_full_catalog=os.getenv("SCAN_FULL_CATALOG", "false").casefold() == "true",
         )
 
@@ -272,10 +281,14 @@ class NaverBrandCategoryClient:
 class NaverShoppingSearchClient:
     """Official Search API fallback; useful for discoveries, not authoritative stock."""
 
-    def __init__(self, client_id: str, client_secret: str, store_slug: str, queries: tuple[str, ...]) -> None:
+    def __init__(
+        self, client_id: str, client_secret: str, store_slug: str,
+        queries: tuple[str, ...], hosts: tuple[str, ...] = ("smartstore.naver.com",),
+    ) -> None:
         self.headers = {"X-Naver-Client-Id": client_id, "X-Naver-Client-Secret": client_secret}
         self.store_slug = store_slug
         self.queries = queries
+        self.hosts = hosts
 
     def products(self) -> list[dict[str, Any]]:
         found: dict[str, dict[str, Any]] = {}
@@ -283,9 +296,10 @@ class NaverShoppingSearchClient:
             params = urlencode({"query": query, "display": 100, "start": 1, "sort": "date"})
             for item in request_json(f"{NAVER_SEARCH_API}?{params}", self.headers).get("items", []):
                 link = item.get("link", "")
-                if f"smartstore.naver.com/{self.store_slug}" not in link:
+                if not any(f"{host}/{self.store_slug}" in link for host in self.hosts):
                     continue
-                product_id = item.get("productId") or link.rstrip("/").rsplit("/", 1)[-1]
+                link_id = link.rstrip("/").rsplit("/", 1)[-1]
+                product_id = link_id if link_id.isdigit() else item.get("productId")
                 name = unescape(re.sub(r"<[^>]+>", "", item.get("title", "")))
                 found[str(product_id)] = normalized_product(
                     source=f"naver-{self.store_slug}", product_id=product_id, name=name,
@@ -434,7 +448,7 @@ def keyword_match(product: dict[str, Any], keywords: tuple[str, ...]) -> bool:
 
 def observe_products(
     config: Config, state: State, products: list[dict[str, Any]], *, feed: str,
-    reliable_stock: bool = True, notify_new: bool = True,
+    reliable_stock: bool = True, notify_new: bool = True, update_existing: bool = True,
 ) -> None:
     initialized = state.feed_initialized(feed)
     for product in products:
@@ -446,7 +460,8 @@ def observe_products(
                 logging.info("Primed %s", product["key"])
         elif reliable_stock and previous is not None and not is_available(previous) and is_available(product):
             send_discord(config.webhook_url, "✅ Back in stock", product, 0x3BA55D)
-        state.put(product)
+        if previous is None or update_existing:
+            state.put(product)
     state.mark_feed_initialized(feed)
 
 
@@ -464,13 +479,23 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             reliable_stock=False,
         )
 
-    naver_pokemon = NaverBrandCategoryClient("pokemon")
-    try:
-        observe_products(config, state, naver_pokemon.newest(), feed="naver-pokemon-recent")
-    except (HTTPError, URLError, TimeoutError, KeyError, ValueError, RuntimeError):
-        logging.exception("Naver public feed is temporarily unavailable; retained previous state")
+    if config.check_naver_public:
+        naver_pokemon = NaverBrandCategoryClient("pokemon")
+        try:
+            observe_products(config, state, naver_pokemon.newest(), feed="naver-pokemon-recent")
+        except (HTTPError, URLError, TimeoutError, KeyError, ValueError, RuntimeError):
+            logging.exception("Naver public feed is temporarily unavailable; retained previous state")
 
     if config.naver_client_id and config.naver_client_secret:
+        pokemon_search = NaverShoppingSearchClient(
+            config.naver_client_id, config.naver_client_secret, "pokemon",
+            config.naver_pokemon_queries,
+            hosts=("brand.naver.com", "smartstore.naver.com"),
+        )
+        observe_products(
+            config, state, pokemon_search.products(), feed="naver-pokemon-search",
+            reliable_stock=False, update_existing=False,
+        )
         xoplay = NaverShoppingSearchClient(
             config.naver_client_id, config.naver_client_secret, "xoplay", config.naver_search_queries
         )
@@ -478,7 +503,7 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             config, state, xoplay.products(), feed="naver-xoplay-search", reliable_stock=False
         )
     else:
-        logging.info("Naver Search API credentials absent; skipping Xoplay discovery")
+        logging.info("Naver Search API credentials absent; skipping fast Naver discovery")
 
 
 def main() -> None:
