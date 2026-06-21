@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-21T18:26:04.688300+00:00",
+  "updatedAt": "2026-06-21T18:38:47.610015+00:00",
   "exchangeRate": {
     "base": "KRW",
     "quote": "EUR",
@@ -1653,7 +1653,6 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=115917671"
     },
     {
-      "availableOptionCount": 1,
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260507/213022.936174615/KakaoTalk_20260504_114904623_06.png",
       "isSoldOut": false,
       "key": "pokemonstore:133526941",
@@ -1661,7 +1660,6 @@
       "productNo": "133526941",
       "salePrice": 3500.0,
       "saleStatusType": "ONSALE",
-      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133526941"
@@ -1681,7 +1679,6 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133526942"
     },
     {
-      "availableOptionCount": 1,
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260507/212549.344574380/KakaoTalk_20260504_114904623_08.png",
       "isSoldOut": false,
       "key": "pokemonstore:133526940",
@@ -1689,7 +1686,6 @@
       "productNo": "133526940",
       "salePrice": 17000.0,
       "saleStatusType": "ONSALE",
-      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133526940"
@@ -2059,7 +2055,6 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131910048"
     },
     {
-      "availableOptionCount": 1,
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260507/211526.397653913/KakaoTalk_20260504_114904623_01.png",
       "isSoldOut": false,
       "key": "pokemonstore:133526939",
@@ -2067,7 +2062,6 @@
       "productNo": "133526939",
       "salePrice": 84000.0,
       "saleStatusType": "ONSALE",
-      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133526939"
@@ -7925,7 +7919,6 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=117776715"
     },
     {
-      "availableOptionCount": 1,
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260601/154933.52255300/4521329393780.jpg",
       "isSoldOut": false,
       "key": "pokemonstore:133699070",
@@ -7933,7 +7926,6 @@
       "productNo": "133699070",
       "salePrice": 7500.0,
       "saleStatusType": "ONSALE",
-      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133699070"
@@ -31837,7 +31829,6 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=116531489"
     },
     {
-      "availableOptionCount": 1,
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260601/155215.998427607/4521329382173.jpg",
       "isSoldOut": false,
       "key": "pokemonstore:133699298",
@@ -31845,7 +31836,6 @@
       "productNo": "133699298",
       "salePrice": 13000.0,
       "saleStatusType": "ONSALE",
-      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133699298"
