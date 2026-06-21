@@ -10,20 +10,20 @@ The initial run establishes a silent baseline. Later new products and genuine re
 
 ## Hosted architecture
 
-GitHub Actions checks both stores' newest backend products and selected Pokémon Store restocks every five minutes. A separate daily job refreshes the complete public Pokémon Store catalog—including sold-out products. Both update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so five minutes is the target cadence rather than a real-time guarantee.
+GitHub Actions checks Pokémon Store's backend, selected restocks, and the official Naver Search API every five minutes. A separate daily job refreshes the complete public Pokémon Store catalog—including sold-out products—and attempts Naver's authoritative newest page. Both update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so five minutes is the target cadence rather than a real-time guarantee.
 
 Discord is optional. Without it, the dashboard and Action still update. To receive Discord alerts, add a repository Actions secret named `DISCORD_WEBHOOK_URL`.
 
 ## Store support and API limitations
 
-The Pokémon Store and Pokémon Naver Brand Store expose public, read-only product state, including availability. Pokémon Store status distinguishes fully available, partially available, and fully sold-out products by inspecting their variants. The Shopby search request explicitly includes sold-out products; only products hidden or deleted by the store remain undiscoverable. Naver advertises more than 2,400 products but restricts anonymous automation to the first page of a category and rate-limits GitHub-hosted requests. The monitor therefore checks the store-wide newest 40 every five minutes and permanently accumulates everything it sees. Broader best-effort discovery becomes available after configuring the official Naver Search API credentials. Naver's Commerce API cannot access an unrelated seller's store: it requires seller authorization. Xoplay also redirects anonymous category requests to Naver login, so its integration uses the official Naver Shopping Search API as a best-effort **new-product discovery** source. Search results do not provide authoritative inventory; Xoplay restock alerts are therefore deliberately disabled.
+The Pokémon Store and Pokémon Naver Brand Store expose public, read-only product state, including availability. Pokémon Store status distinguishes fully available, partially available, and fully sold-out products by inspecting their variants. The Shopby search request explicitly includes sold-out products; only products hidden or deleted by the store remain undiscoverable. Naver advertises more than 2,400 products but restricts anonymous automation to the first page of a category and rate-limits GitHub-hosted requests. The daily job therefore attempts the store-wide newest 40 and permanently accumulates everything it sees. With official Naver Search API credentials, the five-minute job discovers matching new products for both the Pokémon Brand Store and Xoplay; it does not overwrite authoritative stock previously observed from the storefront. Naver's Commerce API cannot access an unrelated seller's store without seller authorization, and Search results do not expose authoritative inventory, so Search-based restock alerts remain disabled.
 
-To enable Xoplay discovery, create a Naver Developers application with the Search API and add these repository Actions secrets:
+To enable five-minute Pokémon Brand Store and Xoplay discovery, create a Naver Developers application with the Search API and add these repository Actions secrets:
 
 - `NAVER_CLIENT_ID`
 - `NAVER_CLIENT_SECRET`
 
-The defaults search `포켓몬카드` and `포켓몬 카드`, then retain results whose link belongs to `smartstore.naver.com/xoplay`.
+The defaults use store-specific Pokémon queries, then retain only results whose links belong to the requested Brand/Smart Store.
 
 ## GitHub configuration
 

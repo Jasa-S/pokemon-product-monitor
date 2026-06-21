@@ -26,6 +26,7 @@ jobs:
         env:
           DATABASE_PATH: state/monitor.db
           RUN_ONCE: "true"
+          CHECK_NAVER_PUBLIC: "false"
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}

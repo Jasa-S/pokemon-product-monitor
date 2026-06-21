@@ -10,6 +10,7 @@ from manage_watchlist import update_watchlist
 
 from monitor import (
     NaverBrandCategoryClient,
+    NaverShoppingSearchClient,
     PokemonStoreClient,
     State,
     is_available,
@@ -110,6 +111,20 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual([item["productNo"] for item in products], ["1"])
         self.assertIn("f6042b4f407c4803bf53b59001026901", fetch.call_args.args[0])
 
+    def test_official_naver_search_accepts_brand_store_links(self):
+        client = NaverShoppingSearchClient(
+            "id", "secret", "pokemon", ("포켓몬센터",),
+            hosts=("brand.naver.com",),
+        )
+        result = {"items": [{
+            "link": "https://brand.naver.com/pokemon/products/123",
+            "title": "<b>피카츄</b>", "lprice": "1000", "image": "https://example.com/p.png",
+        }]}
+        with patch("monitor.request_json", return_value=result):
+            products = client.products()
+        self.assertEqual(products[0]["productNo"], "123")
+        self.assertEqual(products[0]["productName"], "피카츄")
+
     def test_new_products_alert_only_after_feed_baseline(self):
         config = SimpleNamespace(keywords=(), notify_on_first_run=False, webhook_url="test")
         with tempfile.TemporaryDirectory() as directory, patch("monitor.send_discord") as send:
@@ -119,6 +134,18 @@ class MonitorTests(unittest.TestCase):
             observe_products(config, state, [sample_product(1), sample_product(2)], feed="arrivals")
             send.assert_called_once()
             self.assertEqual(send.call_args.args[1], "✨ New product")
+
+    def test_discovery_feed_does_not_overwrite_authoritative_state(self):
+        config = SimpleNamespace(keywords=(), notify_on_first_run=False, webhook_url="")
+        with tempfile.TemporaryDirectory() as directory:
+            state = State(os.path.join(directory, "state.db"))
+            authoritative = sample_product(1, available=False)
+            state.put(authoritative)
+            observe_products(
+                config, state, [sample_product(1, available=True)], feed="search",
+                reliable_stock=False, update_existing=False,
+            )
+            self.assertEqual(state.get(authoritative["key"]), authoritative)
 
     def test_urls(self):
         self.assertEqual(normalize_image("//example.com/a.png"), "https://example.com/a.png")
