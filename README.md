@@ -10,13 +10,13 @@ The initial run establishes a silent baseline. Later new products and genuine re
 
 ## Hosted architecture
 
-GitHub Actions checks new arrivals and selected restocks every ten minutes. A separate daily job refreshes the complete Pokémon Store catalog in 100-item pages. Both update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so this is a convenient monitor rather than a real-time guarantee.
+GitHub Actions checks new arrivals and selected restocks every ten minutes. A separate daily job refreshes the complete public Pokémon Store catalog and its option-level stock in 100-item batches. Both update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so this is a convenient monitor rather than a real-time guarantee.
 
 Discord is optional. Without it, the dashboard and Action still update. To receive Discord alerts, add a repository Actions secret named `DISCORD_WEBHOOK_URL`.
 
 ## Store support and API limitations
 
-The Pokémon Store and Pokémon Naver Brand Store expose public, read-only product state, including availability. The Brand Store server-renders the newest 40 items in this category; older products are outside this monitor's reliable public view. Naver's Commerce API cannot access an unrelated seller's store: it requires seller authorization. Xoplay also redirects anonymous category requests to Naver login, so its integration uses the official Naver Shopping Search API as a best-effort **new-product discovery** source. Search results do not provide authoritative inventory; Xoplay restock alerts are therefore deliberately disabled.
+The Pokémon Store and Pokémon Naver Brand Store expose public, read-only product state, including availability. Pokémon Store status distinguishes fully available, partially available, and fully sold-out products by inspecting their variants. Products hidden or deleted by a store cannot be discovered until a public feed exposes them. The Brand Store server-renders the newest 40 items in this category; older products are outside this monitor's reliable public view. Naver's Commerce API cannot access an unrelated seller's store: it requires seller authorization. Xoplay also redirects anonymous category requests to Naver login, so its integration uses the official Naver Shopping Search API as a best-effort **new-product discovery** source. Search results do not provide authoritative inventory; Xoplay restock alerts are therefore deliberately disabled.
 
 To enable Xoplay discovery, create a Naver Developers application with the Search API and add these repository Actions secrets:
 
@@ -46,7 +46,7 @@ The daily catalog refresh keeps all products visible without hammering the store
 
 Discord alerts include the original Korean title, an English title generated through GitHub Models when available, product number, price, store, image, and direct product link. Run **Actions → Test Discord notification → Run workflow** after configuring the webhook to verify delivery.
 
-The dashboard can filter by store, in-stock/unavailable status, KRW price range, and product name, and can sort by name, price, or availability. EUR prices are approximate conversions based on the latest daily ECB reference rate supplied through Frankfurter; they do not include card, bank, or merchant conversion fees.
+The dashboard can filter by store, fully available/partially available/sold-out status, KRW price range, and product name, and can sort by name, price, or availability. EUR prices are approximate conversions based on the latest daily ECB reference rate supplied through Frankfurter; they do not include card, bank, or merchant conversion fees.
 
 ## Local use
 
