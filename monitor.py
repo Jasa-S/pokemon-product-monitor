@@ -24,6 +24,8 @@ DEFAULT_SHOPBY_CLIENT_ID = "HJGfZ5jPHZk3/PEOkm+/Qw=="
 NAVER_SEARCH_API = "https://openapi.naver.com/v1/search/shop.json"
 GITHUB_MODELS_API = "https://models.github.ai/inference/chat/completions"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
+POKEMON_CARD_CATEGORY_NO = 488339
+NAVER_CARD_CATEGORY_ID = "c94139abcef14362997090c5da975e28"
 
 
 @dataclass(frozen=True)
@@ -39,7 +41,6 @@ class Config:
     naver_client_id: str
     naver_client_secret: str
     naver_search_queries: tuple[str, ...]
-    naver_pokemon_queries: tuple[str, ...]
     check_naver_public: bool
     scan_full_catalog: bool
 
@@ -52,10 +53,6 @@ class Config:
             "NAVER_XOPLAY_QUERIES",
             "XOPLAY 포켓몬,엑스오플레이 포켓몬,XOPLAY 포켓몬카드,"
             "엑스오플레이 포켓몬카드,포켓몬카드,포켓몬 카드",
-        ).split(",")
-        pokemon_queries = os.getenv(
-            "NAVER_POKEMON_QUERIES",
-            "포켓몬 스토어 온라인,포켓몬센터 공식,포켓몬센터,포켓몬 스토어,포켓몬 카드",
         ).split(",")
         return cls(
             webhook_url=os.getenv("DISCORD_WEBHOOK_URL", ""),
@@ -72,9 +69,6 @@ class Config:
             naver_client_id=os.getenv("NAVER_CLIENT_ID", ""),
             naver_client_secret=os.getenv("NAVER_CLIENT_SECRET", ""),
             naver_search_queries=tuple(query.strip() for query in queries if query.strip()),
-            naver_pokemon_queries=tuple(
-                query.strip() for query in pokemon_queries if query.strip()
-            ),
             check_naver_public=os.getenv("CHECK_NAVER_PUBLIC", "true").casefold() == "true",
             scan_full_catalog=os.getenv("SCAN_FULL_CATALOG", "false").casefold() == "true",
         )
@@ -209,10 +203,11 @@ class PokemonStoreClient:
                 })
 
     def new_arrivals(self) -> list[dict[str, Any]]:
-        data = self._get(
-            "/display/sections/ids/SCPC0001/products", {"pageNumber": 1, "pageSize": 20}
-        )
-        return [self._normalize(product) for product in data.get("products", [])]
+        data = self._get("/products/search", {
+            "pageNumber": 1, "pageSize": 20, "filter.soldout": "true",
+            "categoryNos": POKEMON_CARD_CATEGORY_NO, "order.by": "RECENT_PRODUCT",
+        })
+        return [self._normalize(product) for product in data.get("items", [])]
 
     def catalog(self) -> list[dict[str, Any]]:
         products: list[dict[str, Any]] = []
@@ -221,7 +216,10 @@ class PokemonStoreClient:
         while page <= page_count:
             data = self._get(
                 "/products/search",
-                {"pageNumber": page, "pageSize": 100, "filter.soldout": "true"},
+                {
+                    "pageNumber": page, "pageSize": 100, "filter.soldout": "true",
+                    "categoryNos": POKEMON_CARD_CATEGORY_NO,
+                },
             )
             page_count = int(data.get("pageCount") or 0)
             products.extend(self._normalize(product) for product in data.get("items", []))
@@ -243,7 +241,7 @@ class NaverBrandCategoryClient:
     """Reads the newest authoritative products from a public Naver Brand Store."""
 
     def __init__(
-        self, store: str, category_id: str = "f6042b4f407c4803bf53b59001026901",
+        self, store: str, category_id: str = NAVER_CARD_CATEGORY_ID,
     ) -> None:
         self.store = store
         self.category_id = category_id
@@ -383,6 +381,27 @@ class State:
         self.db.execute("INSERT OR IGNORE INTO initialized_feeds(feed) VALUES(?)", (feed,))
         self.db.commit()
 
+    def clear_source_once(self, source: str, scope_marker: str) -> None:
+        """Discard products from an older, broader scope once during migration."""
+        if self.feed_initialized(scope_marker):
+            return
+        keys = [
+            row[0] for row in self.db.execute("SELECT product_key, payload FROM observations")
+            if json.loads(row[1]).get("source") == source
+        ]
+        self.db.executemany("DELETE FROM observations WHERE product_key = ?", ((key,) for key in keys))
+        self.db.execute("INSERT OR IGNORE INTO initialized_feeds(feed) VALUES(?)", (scope_marker,))
+        self.db.commit()
+
+    def retain_source_products(self, source: str, product_keys: set[str]) -> None:
+        """Remove products that no longer belong to an authoritative category catalogue."""
+        keys = [
+            row[0] for row in self.db.execute("SELECT product_key, payload FROM observations")
+            if json.loads(row[1]).get("source") == source and row[0] not in product_keys
+        ]
+        self.db.executemany("DELETE FROM observations WHERE product_key = ?", ((key,) for key in keys))
+        self.db.commit()
+
 
 def normalize_image(url: str | None) -> str | None:
     if not url:
@@ -508,37 +527,35 @@ def observe_products(
 
 
 def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> None:
-    observe_products(config, state, pokemon.new_arrivals(), feed="pokemonstore-arrivals")
+    state.clear_source_once("naver-pokemon", "scope:naver-pokemon-card-category-v1")
+    observe_products(config, state, pokemon.new_arrivals(), feed="pokemonstore-card-arrivals")
     for product_no in config.product_nos:
         observe_products(
             config, state, [pokemon.product(product_no)], feed="pokemonstore-watchlist", notify_new=False
         )
 
     if config.scan_full_catalog:
-        logging.info("Refreshing full Pokémon Store catalog")
+        logging.info("Refreshing Pokémon Store card category catalog")
+        card_products = pokemon.catalog()
+        if card_products:
+            state.retain_source_products(
+                "pokemonstore", {product["key"] for product in card_products}
+            )
         observe_products(
-            config, state, pokemon.catalog(), feed="pokemonstore-catalog-all",
+            config, state, card_products, feed="pokemonstore-card-catalog",
             reliable_stock=False,
         )
 
     if config.check_naver_public:
         naver_pokemon = NaverBrandCategoryClient("pokemon")
         try:
-            observe_products(config, state, naver_pokemon.newest(), feed="naver-pokemon-recent")
+            observe_products(
+                config, state, naver_pokemon.newest(), feed="naver-pokemon-card-category"
+            )
         except (HTTPError, URLError, TimeoutError, KeyError, ValueError, RuntimeError):
             logging.exception("Naver public feed is temporarily unavailable; retained previous state")
 
     if config.naver_client_id and config.naver_client_secret:
-        pokemon_search = NaverShoppingSearchClient(
-            config.naver_client_id, config.naver_client_secret, "pokemon",
-            config.naver_pokemon_queries,
-            hosts=("brand.naver.com", "smartstore.naver.com"),
-            mall_names=("포켓몬 스토어 온라인", "포켓몬스토어온라인"),
-        )
-        observe_products(
-            config, state, pokemon_search.products(), feed="naver-pokemon-search-v2",
-            reliable_stock=False, update_existing=False,
-        )
         xoplay = NaverShoppingSearchClient(
             config.naver_client_id, config.naver_client_secret, "xoplay", config.naver_search_queries,
             mall_names=("XOPLAY", "엑스오플레이"),
