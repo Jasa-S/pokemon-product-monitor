@@ -68,14 +68,32 @@ class Config:
 
 def request_json(url: str, headers: dict[str, str], timeout: int = 25) -> dict[str, Any]:
     request = Request(url, headers={"User-Agent": USER_AGENT, **headers})
-    with urlopen(request, timeout=timeout) as response:
-        return json.load(response)
+    for attempt in range(4):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return json.load(response)
+        except HTTPError as error:
+            if error.code not in {429, 500, 502, 503, 504} or attempt == 3:
+                raise
+            delay = 5 * (2 ** attempt)
+            logging.warning("HTTP %s from %s; retrying in %ss", error.code, url, delay)
+            time.sleep(delay)
+    raise RuntimeError("request retry loop ended unexpectedly")
 
 
 def request_text(url: str, timeout: int = 25) -> str:
     request = Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Language": "ko-KR,ko;q=0.9"})
-    with urlopen(request, timeout=timeout) as response:
-        return response.read().decode("utf-8", errors="replace")
+    for attempt in range(4):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return response.read().decode("utf-8", errors="replace")
+        except HTTPError as error:
+            if error.code != 429 or attempt == 3:
+                raise
+            delay = 5 * (2 ** attempt)
+            logging.warning("Naver rate limited the public feed; retrying in %ss", delay)
+            time.sleep(delay)
+    raise RuntimeError("text request retry loop ended unexpectedly")
 
 
 def load_watchlist(path: str) -> set[int]:
@@ -208,9 +226,11 @@ class PokemonStoreClient:
 
 
 class NaverBrandCategoryClient:
-    """Reads the product state Naver embeds in its public brand-store category pages."""
+    """Reads the newest authoritative products from a public Naver Brand Store."""
 
-    def __init__(self, store: str, category_id: str) -> None:
+    def __init__(
+        self, store: str, category_id: str = "f6042b4f407c4803bf53b59001026901",
+    ) -> None:
         self.store = store
         self.category_id = category_id
 
@@ -222,16 +242,14 @@ class NaverBrandCategoryClient:
         javascript_object = re.sub(r"\bundefined\b", "null", match.group(1).strip())
         return json.loads(javascript_object)
 
-    def products(self) -> list[dict[str, Any]]:
-        # Naver server-renders only the first category page. RECENT makes that page
-        # useful for discovery while retaining authoritative stock for its 40 items.
+    def newest(self) -> list[dict[str, Any]]:
+        """Fetch the newest 40 products for frequent discovery and stock checks."""
         url = (
             f"https://brand.naver.com/{self.store}/category/{self.category_id}"
             "?st=RECENT&dt=IMAGE&page=1&size=40"
         )
         category = self._preloaded_state(request_text(url))["categoryProducts"]
-        products = category.get("simpleProducts") or []
-        return [self._normalize(product) for product in products]
+        return [self._normalize(product) for product in category.get("simpleProducts") or []]
 
     def _normalize(self, product: dict[str, Any]) -> dict[str, Any]:
         public_id = int(product["id"])
@@ -446,8 +464,11 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             reliable_stock=False,
         )
 
-    naver_pokemon = NaverBrandCategoryClient("pokemon", "c94139abcef14362997090c5da975e28")
-    observe_products(config, state, naver_pokemon.products(), feed="naver-pokemon-recent")
+    naver_pokemon = NaverBrandCategoryClient("pokemon")
+    try:
+        observe_products(config, state, naver_pokemon.newest(), feed="naver-pokemon-recent")
+    except (HTTPError, URLError, TimeoutError, KeyError, ValueError, RuntimeError):
+        logging.exception("Naver public feed is temporarily unavailable; retained previous state")
 
     if config.naver_client_id and config.naver_client_secret:
         xoplay = NaverShoppingSearchClient(
@@ -478,6 +499,8 @@ def main() -> None:
             check_once(config, pokemon, state)
         except (HTTPError, URLError, TimeoutError, KeyError, ValueError, RuntimeError) as error:
             logging.exception("Monitor check failed: %s", error)
+            if config.run_once:
+                raise
         if config.run_once:
             break
         for _ in range(config.poll_seconds):

@@ -33,6 +33,7 @@
     .prices { display:flex; flex-direction:column }
     .eur { color:#9ca3af; font-size:.8rem }
     #stats { margin:0 0 24px; color:#d1d5db }
+    #more { display:block; margin:24px auto 0 }
     @media (max-width:850px) { .controls { grid-template-columns:1fr 1fr } #search { grid-column:1/-1 } }
     @media (max-width:520px) { .controls { grid-template-columns:1fr } #search { grid-column:auto } }
   </style>
@@ -40,7 +41,7 @@
 <body>
   <header><h1>Pokémon<br>Product Monitor</h1><div id="meta">Loading…</div></header>
   <div class="controls">
-    <input id="search" type="search" placeholder="Search products…">
+    <input id="search" type="search" placeholder="Search name or product number…">
     <select id="source"><option value="">All stores</option></select>
     <select id="availability"><option value="">Any stock status</option><option value="available">Fully in stock</option><option value="partial">Some variants unavailable</option><option value="unavailable">Sold out</option></select>
     <select id="sort"><option value="name">Name A–Z</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="stock">In stock first</option></select>
@@ -53,10 +54,12 @@
     <p>Click <strong>Watch restock</strong> on a Pokémon Store product. GitHub opens a prefilled request; submit it once and the secure automation updates the real watchlist. No token is exposed in this page.</p>
   </section>
   <main id="grid"></main>
+  <button id="more" type="button" hidden>Show more products</button>
   <script>
     let products=[];
     let eurRate=null;
     let watched=new Set();
+    let displayLimit=120;
     const money=new Intl.NumberFormat('ko-KR',{style:'currency',currency:'KRW',maximumFractionDigits:0});
     const euros=new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR'});
     const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -79,13 +82,17 @@
       const stockState=p=>p.stockStatus||(p.isSoldOut?'SOLD_OUT':'AVAILABLE');
       const matchesStock=p=>!availability||(availability==='available'&&stockState(p)==='AVAILABLE')||(availability==='partial'&&stockState(p)==='PARTIAL')||(availability==='unavailable'&&stockState(p)==='SOLD_OUT');
       const stockOrder={AVAILABLE:0,PARTIAL:1,SOLD_OUT:2};
-      const visible=products.filter(p=>(!source||p.source===source)&&p.productName.toLocaleLowerCase().includes(q)&&matchesStock(p)&&((minValue===''&&maxValue==='')||(p.salePrice!=null&&p.salePrice>=min&&p.salePrice<=max)));
+      const visible=products.filter(p=>(!source||p.source===source)&&(p.productName.toLocaleLowerCase().includes(q)||p.productNo.includes(q))&&matchesStock(p)&&((minValue===''&&maxValue==='')||(p.salePrice!=null&&p.salePrice>=min&&p.salePrice<=max)));
       visible.sort((a,b)=>order==='price-asc'?(a.salePrice??Infinity)-(b.salePrice??Infinity):order==='price-desc'?(b.salePrice??-1)-(a.salePrice??-1):order==='stock'?(stockOrder[stockState(a)]??9)-(stockOrder[stockState(b)]??9):a.productName.localeCompare(b.productName));
       const available=visible.filter(p=>stockState(p)==='AVAILABLE').length;
       const partial=visible.filter(p=>stockState(p)==='PARTIAL').length;
       const unavailable=visible.filter(p=>stockState(p)==='SOLD_OUT').length;
-      document.querySelector('#stats').textContent=`Showing ${visible.length.toLocaleString()} · ${available.toLocaleString()} fully in stock · ${partial.toLocaleString()} partial · ${unavailable.toLocaleString()} sold out`;
-      document.querySelector('#grid').innerHTML=visible.map(p=>{const request=watchRequest(p);const state=stockState(p);const label=state==='PARTIAL'?`Partial (${p.availableOptionCount??'?'} available / ${p.soldOutOptionCount??'?'} sold out)`:state==='SOLD_OUT'?'Sold out':'Available';const badge=state==='AVAILABLE'?'available':state==='PARTIAL'?'partial':'';return `<article><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer"><img loading="lazy" src="${p.image?.startsWith('https://')?esc(p.image):''}" alt=""></a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><span class="prices"><strong>${p.salePrice==null?'—':money.format(p.salePrice)}</strong><span class="eur">${p.salePrice!=null&&eurRate?`≈ ${euros.format(p.salePrice*eurRate)}`:'EUR unavailable'}</span></span><span class="badge ${badge}">${esc(label)}</span></div>${p.source==='pokemonstore'?`<a class="watch ${request.active?'selected':''}" href="${request.url}" target="_blank" rel="noreferrer">${request.active?'✓ Watching — remove':'Watch restock'}</a>`:''}</div></article>`}).join('');
+      const shown=visible.slice(0,displayLimit);
+      document.querySelector('#stats').textContent=`Showing ${shown.length.toLocaleString()} of ${visible.length.toLocaleString()} matches · ${available.toLocaleString()} fully in stock · ${partial.toLocaleString()} partial · ${unavailable.toLocaleString()} sold out`;
+      document.querySelector('#grid').innerHTML=shown.map(p=>{const request=watchRequest(p);const state=stockState(p);const label=state==='PARTIAL'?`Partial (${p.availableOptionCount??'?'} available / ${p.soldOutOptionCount??'?'} sold out)`:state==='SOLD_OUT'?'Sold out':'Available';const badge=state==='AVAILABLE'?'available':state==='PARTIAL'?'partial':'';return `<article><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer"><img loading="lazy" src="${p.image?.startsWith('https://')?esc(p.image):''}" alt=""></a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><span class="prices"><strong>${p.salePrice==null?'—':money.format(p.salePrice)}</strong><span class="eur">${p.salePrice!=null&&eurRate?`≈ ${euros.format(p.salePrice*eurRate)}`:'EUR unavailable'}</span></span><span class="badge ${badge}">${esc(label)}</span></div>${p.source==='pokemonstore'?`<a class="watch ${request.active?'selected':''}" href="${request.url}" target="_blank" rel="noreferrer">${request.active?'✓ Watching — remove':'Watch restock'}</a>`:''}</div></article>`}).join('');
+      const more=document.querySelector('#more');
+      more.hidden=shown.length===visible.length;
+      more.textContent=`Show ${Math.min(120,visible.length-shown.length).toLocaleString()} more products`;
     }
     fetch('status.json').then(r=>r.json()).then(data=>{
       products=data.products;
@@ -96,10 +103,11 @@
       [...new Set(products.map(p=>p.source))].sort().forEach(s=>document.querySelector('#source').insertAdjacentHTML('beforeend',`<option>${esc(s)}</option>`));
       render();
     });
-    ['search','source','availability','sort','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).addEventListener(id==='search'||id.includes('price')?'input':'change',render));
+    ['search','source','availability','sort','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).addEventListener(id==='search'||id.includes('price')?'input':'change',()=>{displayLimit=120;render()}));
+    document.querySelector('#more').addEventListener('click',()=>{displayLimit+=120;render()});
     document.querySelector('#clear').addEventListener('click',()=>{
       ['search','source','availability','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).value='');
-      document.querySelector('#sort').value='name'; render();
+      document.querySelector('#sort').value='name'; displayLimit=120; render();
     });
   </script>
 </body>

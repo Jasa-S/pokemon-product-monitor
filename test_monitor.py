@@ -5,7 +5,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from export_dashboard import previous_rate
+from export_dashboard import dashboard_updated_at, previous_rate
 from manage_watchlist import update_watchlist
 
 from monitor import (
@@ -94,6 +94,22 @@ class MonitorTests(unittest.TestCase):
         parsed = NaverBrandCategoryClient._preloaded_state(html)
         self.assertEqual(parsed, state)
 
+    def test_naver_newest_uses_whole_store_category(self):
+        client = NaverBrandCategoryClient("pokemon")
+        product = {
+            "id": 1, "name": "Pikachu", "dispSalePrice": 1000,
+            "representativeImageUrl": "https://example.com/p.png",
+            "productStatusType": "SALE", "channelProductDisplayStatusType": "ON",
+            "displayable": True, "stockQuantity": 1,
+        }
+        html = '<script>window.__PRELOADED_STATE__=' + json.dumps({
+            "categoryProducts": {"simpleProducts": [product]}
+        }) + '</script>'
+        with patch("monitor.request_text", return_value=html) as fetch:
+            products = client.newest()
+        self.assertEqual([item["productNo"] for item in products], ["1"])
+        self.assertIn("f6042b4f407c4803bf53b59001026901", fetch.call_args.args[0])
+
     def test_new_products_alert_only_after_feed_baseline(self):
         config = SimpleNamespace(keywords=(), notify_on_first_run=False, webhook_url="test")
         with tempfile.TemporaryDirectory() as directory, patch("monitor.send_discord") as send:
@@ -114,6 +130,14 @@ class MonitorTests(unittest.TestCase):
             with open(path, "w", encoding="utf-8") as output:
                 json.dump({"exchangeRate": {"rate": 0.00057}}, output)
             self.assertEqual(previous_rate(path), {"rate": 0.00057})
+
+    def test_dashboard_timestamp_stays_stable_without_changes(self):
+        content = {"products": [], "watchProductNos": [], "exchangeRate": None}
+        previous = {"updatedAt": "old", **content}
+        self.assertEqual(dashboard_updated_at(previous, content, "new"), "old")
+        self.assertEqual(
+            dashboard_updated_at(previous, {**content, "products": [{}]}, "new"), "new"
+        )
 
     def test_watchlist_update(self):
         with tempfile.TemporaryDirectory() as directory:
