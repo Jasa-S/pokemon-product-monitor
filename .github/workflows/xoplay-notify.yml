@@ -1,0 +1,37 @@
+name: Send Xoplay notification
+
+on:
+  workflow_dispatch:
+    inputs:
+      event:
+        description: Notification type
+        required: true
+        type: choice
+        options:
+          - new
+          - restock
+      product_json:
+        description: Normalized product payload
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  models: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Send translated Discord alert
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          XOPLAY_EVENT: ${{ inputs.event }}
+          XOPLAY_PRODUCT_JSON: ${{ inputs.product_json }}
+        run: python send_xoplay_notification.py
