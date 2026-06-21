@@ -23,7 +23,7 @@ To enable five-minute Pokémon Brand Store and Xoplay discovery, create a Naver 
 - `NAVER_CLIENT_ID`
 - `NAVER_CLIENT_SECRET`
 
-The defaults use store-specific Pokémon queries, then retain only results whose links belong to the requested Brand/Smart Store.
+The defaults use eleven store-specific Pokémon queries, then retain only results whose links or normalized mall names belong to the requested Brand/Smart Store. At the five-minute schedule this uses at most about 3,179 of the 25,000 daily Search API requests.
 
 ## GitHub configuration
 
