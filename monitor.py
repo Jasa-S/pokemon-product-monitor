@@ -48,9 +48,14 @@ class Config:
         products = os.getenv("WATCH_PRODUCT_NOS", "")
         watchlist_products = load_watchlist(os.getenv("WATCHLIST_PATH", "watchlist.json"))
         keywords = os.getenv("WATCH_KEYWORDS", "")
-        queries = os.getenv("NAVER_XOPLAY_QUERIES", "포켓몬카드,포켓몬 카드").split(",")
+        queries = os.getenv(
+            "NAVER_XOPLAY_QUERIES",
+            "XOPLAY 포켓몬,엑스오플레이 포켓몬,XOPLAY 포켓몬카드,"
+            "엑스오플레이 포켓몬카드,포켓몬카드,포켓몬 카드",
+        ).split(",")
         pokemon_queries = os.getenv(
-            "NAVER_POKEMON_QUERIES", "포켓몬센터,포켓몬 스토어,포켓몬 카드"
+            "NAVER_POKEMON_QUERIES",
+            "포켓몬 스토어 온라인,포켓몬센터 공식,포켓몬센터,포켓몬 스토어,포켓몬 카드",
         ).split(",")
         return cls(
             webhook_url=os.getenv("DISCORD_WEBHOOK_URL", ""),
