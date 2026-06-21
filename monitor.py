@@ -187,7 +187,10 @@ class PokemonStoreClient:
         page = 1
         page_count = 1
         while page <= page_count:
-            data = self._get("/products/search", {"pageNumber": page, "pageSize": 100})
+            data = self._get(
+                "/products/search",
+                {"pageNumber": page, "pageSize": 100, "filter.soldout": "true"},
+            )
             page_count = int(data.get("pageCount") or 0)
             products.extend(self._normalize(product) for product in data.get("items", []))
             page += 1
@@ -439,7 +442,7 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
     if config.scan_full_catalog:
         logging.info("Refreshing full Pokémon Store catalog")
         observe_products(
-            config, state, pokemon.catalog(), feed="pokemonstore-catalog",
+            config, state, pokemon.catalog(), feed="pokemonstore-catalog-all",
             reliable_stock=False,
         )
 

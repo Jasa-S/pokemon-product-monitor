@@ -58,6 +58,17 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(products[1]["stockStatus"], "SOLD_OUT")
         self.assertTrue(products[1]["isSoldOut"])
 
+    def test_catalog_explicitly_includes_sold_out_products(self):
+        client = PokemonStoreClient("test")
+        with patch.object(
+            client, "_get", return_value={"pageCount": 1, "items": []}
+        ) as get:
+            self.assertEqual(client.catalog(), [])
+        get.assert_called_once_with(
+            "/products/search",
+            {"pageNumber": 1, "pageSize": 100, "filter.soldout": "true"},
+        )
+
     def test_keyword_filter_is_case_insensitive(self):
         product = sample_product()
         self.assertTrue(keyword_match(product, ("pikachu",)))
