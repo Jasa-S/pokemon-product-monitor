@@ -5,6 +5,8 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from export_dashboard import previous_rate
+
 from monitor import (
     NaverBrandCategoryClient,
     State,
@@ -68,6 +70,13 @@ class MonitorTests(unittest.TestCase):
     def test_urls(self):
         self.assertEqual(normalize_image("//example.com/a.png"), "https://example.com/a.png")
         self.assertIn("productNo=42", product_url(42))
+
+    def test_previous_exchange_rate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "status.json")
+            with open(path, "w", encoding="utf-8") as output:
+                json.dump({"exchangeRate": {"rate": 0.00057}}, output)
+            self.assertEqual(previous_rate(path), {"rate": 0.00057})
 
 
 if __name__ == "__main__":

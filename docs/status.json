@@ -1,5 +1,12 @@
 {
-  "updatedAt": "2026-06-21T12:13:07.183690+00:00",
+  "updatedAt": "2026-06-21T12:23:20.710123+00:00",
+  "exchangeRate": {
+    "base": "KRW",
+    "quote": "EUR",
+    "rate": 0.00057,
+    "date": "2026-06-19",
+    "source": "Frankfurter (ECB reference rate)"
+  },
   "products": [
     {
       "image": "https://shop-phinf.pstatic.net/20260212_70/1770888828289fY3nX_PNG/105021679414200679_398254219.png",

@@ -45,6 +45,8 @@ Run **Actions → Monitor stores → Run workflow** once after adding secrets or
 
 The daily catalog refresh keeps all products visible without hammering the store. Only selected product numbers get frequent, authoritative restock alerts.
 
+The dashboard can filter by store, in-stock/unavailable status, KRW price range, and product name, and can sort by name, price, or availability. EUR prices are approximate conversions based on the latest daily ECB reference rate supplied through Frankfurter; they do not include card, bank, or merchant conversion fees.
+
 ## Local use
 
 ```sh
