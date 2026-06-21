@@ -94,8 +94,15 @@ class MonitorTests(unittest.TestCase):
         parsed = NaverBrandCategoryClient._preloaded_state(html)
         self.assertEqual(parsed, state)
 
-    def test_naver_full_catalog_paginates_until_total(self):
+    def test_naver_catalog_combines_leaf_categories(self):
         client = NaverBrandCategoryClient("pokemon")
+        client.session_ready = True
+        client.preloaded_state = {"categoryMenu": {"storeCategoryTree": {
+            "id": "0", "subCategories": [
+                {"id": "leaf-a", "exposure": True},
+                {"id": "group", "subCategories": [{"id": "leaf-b", "exposure": True}]},
+            ]
+        }}}
         product = {
             "id": 1, "name": "Pikachu", "dispSalePrice": 1000,
             "representativeImageUrl": "https://example.com/p.png",
@@ -103,12 +110,16 @@ class MonitorTests(unittest.TestCase):
             "displayable": True, "stockQuantity": 1,
         }
         with patch.object(client, "_page", side_effect=[
-            {"totalCount": 2, "simpleProducts": [product]},
-            {"totalCount": 2, "simpleProducts": [{**product, "id": 2}]},
+            {"simpleProducts": [product]},
+            {"simpleProducts": [product]},
+            {"simpleProducts": [{**product, "id": 2}]},
         ]) as fetch:
             products = client.products()
         self.assertEqual([item["productNo"] for item in products], ["1", "2"])
-        self.assertEqual([call.args[0] for call in fetch.call_args_list], [1, 2])
+        self.assertEqual(
+            [call.kwargs.get("category_id") for call in fetch.call_args_list],
+            [None, "leaf-a", "leaf-b"],
+        )
 
     def test_new_products_alert_only_after_feed_baseline(self):
         config = SimpleNamespace(keywords=(), notify_on_first_run=False, webhook_url="test")

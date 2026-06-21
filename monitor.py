@@ -222,6 +222,7 @@ class NaverBrandCategoryClient:
         self.channel_uid = channel_uid
         self.opener = build_opener(HTTPCookieProcessor(CookieJar()))
         self.session_ready = False
+        self.preloaded_state: dict[str, Any] = {}
 
     def _ensure_session(self) -> None:
         if self.session_ready:
@@ -232,7 +233,8 @@ class NaverBrandCategoryClient:
             headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/137 Safari/537.36"},
         )
         with self.opener.open(request, timeout=25) as response:
-            response.read()
+            html = response.read().decode("utf-8", errors="replace")
+        self.preloaded_state = self._preloaded_state(html)
         self.session_ready = True
 
     @staticmethod
@@ -243,7 +245,9 @@ class NaverBrandCategoryClient:
         javascript_object = re.sub(r"\bundefined\b", "null", match.group(1).strip())
         return json.loads(javascript_object)
 
-    def _page(self, page: int, sort: str = "RECENT") -> dict[str, Any]:
+    def _page(
+        self, page: int, sort: str = "RECENT", category_id: str | None = None,
+    ) -> dict[str, Any]:
         self._ensure_session()
         params = urlencode({
             "categorySearchType": "DISPCATG",
@@ -254,7 +258,7 @@ class NaverBrandCategoryClient:
         })
         url = (
             f"{NAVER_BRAND_API}/channels/{self.channel_uid}/categories/"
-            f"{self.category_id}/products?{params}"
+            f"{category_id or self.category_id}/products?{params}"
         )
         request = Request(
             url,
@@ -273,23 +277,36 @@ class NaverBrandCategoryClient:
         return [self._normalize(product) for product in self._page(1).get("simpleProducts", [])]
 
     def products(self) -> list[dict[str, Any]]:
-        """Fetch every product exposed through the store's all-products category."""
-        products: list[dict[str, Any]] = []
-        page = 1
-        total_count = 1
-        while len(products) < total_count:
-            data = self._page(page)
-            total_count = int(data.get("totalCount") or 0)
-            current = data.get("simpleProducts") or []
-            if not current:
-                break
-            products.extend(self._normalize(product) for product in current)
-            page += 1
-        if len(products) < total_count:
-            raise RuntimeError(
-                f"Naver returned only {len(products)} of {total_count} catalog products"
-            )
-        return products
+        """Build a broad catalog from every public leaf-category backend feed."""
+        self._ensure_session()
+        root = self.preloaded_state["categoryMenu"]["storeCategoryTree"]
+        category_ids: list[str] = []
+
+        def visit(category: dict[str, Any]) -> None:
+            children = category.get("subCategories") or []
+            if category.get("id") != "0" and not children and category.get("exposure", True):
+                category_ids.append(str(category["id"]))
+            for child in children:
+                visit(child)
+
+        visit(root)
+        found = {product["key"]: product for product in self.newest()}
+        failures = 0
+        for category_id in category_ids:
+            try:
+                data = self._page(1, category_id=category_id)
+                for raw in data.get("simpleProducts") or []:
+                    product = self._normalize(raw)
+                    found[product["key"]] = product
+            except (HTTPError, URLError, TimeoutError, ValueError, json.JSONDecodeError):
+                failures += 1
+                logging.warning("Naver category %s could not be read", category_id)
+            time.sleep(0.2)
+        logging.info(
+            "Read %s unique Naver products from %s leaf categories (%s failures)",
+            len(found), len(category_ids), failures,
+        )
+        return list(found.values())
 
     def _normalize(self, product: dict[str, Any]) -> dict[str, Any]:
         public_id = int(product["id"])
