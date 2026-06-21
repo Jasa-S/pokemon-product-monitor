@@ -2,7 +2,7 @@
 
 A dependency-free Python monitor and GitHub Pages dashboard for:
 
-- Pokémon Store Korea **NEW ARRIVAL** products and explicit product restocks;
+- the complete Pokémon Store Korea catalog, **NEW ARRIVAL** products, and explicit product restocks;
 - the 40 newest products and their stock changes in the requested Pokémon Naver Brand Store card category; and
 - Xoplay discoveries through Naver's official Shopping Search API when credentials are configured.
 
@@ -10,7 +10,7 @@ The initial run establishes a silent baseline. Later new products and genuine re
 
 ## Hosted architecture
 
-GitHub Actions runs every ten minutes, commits its small SQLite state file, and refreshes `docs/status.json`. GitHub Pages serves the read-only dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so this is a convenient monitor rather than a real-time guarantee.
+GitHub Actions checks new arrivals and selected restocks every ten minutes. A separate daily job refreshes the complete Pokémon Store catalog in 100-item pages. Both update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so this is a convenient monitor rather than a real-time guarantee.
 
 Discord is optional. Without it, the dashboard and Action still update. To receive Discord alerts, add a repository Actions secret named `DISCORD_WEBHOOK_URL`.
 
@@ -33,6 +33,17 @@ Optional repository variables:
 - `WATCH_KEYWORDS`: comma-separated keywords that restrict new-product alerts.
 
 Run **Actions → Monitor stores → Run workflow** once after adding secrets or variables.
+
+### Selecting restock products
+
+1. Open the GitHub Pages dashboard.
+2. Filter to `pokemonstore` and search for a product.
+3. Click **Watch restock** on each desired product.
+4. Click **Copy numbers**.
+5. Open the dashboard's **Open GitHub variables** link, create or edit `WATCH_PRODUCT_NOS`, and paste the comma-separated value.
+6. Run the **Monitor stores** workflow once. Afterwards, it checks those product detail endpoints every ten minutes.
+
+The daily catalog refresh keeps all products visible without hammering the store. Only selected product numbers get frequent, authoritative restock alerts.
 
 ## Local use
 

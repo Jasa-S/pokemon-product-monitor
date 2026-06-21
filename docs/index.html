@@ -11,8 +11,15 @@
     h1 { margin:0; font-size:clamp(2rem,6vw,4.5rem); line-height:.95; color:#ffcb05 }
     #meta { color:#9ca3af }
     .controls { display:flex; gap:12px; margin:32px 0; flex-wrap:wrap }
-    input, select { padding:12px 14px; border-radius:10px; border:1px solid #374151; background:#1f2937; color:white; font:inherit }
+    input, select, button { padding:12px 14px; border-radius:10px; border:1px solid #374151; background:#1f2937; color:white; font:inherit }
     input { flex:1; min-width:220px }
+    button { cursor:pointer }
+    button.selected { background:#ffcb05; color:#111827; font-weight:700 }
+    #watchbox { padding:16px; border:1px solid #4b5563; border-radius:14px; background:#172033; margin:0 0 28px }
+    #watchbox p { margin:0 0 10px; color:#d1d5db }
+    #watchvalue { width:min(100%,680px); box-sizing:border-box; min-width:0 }
+    .watch-actions { display:flex; gap:8px; flex-wrap:wrap }
+    .watch-actions a { padding:12px 14px; border-radius:10px; background:#2563eb }
     #grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px }
     article { border:1px solid #374151; background:#1f2937; border-radius:16px; overflow:hidden }
     article img { width:100%; aspect-ratio:1; object-fit:cover; background:white }
@@ -31,25 +38,47 @@
     <input id="search" type="search" placeholder="Search products…">
     <select id="source"><option value="">All stores</option></select>
   </div>
+  <section id="watchbox">
+    <p>Select Pokémon Store products below, copy the resulting numbers, then save them as the repository variable <strong>WATCH_PRODUCT_NOS</strong>. Selected products receive frequent restock checks.</p>
+    <div class="watch-actions">
+      <input id="watchvalue" readonly placeholder="No Pokémon Store products selected">
+      <button id="copywatch" type="button">Copy numbers</button>
+      <a href="https://github.com/Jasa-S/pokemon-product-monitor/settings/variables/actions" target="_blank" rel="noreferrer">Open GitHub variables</a>
+    </div>
+  </section>
   <main id="grid"></main>
   <script>
     let products=[];
+    const selected=new Set(JSON.parse(localStorage.getItem('watchProducts')||'[]'));
     const money=new Intl.NumberFormat('ko-KR',{style:'currency',currency:'KRW',maximumFractionDigits:0});
     const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     function render(){
       const q=document.querySelector('#search').value.toLocaleLowerCase();
       const source=document.querySelector('#source').value;
       const visible=products.filter(p=>(!source||p.source===source)&&p.productName.toLocaleLowerCase().includes(q));
-      document.querySelector('#grid').innerHTML=visible.map(p=>`<article><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer"><img loading="lazy" src="${p.image?.startsWith('https://')?esc(p.image):''}" alt=""><div class="body"><div class="source">${esc(p.source)}</div><h2>${esc(p.productName)}</h2><div class="row"><strong>${p.salePrice==null?'—':money.format(p.salePrice)}</strong><span class="badge ${p.isSoldOut?'':'available'}">${p.isSoldOut?'Unavailable':'Available'}</span></div></div></a></article>`).join('');
+      document.querySelector('#grid').innerHTML=visible.map(p=>`<article><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer"><img loading="lazy" src="${p.image?.startsWith('https://')?esc(p.image):''}" alt=""></a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><strong>${p.salePrice==null?'—':money.format(p.salePrice)}</strong><span class="badge ${p.isSoldOut?'':'available'}">${p.isSoldOut?'Unavailable':'Available'}</span></div>${p.source==='pokemonstore'?`<button type="button" class="watch ${selected.has(p.productNo)?'selected':''}" data-product="${esc(p.productNo)}">${selected.has(p.productNo)?'✓ Watching':'Watch restock'}</button>`:''}</div></article>`).join('');
+      document.querySelectorAll('.watch').forEach(button=>button.addEventListener('click',()=>{
+        const id=button.dataset.product;
+        selected.has(id)?selected.delete(id):selected.add(id);
+        localStorage.setItem('watchProducts',JSON.stringify([...selected]));
+        updateWatchlist(); render();
+      }));
     }
+    function updateWatchlist(){ document.querySelector('#watchvalue').value=[...selected].join(','); }
     fetch('status.json').then(r=>r.json()).then(data=>{
       products=data.products;
       document.querySelector('#meta').textContent=`${products.length} tracked · updated ${new Date(data.updatedAt).toLocaleString()}`;
       [...new Set(products.map(p=>p.source))].sort().forEach(s=>document.querySelector('#source').insertAdjacentHTML('beforeend',`<option>${esc(s)}</option>`));
       render();
+      updateWatchlist();
     });
     document.querySelector('#search').addEventListener('input',render);
     document.querySelector('#source').addEventListener('change',render);
+    document.querySelector('#copywatch').addEventListener('click',async()=>{
+      await navigator.clipboard.writeText(document.querySelector('#watchvalue').value);
+      document.querySelector('#copywatch').textContent='Copied';
+      setTimeout(()=>document.querySelector('#copywatch').textContent='Copy numbers',1200);
+    });
   </script>
 </body>
 </html>
