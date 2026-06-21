@@ -284,19 +284,32 @@ class NaverShoppingSearchClient:
     def __init__(
         self, client_id: str, client_secret: str, store_slug: str,
         queries: tuple[str, ...], hosts: tuple[str, ...] = ("smartstore.naver.com",),
+        mall_names: tuple[str, ...] = (),
     ) -> None:
         self.headers = {"X-Naver-Client-Id": client_id, "X-Naver-Client-Secret": client_secret}
         self.store_slug = store_slug
         self.queries = queries
         self.hosts = hosts
+        self.mall_names = {self._normalize_mall_name(name) for name in mall_names}
+
+    @staticmethod
+    def _normalize_mall_name(name: str) -> str:
+        return re.sub(r"[^0-9a-z가-힣]", "", name.casefold())
 
     def products(self) -> list[dict[str, Any]]:
         found: dict[str, dict[str, Any]] = {}
+        examined = 0
+        seen_malls: set[str] = set()
         for query in self.queries:
             params = urlencode({"query": query, "display": 100, "start": 1, "sort": "date"})
             for item in request_json(f"{NAVER_SEARCH_API}?{params}", self.headers).get("items", []):
+                examined += 1
                 link = item.get("link", "")
-                if not any(f"{host}/{self.store_slug}" in link for host in self.hosts):
+                mall_name = self._normalize_mall_name(item.get("mallName", ""))
+                if mall_name:
+                    seen_malls.add(mall_name)
+                link_matches = any(f"{host}/{self.store_slug}" in link for host in self.hosts)
+                if not link_matches and mall_name not in self.mall_names:
                     continue
                 link_id = link.rstrip("/").rsplit("/", 1)[-1]
                 product_id = link_id if link_id.isdigit() else item.get("productId")
@@ -306,6 +319,10 @@ class NaverShoppingSearchClient:
                     price=int(item["lprice"]) if item.get("lprice") else None,
                     image=item.get("image"), available=True, status="SEARCH_RESULT", url=link,
                 )
+        logging.info(
+            "Naver Search %s examined %s results and accepted %s; malls=%s",
+            self.store_slug, examined, len(found), ",".join(sorted(seen_malls)[:12]),
+        )
         return list(found.values())
 
 
@@ -491,13 +508,15 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             config.naver_client_id, config.naver_client_secret, "pokemon",
             config.naver_pokemon_queries,
             hosts=("brand.naver.com", "smartstore.naver.com"),
+            mall_names=("포켓몬 스토어 온라인", "포켓몬스토어온라인"),
         )
         observe_products(
             config, state, pokemon_search.products(), feed="naver-pokemon-search",
             reliable_stock=False, update_existing=False,
         )
         xoplay = NaverShoppingSearchClient(
-            config.naver_client_id, config.naver_client_secret, "xoplay", config.naver_search_queries
+            config.naver_client_id, config.naver_client_secret, "xoplay", config.naver_search_queries,
+            mall_names=("XOPLAY", "엑스오플레이"),
         )
         observe_products(
             config, state, xoplay.products(), feed="naver-xoplay-search", reliable_stock=False
