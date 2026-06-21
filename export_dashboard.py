@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from monitor import State, USER_AGENT
+from monitor import State, USER_AGENT, load_watchlist
 
 
 RATE_URL = "https://api.frankfurter.dev/v2/rate/KRW/EUR?providers=ECB"
@@ -44,6 +44,7 @@ def main() -> None:
     payload = {
         "updatedAt": datetime.now(timezone.utc).isoformat(),
         "exchangeRate": fetch_exchange_rate(status_path),
+        "watchProductNos": sorted(str(value) for value in load_watchlist("watchlist.json")),
         "products": products,
     }
     os.makedirs("docs", exist_ok=True)

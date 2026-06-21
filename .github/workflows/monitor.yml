@@ -11,6 +11,7 @@ concurrency:
 
 permissions:
   contents: write
+  models: read
 
 jobs:
   monitor:
@@ -26,10 +27,12 @@ jobs:
           DATABASE_PATH: state/monitor.db
           RUN_ONCE: "true"
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           WATCH_PRODUCT_NOS: ${{ vars.WATCH_PRODUCT_NOS }}
           WATCH_KEYWORDS: ${{ vars.WATCH_KEYWORDS }}
+          WATCHLIST_PATH: watchlist.json
         run: python monitor.py
       - name: Update Pages data
         env:

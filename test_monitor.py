@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from export_dashboard import previous_rate
+from manage_watchlist import update_watchlist
 
 from monitor import (
     NaverBrandCategoryClient,
@@ -16,12 +17,14 @@ from monitor import (
     normalized_product,
     product_url,
     observe_products,
+    load_watchlist,
+    translate_product_name,
 )
 
 
-def sample_product(product_id=123, available=True):
+def sample_product(product_id=123, available=True, source="test"):
     return normalized_product(
-        source="test", product_id=product_id, name="Pikachu 피카츄 Plush", price=1000,
+        source=source, product_id=product_id, name="Pikachu 피카츄 Plush", price=1000,
         image="//example.com/a.png", available=available,
         status="ONSALE" if available else "SOLD_OUT", url="https://example.com/product",
     )
@@ -77,6 +80,21 @@ class MonitorTests(unittest.TestCase):
             with open(path, "w", encoding="utf-8") as output:
                 json.dump({"exchangeRate": {"rate": 0.00057}}, output)
             self.assertEqual(previous_rate(path), {"rate": 0.00057})
+
+    def test_watchlist_update(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = os.path.join(directory, "state.db")
+            watchlist = os.path.join(directory, "watchlist.json")
+            state = State(database)
+            state.put(sample_product(123, source="pokemonstore"))
+            update_watchlist("[watch] 123", watchlist, database)
+            self.assertEqual(load_watchlist(watchlist), {123})
+            update_watchlist("[unwatch] 123", watchlist, database)
+            self.assertEqual(load_watchlist(watchlist), set())
+
+    def test_translation_without_token_is_optional(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(translate_product_name("피카츄 봉제인형"))
 
 
 if __name__ == "__main__":

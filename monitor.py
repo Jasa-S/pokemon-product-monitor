@@ -22,6 +22,7 @@ SHOPBY_API = "https://shop-api.e-ncp.com"
 POKEMON_STORE = "https://www.pokemonstore.co.kr"
 DEFAULT_SHOPBY_CLIENT_ID = "HJGfZ5jPHZk3/PEOkm+/Qw=="
 NAVER_SEARCH_API = "https://openapi.naver.com/v1/search/shop.json"
+GITHUB_MODELS_API = "https://models.github.ai/inference/chat/completions"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
 
 
@@ -43,11 +44,15 @@ class Config:
     @classmethod
     def from_env(cls) -> "Config":
         products = os.getenv("WATCH_PRODUCT_NOS", "")
+        watchlist_products = load_watchlist(os.getenv("WATCHLIST_PATH", "watchlist.json"))
         keywords = os.getenv("WATCH_KEYWORDS", "")
         queries = os.getenv("NAVER_XOPLAY_QUERIES", "포켓몬카드,포켓몬 카드").split(",")
         return cls(
             webhook_url=os.getenv("DISCORD_WEBHOOK_URL", ""),
-            product_nos=tuple(int(value.strip()) for value in products.split(",") if value.strip()),
+            product_nos=tuple(sorted({
+                *(int(value.strip()) for value in products.split(",") if value.strip()),
+                *watchlist_products,
+            })),
             keywords=tuple(value.strip().casefold() for value in keywords.split(",") if value.strip()),
             poll_seconds=max(60, int(os.getenv("POLL_SECONDS", "600"))),
             database_path=os.getenv("DATABASE_PATH", "/data/monitor.db"),
@@ -71,6 +76,15 @@ def request_text(url: str, timeout: int = 25) -> str:
     request = Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Language": "ko-KR,ko;q=0.9"})
     with urlopen(request, timeout=timeout) as response:
         return response.read().decode("utf-8", errors="replace")
+
+
+def load_watchlist(path: str) -> set[int]:
+    try:
+        with open(path, encoding="utf-8") as source:
+            values = json.load(source).get("productNos", [])
+        return {int(value) for value in values}
+    except (FileNotFoundError, OSError, ValueError, TypeError, json.JSONDecodeError):
+        return set()
 
 
 def normalized_product(
@@ -274,15 +288,61 @@ def is_available(product: dict[str, Any]) -> bool:
     }
 
 
+def translate_product_name(name: str) -> str | None:
+    token = os.getenv("GITHUB_MODELS_TOKEN", "")
+    if not token:
+        return None
+    payload = {
+        "model": "openai/gpt-4o-mini",
+        "temperature": 0,
+        "max_tokens": 100,
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "Translate Korean Pokémon merchandise product titles into concise natural English. "
+                    "Preserve official Pokémon names, edition names, model numbers, and product types. "
+                    "Return only the translated title without quotation marks."
+                ),
+            },
+            {"role": "user", "content": name},
+        ],
+    }
+    request = Request(
+        GITHUB_MODELS_API,
+        data=json.dumps(payload).encode(),
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "User-Agent": USER_AGENT,
+            "X-GitHub-Api-Version": "2026-03-10",
+        },
+        method="POST",
+    )
+    try:
+        with urlopen(request, timeout=30) as response:
+            translated = json.load(response)["choices"][0]["message"]["content"].strip()
+        return translated if translated and translated.casefold() != name.casefold() else None
+    except (HTTPError, URLError, TimeoutError, KeyError, IndexError, json.JSONDecodeError):
+        logging.warning("Product-title translation failed; sending original title", exc_info=True)
+        return None
+
+
 def send_discord(webhook_url: str, title: str, product: dict[str, Any], color: int) -> None:
     if not webhook_url:
         logging.info("Discord is not configured; skipped alert: %s", product["productName"])
         return
     price = product.get("salePrice")
+    translated = translate_product_name(product["productName"])
+    description = (
+        f"**{translated}**\nOriginal: {product['productName']}" if translated else product["productName"]
+    )
     embed: dict[str, Any] = {
-        "title": title, "description": product["productName"], "url": product["url"], "color": color,
+        "title": title, "description": description, "url": product["url"], "color": color,
         "fields": [
             {"name": "Store", "value": product["source"], "inline": True},
+            {"name": "Product", "value": f"#{product['productNo']}", "inline": True},
             {"name": "Price", "value": f"₩{price:,.0f}" if isinstance(price, (int, float)) else "Unknown", "inline": True},
         ],
         "footer": {"text": "Pokémon product monitor"},
@@ -331,7 +391,7 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
         logging.info("Refreshing full Pokémon Store catalog")
         observe_products(
             config, state, pokemon.catalog(), feed="pokemonstore-catalog",
-            reliable_stock=False, notify_new=False,
+            reliable_stock=False,
         )
 
     naver_pokemon = NaverBrandCategoryClient("pokemon", "c94139abcef14362997090c5da975e28")

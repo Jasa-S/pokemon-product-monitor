@@ -38,12 +38,13 @@ Run **Actions → Monitor stores → Run workflow** once after adding secrets or
 
 1. Open the GitHub Pages dashboard.
 2. Filter to `pokemonstore` and search for a product.
-3. Click **Watch restock** on each desired product.
-4. Click **Copy numbers**.
-5. Open the dashboard's **Open GitHub variables** link, create or edit `WATCH_PRODUCT_NOS`, and paste the comma-separated value.
-6. Run the **Monitor stores** workflow once. Afterwards, it checks those product detail endpoints every ten minutes.
+3. Click **Watch restock** on the desired product.
+4. Submit the prefilled GitHub issue. A workflow validates the product, updates `watchlist.json`, refreshes the dashboard, and closes the request automatically.
+5. The monitor checks watched product detail endpoints every ten minutes. Click **✓ Watching — remove** to create the corresponding removal request.
 
 The daily catalog refresh keeps all products visible without hammering the store. Only selected product numbers get frequent, authoritative restock alerts.
+
+Discord alerts include the original Korean title, an English title generated through GitHub Models when available, product number, price, store, image, and direct product link. Run **Actions → Test Discord notification → Run workflow** after configuring the webhook to verify delivery.
 
 The dashboard can filter by store, in-stock/unavailable status, KRW price range, and product name, and can sort by name, price, or availability. EUR prices are approximate conversions based on the latest daily ECB reference rate supplied through Frankfurter; they do not include card, bank, or merchant conversion fees.
 
