@@ -10,18 +10,21 @@ import re
 import signal
 import sqlite3
 import time
+from http.cookiejar import CookieJar
 from dataclasses import dataclass
 from html import unescape
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.request import HTTPCookieProcessor, Request, build_opener, urlopen
 
 
 SHOPBY_API = "https://shop-api.e-ncp.com"
 POKEMON_STORE = "https://www.pokemonstore.co.kr"
 DEFAULT_SHOPBY_CLIENT_ID = "HJGfZ5jPHZk3/PEOkm+/Qw=="
 NAVER_SEARCH_API = "https://openapi.naver.com/v1/search/shop.json"
+NAVER_BRAND_API = "https://brand.naver.com/n/v2"
+NAVER_POKEMON_CHANNEL_UID = "2sWDxNqnUroE26nw1QCXb"
 GITHUB_MODELS_API = "https://models.github.ai/inference/chat/completions"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
 
@@ -208,11 +211,29 @@ class PokemonStoreClient:
 
 
 class NaverBrandCategoryClient:
-    """Reads the product state Naver embeds in its public brand-store category pages."""
+    """Reads paginated, authoritative product state from a public Naver Brand Store."""
 
-    def __init__(self, store: str, category_id: str) -> None:
+    def __init__(
+        self, store: str, category_id: str = "ALL",
+        channel_uid: str = NAVER_POKEMON_CHANNEL_UID,
+    ) -> None:
         self.store = store
         self.category_id = category_id
+        self.channel_uid = channel_uid
+        self.opener = build_opener(HTTPCookieProcessor(CookieJar()))
+        self.session_ready = False
+
+    def _ensure_session(self) -> None:
+        if self.session_ready:
+            return
+        request = Request(
+            f"https://brand.naver.com/{self.store}/category/"
+            "f6042b4f407c4803bf53b59001026901?cp=1",
+            headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/137 Safari/537.36"},
+        )
+        with self.opener.open(request, timeout=25) as response:
+            response.read()
+        self.session_ready = True
 
     @staticmethod
     def _preloaded_state(html: str) -> dict[str, Any]:
@@ -222,16 +243,53 @@ class NaverBrandCategoryClient:
         javascript_object = re.sub(r"\bundefined\b", "null", match.group(1).strip())
         return json.loads(javascript_object)
 
-    def products(self) -> list[dict[str, Any]]:
-        # Naver server-renders only the first category page. RECENT makes that page
-        # useful for discovery while retaining authoritative stock for its 40 items.
+    def _page(self, page: int, sort: str = "RECENT") -> dict[str, Any]:
+        self._ensure_session()
+        params = urlencode({
+            "categorySearchType": "DISPCATG",
+            "sortType": sort,
+            "page": page,
+            "pageSize": 40,
+            "deduplicateGroupEpId": "true",
+        })
         url = (
-            f"https://brand.naver.com/{self.store}/category/{self.category_id}"
-            "?st=RECENT&dt=IMAGE&page=1&size=40"
+            f"{NAVER_BRAND_API}/channels/{self.channel_uid}/categories/"
+            f"{self.category_id}/products?{params}"
         )
-        category = self._preloaded_state(request_text(url))["categoryProducts"]
-        products = category.get("simpleProducts") or []
-        return [self._normalize(product) for product in products]
+        request = Request(
+            url,
+            headers={
+                "Accept": "application/json",
+                "Referer": f"https://brand.naver.com/{self.store}/category/"
+                "f6042b4f407c4803bf53b59001026901?cp=1",
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/137 Safari/537.36",
+            },
+        )
+        with self.opener.open(request, timeout=25) as response:
+            return json.load(response)
+
+    def newest(self) -> list[dict[str, Any]]:
+        """Fetch the newest 40 products for frequent discovery and stock checks."""
+        return [self._normalize(product) for product in self._page(1).get("simpleProducts", [])]
+
+    def products(self) -> list[dict[str, Any]]:
+        """Fetch every product exposed through the store's all-products category."""
+        products: list[dict[str, Any]] = []
+        page = 1
+        total_count = 1
+        while len(products) < total_count:
+            data = self._page(page)
+            total_count = int(data.get("totalCount") or 0)
+            current = data.get("simpleProducts") or []
+            if not current:
+                break
+            products.extend(self._normalize(product) for product in current)
+            page += 1
+        if len(products) < total_count:
+            raise RuntimeError(
+                f"Naver returned only {len(products)} of {total_count} catalog products"
+            )
+        return products
 
     def _normalize(self, product: dict[str, Any]) -> dict[str, Any]:
         public_id = int(product["id"])
@@ -446,8 +504,15 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             reliable_stock=False,
         )
 
-    naver_pokemon = NaverBrandCategoryClient("pokemon", "c94139abcef14362997090c5da975e28")
-    observe_products(config, state, naver_pokemon.products(), feed="naver-pokemon-recent")
+    naver_pokemon = NaverBrandCategoryClient("pokemon")
+    observe_products(config, state, naver_pokemon.newest(), feed="naver-pokemon-recent")
+
+    if config.scan_full_catalog:
+        logging.info("Refreshing full Naver Pokémon Brand Store catalog")
+        observe_products(
+            config, state, naver_pokemon.products(), feed="naver-pokemon-catalog-all",
+            reliable_stock=False,
+        )
 
     if config.naver_client_id and config.naver_client_secret:
         xoplay = NaverShoppingSearchClient(
