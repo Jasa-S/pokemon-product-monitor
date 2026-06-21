@@ -1,0 +1,45 @@
+name: Refresh full catalog
+
+on:
+  schedule:
+    - cron: "23 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: store-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Refresh catalog
+        env:
+          DATABASE_PATH: state/monitor.db
+          RUN_ONCE: "true"
+          SCAN_FULL_CATALOG: "true"
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          WATCH_PRODUCT_NOS: ${{ vars.WATCH_PRODUCT_NOS }}
+          WATCH_KEYWORDS: ${{ vars.WATCH_KEYWORDS }}
+        run: python monitor.py
+      - name: Update Pages data
+        env:
+          DATABASE_PATH: state/monitor.db
+        run: python export_dashboard.py
+      - name: Persist state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/monitor.db docs/status.json
+          git diff --cached --quiet || git commit -m "Refresh full catalog"
+          git push

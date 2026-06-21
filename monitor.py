@@ -38,6 +38,7 @@ class Config:
     naver_client_id: str
     naver_client_secret: str
     naver_search_queries: tuple[str, ...]
+    scan_full_catalog: bool
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -56,6 +57,7 @@ class Config:
             naver_client_id=os.getenv("NAVER_CLIENT_ID", ""),
             naver_client_secret=os.getenv("NAVER_CLIENT_SECRET", ""),
             naver_search_queries=tuple(query.strip() for query in queries if query.strip()),
+            scan_full_catalog=os.getenv("SCAN_FULL_CATALOG", "false").casefold() == "true",
         )
 
 
@@ -117,6 +119,17 @@ class PokemonStoreClient:
             "/display/sections/ids/SCPC0001/products", {"pageNumber": 1, "pageSize": 20}
         )
         return [self._normalize(product) for product in data.get("products", [])]
+
+    def catalog(self) -> list[dict[str, Any]]:
+        products: list[dict[str, Any]] = []
+        page = 1
+        page_count = 1
+        while page <= page_count:
+            data = self._get("/products/search", {"pageNumber": page, "pageSize": 100})
+            page_count = int(data.get("pageCount") or 0)
+            products.extend(self._normalize(product) for product in data.get("items", []))
+            page += 1
+        return products
 
     def product(self, product_no: int) -> dict[str, Any]:
         data = self._get(f"/products/{product_no}")
@@ -207,6 +220,9 @@ class State:
         self.db.execute(
             "CREATE TABLE IF NOT EXISTS observations (product_key TEXT PRIMARY KEY, payload TEXT NOT NULL)"
         )
+        self.db.execute(
+            "CREATE TABLE IF NOT EXISTS initialized_feeds (feed TEXT PRIMARY KEY)"
+        )
         self.db.commit()
 
     def get(self, product_key: str) -> dict[str, Any] | None:
@@ -231,6 +247,15 @@ class State:
 
     def all(self) -> list[dict[str, Any]]:
         return [json.loads(row[0]) for row in self.db.execute("SELECT payload FROM observations")]
+
+    def feed_initialized(self, feed: str) -> bool:
+        return self.db.execute(
+            "SELECT 1 FROM initialized_feeds WHERE feed = ?", (feed,)
+        ).fetchone() is not None
+
+    def mark_feed_initialized(self, feed: str) -> None:
+        self.db.execute("INSERT OR IGNORE INTO initialized_feeds(feed) VALUES(?)", (feed,))
+        self.db.commit()
 
 
 def normalize_image(url: str | None) -> str | None:
@@ -278,33 +303,47 @@ def keyword_match(product: dict[str, Any], keywords: tuple[str, ...]) -> bool:
 
 
 def observe_products(
-    config: Config, state: State, products: list[dict[str, Any]], *, reliable_stock: bool = True
+    config: Config, state: State, products: list[dict[str, Any]], *, feed: str,
+    reliable_stock: bool = True, notify_new: bool = True,
 ) -> None:
+    initialized = state.feed_initialized(feed)
     for product in products:
         previous = state.get(product["key"])
-        if previous is None and keyword_match(product, config.keywords):
-            if config.notify_on_first_run:
+        if previous is None and notify_new and keyword_match(product, config.keywords):
+            if initialized or config.notify_on_first_run:
                 send_discord(config.webhook_url, "✨ New product", product, 0xFFCB05)
             else:
                 logging.info("Primed %s", product["key"])
         elif reliable_stock and previous is not None and not is_available(previous) and is_available(product):
             send_discord(config.webhook_url, "✅ Back in stock", product, 0x3BA55D)
         state.put(product)
+    state.mark_feed_initialized(feed)
 
 
 def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> None:
-    observe_products(config, state, pokemon.new_arrivals())
+    observe_products(config, state, pokemon.new_arrivals(), feed="pokemonstore-arrivals")
     for product_no in config.product_nos:
-        observe_products(config, state, [pokemon.product(product_no)])
+        observe_products(
+            config, state, [pokemon.product(product_no)], feed="pokemonstore-watchlist", notify_new=False
+        )
+
+    if config.scan_full_catalog:
+        logging.info("Refreshing full Pokémon Store catalog")
+        observe_products(
+            config, state, pokemon.catalog(), feed="pokemonstore-catalog",
+            reliable_stock=False, notify_new=False,
+        )
 
     naver_pokemon = NaverBrandCategoryClient("pokemon", "c94139abcef14362997090c5da975e28")
-    observe_products(config, state, naver_pokemon.products())
+    observe_products(config, state, naver_pokemon.products(), feed="naver-pokemon-recent")
 
     if config.naver_client_id and config.naver_client_secret:
         xoplay = NaverShoppingSearchClient(
             config.naver_client_id, config.naver_client_secret, "xoplay", config.naver_search_queries
         )
-        observe_products(config, state, xoplay.products(), reliable_stock=False)
+        observe_products(
+            config, state, xoplay.products(), feed="naver-xoplay-search", reliable_stock=False
+        )
     else:
         logging.info("Naver Search API credentials absent; skipping Xoplay discovery")
 
