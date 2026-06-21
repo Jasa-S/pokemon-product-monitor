@@ -67,8 +67,20 @@ class MonitorTests(unittest.TestCase):
             self.assertEqual(client.catalog(), [])
         get.assert_called_once_with(
             "/products/search",
-            {"pageNumber": 1, "pageSize": 100, "filter.soldout": "true"},
+            {
+                "pageNumber": 1, "pageSize": 100, "filter.soldout": "true",
+                "categoryNos": 488339,
+            },
         )
+
+    def test_new_arrivals_are_newest_card_category_products(self):
+        client = PokemonStoreClient("test")
+        with patch.object(client, "_get", return_value={"items": []}) as get:
+            self.assertEqual(client.new_arrivals(), [])
+        get.assert_called_once_with("/products/search", {
+            "pageNumber": 1, "pageSize": 20, "filter.soldout": "true",
+            "categoryNos": 488339, "order.by": "RECENT_PRODUCT",
+        })
 
     def test_keyword_filter_is_case_insensitive(self):
         product = sample_product()
@@ -88,6 +100,22 @@ class MonitorTests(unittest.TestCase):
             self.assertFalse(state.feed_initialized("sample"))
             state.mark_feed_initialized("sample")
             self.assertTrue(state.feed_initialized("sample"))
+
+    def test_state_scope_migration_and_authoritative_retention(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = State(os.path.join(directory, "state.db"))
+            card = sample_product(1, source="pokemonstore")
+            removed = sample_product(2, source="pokemonstore")
+            naver = sample_product(3, source="naver-pokemon")
+            for product in (card, removed, naver):
+                state.put(product)
+            state.clear_source_once("naver-pokemon", "scope:cards")
+            self.assertNotIn(naver, state.all())
+            state.retain_source_products("pokemonstore", {card["key"]})
+            self.assertEqual(state.all(), [card])
+            state.put(naver)
+            state.clear_source_once("naver-pokemon", "scope:cards")
+            self.assertIn(naver, state.all())
 
     def test_naver_preloaded_state(self):
         state = {"categoryProducts": {"simpleProducts": [], "sort": None}}
@@ -109,7 +137,7 @@ class MonitorTests(unittest.TestCase):
         with patch("monitor.request_text", return_value=html) as fetch:
             products = client.newest()
         self.assertEqual([item["productNo"] for item in products], ["1"])
-        self.assertIn("f6042b4f407c4803bf53b59001026901", fetch.call_args.args[0])
+        self.assertIn("c94139abcef14362997090c5da975e28", fetch.call_args.args[0])
 
     def test_official_naver_search_accepts_brand_store_links(self):
         client = NaverShoppingSearchClient(

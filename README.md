@@ -2,28 +2,28 @@
 
 A dependency-free Python monitor and GitHub Pages dashboard for:
 
-- the complete Pokémon Store Korea catalog, **NEW ARRIVAL** products, and explicit product restocks;
-- the 40 newest products and their stock changes in the requested Pokémon Naver Brand Store card category; and
+- Pokémon Store Korea card-category products, including sold-out products and explicit restocks;
+- the newest products and their stock changes in the requested Pokémon Naver Brand Store card category; and
 - Xoplay discoveries through Naver's official Shopping Search API when indexed, plus an optional user-controlled local browser monitor for complete catalogue and stock checks.
 
 The initial run establishes a silent baseline. Later new products and genuine restocks are sent as Discord embeds when a webhook is configured.
 
 ## Hosted architecture
 
-GitHub Actions checks Pokémon Store's backend, selected restocks, and the official Naver Search API every five minutes. A separate daily job refreshes the complete public Pokémon Store catalog—including sold-out products—and attempts Naver's authoritative newest page. Both update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so five minutes is the target cadence rather than a real-time guarantee.
+GitHub Actions checks Pokémon Store's card category, selected restocks, and the official Naver Search API for Xoplay every five minutes. A separate daily job refreshes the complete Pokémon Store card category—including sold-out products—and attempts Naver's authoritative card-category page. Both update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so five minutes is the target cadence rather than a real-time guarantee.
 
 Discord is optional. Without it, the dashboard and Action still update. To receive Discord alerts, add a repository Actions secret named `DISCORD_WEBHOOK_URL`.
 
 ## Store support and API limitations
 
-The Pokémon Store and Pokémon Naver Brand Store expose public, read-only product state, including availability. Pokémon Store status distinguishes fully available, partially available, and fully sold-out products by inspecting their variants. The Shopby search request explicitly includes sold-out products; only products hidden or deleted by the store remain undiscoverable. Naver advertises more than 2,400 products but restricts anonymous automation to the first page of a category and rate-limits GitHub-hosted requests. The daily job therefore attempts the store-wide newest 40 and permanently accumulates everything it sees. With official Naver Search API credentials, the five-minute job discovers matching new products for both the Pokémon Brand Store and Xoplay; it does not overwrite authoritative stock previously observed from the storefront. Naver's Commerce API cannot access an unrelated seller's store without seller authorization, and Search results do not expose authoritative inventory, so Search-based restock alerts remain disabled.
+The Pokémon Store and Pokémon Naver Brand Store expose public, read-only product state, including availability. Tracking is restricted to Pokémon Store category `488339` and Naver Brand category `c94139abcef14362997090c5da975e28`. Pokémon Store status distinguishes fully available, partially available, and fully sold-out products by inspecting their variants. The Shopby category request explicitly includes sold-out products; only products hidden or deleted by the store remain undiscoverable. Naver restricts anonymous automation and may rate-limit GitHub-hosted requests, so the daily job attempts the newest 40 products from the exact card category and accumulates what it sees. The general Naver Shopping Search fallback is intentionally not used for the Pokémon Brand Store because it cannot prove category membership. Naver's Commerce API cannot access an unrelated seller's store without seller authorization.
 
-To enable five-minute Pokémon Brand Store and Xoplay discovery, create a Naver Developers application with the Search API and add these repository Actions secrets:
+To enable Xoplay Search API discovery, create a Naver Developers application with the Search API and add these repository Actions secrets:
 
 - `NAVER_CLIENT_ID`
 - `NAVER_CLIENT_SECRET`
 
-The defaults use eleven store-specific Pokémon queries, then retain only results whose links or normalized mall names belong to the requested Brand/Smart Store. At the five-minute schedule this uses at most about 3,179 of the 25,000 daily Search API requests.
+The hosted Xoplay fallback uses six queries. At the five-minute schedule this uses at most about 1,734 of the 25,000 daily Search API requests.
 
 ### User-controlled Xoplay monitoring
 
@@ -63,7 +63,7 @@ Run **Actions → Monitor stores → Run workflow** once after adding secrets or
 4. Submit the prefilled GitHub issue. A workflow validates the product, updates `watchlist.json`, refreshes the dashboard, and closes the request automatically.
 5. The monitor checks watched product detail endpoints every ten minutes. Click **✓ Watching — remove** to create the corresponding removal request.
 
-The daily catalog refresh keeps all products visible without hammering the store. Only selected product numbers get frequent, authoritative restock alerts.
+The daily catalog refresh keeps all card-category products visible without hammering the store. Only selected product numbers get frequent, authoritative detail-page restock alerts.
 
 Discord alerts include the original Korean title, an English title generated through GitHub Models when available, product number, price, store, image, and direct product link. Run **Actions → Test Discord notification → Run workflow** after configuring the webhook to verify delivery.
 
