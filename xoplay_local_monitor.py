@@ -13,7 +13,7 @@ import subprocess
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -175,23 +175,29 @@ def login_present(page: Any) -> bool:
     return "nid.naver.com/nidlogin" in page.url
 
 
-def wait_for_access(page: Any) -> None:
+def wait_for_access(page: Any, should_stop: Callable[[], bool]) -> bool:
     needs_login = login_present(page)
     needs_captcha = captcha_present(page)
     if not needs_login and not needs_captcha:
-        return
+        return True
     if needs_login:
         logging.warning("Naver login required. Log in yourself in the open browser window.")
     if needs_captcha:
         logging.warning("Naver needs verification. Complete the CAPTCHA in the open browser window.")
-    while login_present(page) or captcha_present(page):
+    while not should_stop() and (login_present(page) or captcha_present(page)):
         time.sleep(2)
+    if should_stop():
+        return False
     logging.info("Naver access completed; continuing")
+    return True
 
 
-def scrape_page(page: Any, page_number: int) -> list[dict[str, Any]]:
+def scrape_page(
+    page: Any, page_number: int, should_stop: Callable[[], bool] = lambda: False
+) -> list[dict[str, Any]]:
     page.goto(f"{CATEGORY_URL}?{urlencode({'cp': page_number})}", wait_until="domcontentloaded")
-    wait_for_access(page)
+    if not wait_for_access(page, should_stop):
+        return []
     page.wait_for_timeout(1500)
     raw_products = page.locator('a[href*="/xoplay/products/"]').evaluate_all("""
         links => links.map(link => {
@@ -213,10 +219,12 @@ def scrape_page(page: Any, page_number: int) -> list[dict[str, Any]]:
     return list(found.values())
 
 
-def scrape_catalog(page: Any, max_pages: int) -> list[dict[str, Any]]:
+def scrape_catalog(
+    page: Any, max_pages: int, should_stop: Callable[[], bool] = lambda: False
+) -> list[dict[str, Any]]:
     found: dict[str, dict[str, Any]] = {}
     for page_number in range(1, max_pages + 1):
-        products = scrape_page(page, page_number)
+        products = scrape_page(page, page_number, should_stop)
         new_count = sum(product["productNo"] not in found for product in products)
         for product in products:
             found[product["productNo"]] = product
@@ -250,7 +258,7 @@ def run() -> None:
         page = context.pages[0] if context.pages else context.new_page()
         while not stopping:
             try:
-                products = scrape_catalog(page, max_pages)
+                products = scrape_catalog(page, max_pages, lambda: stopping)
                 if not products:
                     logging.warning("No Xoplay products found; previous state retained")
                 else:

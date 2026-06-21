@@ -1,9 +1,22 @@
 import unittest
 
-from xoplay_local_monitor import normalize_raw_product, product_events
+from xoplay_local_monitor import normalize_raw_product, product_events, wait_for_access
 
 
 class XoplayLocalMonitorTests(unittest.TestCase):
+    def test_pending_login_can_be_stopped(self):
+        class Body:
+            def inner_text(self):
+                return "NAVER login"
+
+        class Page:
+            url = "https://nid.naver.com/nidlogin.login"
+
+            def locator(self, _selector):
+                return Body()
+
+        self.assertFalse(wait_for_access(Page(), lambda: True))
+
     def test_normalizes_card(self):
         product = normalize_raw_product({
             "url": "https://smartstore.naver.com/xoplay/products/123",
