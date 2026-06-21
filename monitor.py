@@ -43,6 +43,7 @@ class Config:
     naver_client_secret: str
     naver_search_queries: tuple[str, ...]
     scan_full_catalog: bool
+    scan_pokemon_catalog: bool
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -66,13 +67,23 @@ class Config:
             naver_client_secret=os.getenv("NAVER_CLIENT_SECRET", ""),
             naver_search_queries=tuple(query.strip() for query in queries if query.strip()),
             scan_full_catalog=os.getenv("SCAN_FULL_CATALOG", "false").casefold() == "true",
+            scan_pokemon_catalog=os.getenv("SCAN_POKEMON_CATALOG", "true").casefold() == "true",
         )
 
 
 def request_json(url: str, headers: dict[str, str], timeout: int = 25) -> dict[str, Any]:
     request = Request(url, headers={"User-Agent": USER_AGENT, **headers})
-    with urlopen(request, timeout=timeout) as response:
-        return json.load(response)
+    for attempt in range(4):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return json.load(response)
+        except HTTPError as error:
+            if error.code not in {429, 500, 502, 503, 504} or attempt == 3:
+                raise
+            delay = 5 * (2 ** attempt)
+            logging.warning("HTTP %s from %s; retrying in %ss", error.code, url, delay)
+            time.sleep(delay)
+    raise RuntimeError("request retry loop ended unexpectedly")
 
 
 def request_text(url: str, timeout: int = 25) -> str:
@@ -224,6 +235,21 @@ class NaverBrandCategoryClient:
         self.session_ready = False
         self.preloaded_state: dict[str, Any] = {}
 
+    def _open(self, request: Request, *, parse_json: bool) -> Any:
+        for attempt in range(4):
+            try:
+                with self.opener.open(request, timeout=25) as response:
+                    return json.load(response) if parse_json else response.read().decode(
+                        "utf-8", errors="replace"
+                    )
+            except HTTPError as error:
+                if error.code != 429 or attempt == 3:
+                    raise
+                delay = 5 * (2 ** attempt)
+                logging.warning("Naver rate limited a request; retrying in %ss", delay)
+                time.sleep(delay)
+        raise RuntimeError("Naver request retry loop ended unexpectedly")
+
     def _ensure_session(self) -> None:
         if self.session_ready:
             return
@@ -232,8 +258,7 @@ class NaverBrandCategoryClient:
             "f6042b4f407c4803bf53b59001026901?cp=1",
             headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/137 Safari/537.36"},
         )
-        with self.opener.open(request, timeout=25) as response:
-            html = response.read().decode("utf-8", errors="replace")
+        html = self._open(request, parse_json=False)
         self.preloaded_state = self._preloaded_state(html)
         self.session_ready = True
 
@@ -269,8 +294,7 @@ class NaverBrandCategoryClient:
                 "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/137 Safari/537.36",
             },
         )
-        with self.opener.open(request, timeout=25) as response:
-            return json.load(response)
+        return self._open(request, parse_json=True)
 
     def newest(self) -> list[dict[str, Any]]:
         """Fetch the newest 40 products for frequent discovery and stock checks."""
@@ -301,7 +325,7 @@ class NaverBrandCategoryClient:
             except (HTTPError, URLError, TimeoutError, ValueError, json.JSONDecodeError):
                 failures += 1
                 logging.warning("Naver category %s could not be read", category_id)
-            time.sleep(0.2)
+            time.sleep(0.5)
         logging.info(
             "Read %s unique Naver products from %s leaf categories (%s failures)",
             len(found), len(category_ids), failures,
@@ -514,7 +538,7 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             config, state, [pokemon.product(product_no)], feed="pokemonstore-watchlist", notify_new=False
         )
 
-    if config.scan_full_catalog:
+    if config.scan_full_catalog and config.scan_pokemon_catalog:
         logging.info("Refreshing full Pokémon Store catalog")
         observe_products(
             config, state, pokemon.catalog(), feed="pokemonstore-catalog-all",
@@ -560,6 +584,8 @@ def main() -> None:
             check_once(config, pokemon, state)
         except (HTTPError, URLError, TimeoutError, KeyError, ValueError, RuntimeError) as error:
             logging.exception("Monitor check failed: %s", error)
+            if config.run_once:
+                raise
         if config.run_once:
             break
         for _ in range(config.poll_seconds):

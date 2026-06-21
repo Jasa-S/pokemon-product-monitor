@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "23 3 * * *"
   workflow_dispatch:
+    inputs:
+      naver_only:
+        description: Skip the large Pokémon Store crawl (diagnostic)
+        type: boolean
+        default: false
 
 concurrency:
   group: store-monitor
@@ -27,6 +32,7 @@ jobs:
           DATABASE_PATH: state/monitor.db
           RUN_ONCE: "true"
           SCAN_FULL_CATALOG: "true"
+          SCAN_POKEMON_CATALOG: ${{ !inputs.naver_only }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
