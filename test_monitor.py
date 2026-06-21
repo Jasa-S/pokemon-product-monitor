@@ -125,6 +125,21 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(products[0]["productNo"], "123")
         self.assertEqual(products[0]["productName"], "피카츄")
 
+    def test_official_naver_search_accepts_matching_mall_name(self):
+        client = NaverShoppingSearchClient(
+            "id", "secret", "xoplay", ("포켓몬 카드",),
+            mall_names=("XOPLAY", "엑스오플레이"),
+        )
+        result = {"items": [{
+            "link": "https://search.shopping.naver.com/catalog/456",
+            "productId": "456", "mallName": "XOPLAY",
+            "title": "포켓몬 카드", "lprice": "2000", "image": "https://example.com/c.png",
+        }]}
+        with patch("monitor.request_json", return_value=result):
+            products = client.products()
+        self.assertEqual(products[0]["productNo"], "456")
+        self.assertEqual(products[0]["source"], "naver-xoplay")
+
     def test_new_products_alert_only_after_feed_baseline(self):
         config = SimpleNamespace(keywords=(), notify_on_first_run=False, webhook_url="test")
         with tempfile.TemporaryDirectory() as directory, patch("monitor.send_discord") as send:
