@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from html import unescape
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 
 
@@ -313,7 +313,13 @@ class NaverShoppingSearchClient:
                 mall_name = self._normalize_mall_name(item.get("mallName", ""))
                 if mall_name:
                     seen_malls.add(mall_name)
-                link_matches = any(f"{host}/{self.store_slug}" in link for host in self.hosts)
+                parsed_link = urlparse(link)
+                path_parts = [part for part in parsed_link.path.split("/") if part]
+                link_matches = (
+                    parsed_link.hostname in self.hosts
+                    and bool(path_parts)
+                    and path_parts[0].casefold() == self.store_slug.casefold()
+                )
                 if not link_matches and mall_name not in self.mall_names:
                     continue
                 link_id = link.rstrip("/").rsplit("/", 1)[-1]
@@ -459,9 +465,23 @@ def send_discord(webhook_url: str, title: str, product: dict[str, Any], color: i
         webhook_url, data=json.dumps({"embeds": [embed]}).encode(),
         headers={"Content-Type": "application/json", "User-Agent": USER_AGENT}, method="POST",
     )
-    with urlopen(request, timeout=20) as response:
-        if response.status not in (200, 204):
-            raise RuntimeError(f"Discord returned HTTP {response.status}")
+    for attempt in range(2):
+        try:
+            with urlopen(request, timeout=20) as response:
+                if response.status not in (200, 204):
+                    logging.warning("Discord returned HTTP %s; alert skipped", response.status)
+            return
+        except HTTPError as error:
+            if error.code == 429 and attempt == 0:
+                retry_after = min(float(error.headers.get("Retry-After", "2")), 10)
+                logging.warning("Discord rate limited an alert; retrying in %.1fs", retry_after)
+                time.sleep(retry_after)
+                continue
+            logging.warning("Discord alert failed with HTTP %s; monitor will continue", error.code)
+            return
+        except (URLError, TimeoutError, ValueError):
+            logging.warning("Discord alert failed; monitor will continue", exc_info=True)
+            return
 
 
 def keyword_match(product: dict[str, Any], keywords: tuple[str, ...]) -> bool:
@@ -516,7 +536,7 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             mall_names=("포켓몬 스토어 온라인", "포켓몬스토어온라인"),
         )
         observe_products(
-            config, state, pokemon_search.products(), feed="naver-pokemon-search",
+            config, state, pokemon_search.products(), feed="naver-pokemon-search-v2",
             reliable_stock=False, update_existing=False,
         )
         xoplay = NaverShoppingSearchClient(
@@ -524,7 +544,7 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             mall_names=("XOPLAY", "엑스오플레이"),
         )
         observe_products(
-            config, state, xoplay.products(), feed="naver-xoplay-search", reliable_stock=False
+            config, state, xoplay.products(), feed="naver-xoplay-search-v2", reliable_stock=False
         )
     else:
         logging.info("Naver Search API credentials absent; skipping fast Naver discovery")

@@ -140,6 +140,19 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(products[0]["productNo"], "456")
         self.assertEqual(products[0]["source"], "naver-xoplay")
 
+    def test_naver_search_rejects_similar_store_slug(self):
+        client = NaverShoppingSearchClient(
+            "id", "secret", "pokemon", ("포켓몬",),
+            hosts=("smartstore.naver.com",),
+        )
+        result = {"items": [{
+            "link": "https://smartstore.naver.com/pokemon-card-shop/products/456",
+            "productId": "456", "mallName": "Unrelated seller",
+            "title": "포켓몬 카드", "lprice": "2000",
+        }]}
+        with patch("monitor.request_json", return_value=result):
+            self.assertEqual(client.products(), [])
+
     def test_new_products_alert_only_after_feed_baseline(self):
         config = SimpleNamespace(keywords=(), notify_on_first_run=False, webhook_url="test")
         with tempfile.TemporaryDirectory() as directory, patch("monitor.send_discord") as send:
