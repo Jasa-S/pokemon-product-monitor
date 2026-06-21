@@ -94,32 +94,21 @@ class MonitorTests(unittest.TestCase):
         parsed = NaverBrandCategoryClient._preloaded_state(html)
         self.assertEqual(parsed, state)
 
-    def test_naver_catalog_combines_leaf_categories(self):
+    def test_naver_newest_uses_whole_store_category(self):
         client = NaverBrandCategoryClient("pokemon")
-        client.session_ready = True
-        client.preloaded_state = {"categoryMenu": {"storeCategoryTree": {
-            "id": "0", "subCategories": [
-                {"id": "leaf-a", "exposure": True},
-                {"id": "group", "subCategories": [{"id": "leaf-b", "exposure": True}]},
-            ]
-        }}}
         product = {
             "id": 1, "name": "Pikachu", "dispSalePrice": 1000,
             "representativeImageUrl": "https://example.com/p.png",
             "productStatusType": "SALE", "channelProductDisplayStatusType": "ON",
             "displayable": True, "stockQuantity": 1,
         }
-        with patch.object(client, "_page", side_effect=[
-            {"simpleProducts": [product]},
-            {"simpleProducts": [product]},
-            {"simpleProducts": [{**product, "id": 2}]},
-        ]) as fetch:
-            products = client.products()
-        self.assertEqual([item["productNo"] for item in products], ["1", "2"])
-        self.assertEqual(
-            [call.kwargs.get("category_id") for call in fetch.call_args_list],
-            [None, "leaf-a", "leaf-b"],
-        )
+        html = '<script>window.__PRELOADED_STATE__=' + json.dumps({
+            "categoryProducts": {"simpleProducts": [product]}
+        }) + '</script>'
+        with patch("monitor.request_text", return_value=html) as fetch:
+            products = client.newest()
+        self.assertEqual([item["productNo"] for item in products], ["1"])
+        self.assertIn("f6042b4f407c4803bf53b59001026901", fetch.call_args.args[0])
 
     def test_new_products_alert_only_after_feed_baseline(self):
         config = SimpleNamespace(keywords=(), notify_on_first_run=False, webhook_url="test")

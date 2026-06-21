@@ -10,21 +10,18 @@ import re
 import signal
 import sqlite3
 import time
-from http.cookiejar import CookieJar
 from dataclasses import dataclass
 from html import unescape
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
-from urllib.request import HTTPCookieProcessor, Request, build_opener, urlopen
+from urllib.request import Request, urlopen
 
 
 SHOPBY_API = "https://shop-api.e-ncp.com"
 POKEMON_STORE = "https://www.pokemonstore.co.kr"
 DEFAULT_SHOPBY_CLIENT_ID = "HJGfZ5jPHZk3/PEOkm+/Qw=="
 NAVER_SEARCH_API = "https://openapi.naver.com/v1/search/shop.json"
-NAVER_BRAND_API = "https://brand.naver.com/n/v2"
-NAVER_POKEMON_CHANNEL_UID = "2sWDxNqnUroE26nw1QCXb"
 GITHUB_MODELS_API = "https://models.github.ai/inference/chat/completions"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
 
@@ -43,7 +40,6 @@ class Config:
     naver_client_secret: str
     naver_search_queries: tuple[str, ...]
     scan_full_catalog: bool
-    scan_pokemon_catalog: bool
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -67,7 +63,6 @@ class Config:
             naver_client_secret=os.getenv("NAVER_CLIENT_SECRET", ""),
             naver_search_queries=tuple(query.strip() for query in queries if query.strip()),
             scan_full_catalog=os.getenv("SCAN_FULL_CATALOG", "false").casefold() == "true",
-            scan_pokemon_catalog=os.getenv("SCAN_POKEMON_CATALOG", "true").casefold() == "true",
         )
 
 
@@ -88,8 +83,17 @@ def request_json(url: str, headers: dict[str, str], timeout: int = 25) -> dict[s
 
 def request_text(url: str, timeout: int = 25) -> str:
     request = Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Language": "ko-KR,ko;q=0.9"})
-    with urlopen(request, timeout=timeout) as response:
-        return response.read().decode("utf-8", errors="replace")
+    for attempt in range(4):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                return response.read().decode("utf-8", errors="replace")
+        except HTTPError as error:
+            if error.code != 429 or attempt == 3:
+                raise
+            delay = 5 * (2 ** attempt)
+            logging.warning("Naver rate limited the public feed; retrying in %ss", delay)
+            time.sleep(delay)
+    raise RuntimeError("text request retry loop ended unexpectedly")
 
 
 def load_watchlist(path: str) -> set[int]:
@@ -222,45 +226,13 @@ class PokemonStoreClient:
 
 
 class NaverBrandCategoryClient:
-    """Reads paginated, authoritative product state from a public Naver Brand Store."""
+    """Reads the newest authoritative products from a public Naver Brand Store."""
 
     def __init__(
-        self, store: str, category_id: str = "ALL",
-        channel_uid: str = NAVER_POKEMON_CHANNEL_UID,
+        self, store: str, category_id: str = "f6042b4f407c4803bf53b59001026901",
     ) -> None:
         self.store = store
         self.category_id = category_id
-        self.channel_uid = channel_uid
-        self.opener = build_opener(HTTPCookieProcessor(CookieJar()))
-        self.session_ready = False
-        self.preloaded_state: dict[str, Any] = {}
-
-    def _open(self, request: Request, *, parse_json: bool) -> Any:
-        for attempt in range(4):
-            try:
-                with self.opener.open(request, timeout=25) as response:
-                    return json.load(response) if parse_json else response.read().decode(
-                        "utf-8", errors="replace"
-                    )
-            except HTTPError as error:
-                if error.code != 429 or attempt == 3:
-                    raise
-                delay = 5 * (2 ** attempt)
-                logging.warning("Naver rate limited a request; retrying in %ss", delay)
-                time.sleep(delay)
-        raise RuntimeError("Naver request retry loop ended unexpectedly")
-
-    def _ensure_session(self) -> None:
-        if self.session_ready:
-            return
-        request = Request(
-            f"https://brand.naver.com/{self.store}/category/"
-            "f6042b4f407c4803bf53b59001026901?cp=1",
-            headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/137 Safari/537.36"},
-        )
-        html = self._open(request, parse_json=False)
-        self.preloaded_state = self._preloaded_state(html)
-        self.session_ready = True
 
     @staticmethod
     def _preloaded_state(html: str) -> dict[str, Any]:
@@ -270,67 +242,14 @@ class NaverBrandCategoryClient:
         javascript_object = re.sub(r"\bundefined\b", "null", match.group(1).strip())
         return json.loads(javascript_object)
 
-    def _page(
-        self, page: int, sort: str = "RECENT", category_id: str | None = None,
-    ) -> dict[str, Any]:
-        self._ensure_session()
-        params = urlencode({
-            "categorySearchType": "DISPCATG",
-            "sortType": sort,
-            "page": page,
-            "pageSize": 40,
-            "deduplicateGroupEpId": "true",
-        })
-        url = (
-            f"{NAVER_BRAND_API}/channels/{self.channel_uid}/categories/"
-            f"{category_id or self.category_id}/products?{params}"
-        )
-        request = Request(
-            url,
-            headers={
-                "Accept": "application/json",
-                "Referer": f"https://brand.naver.com/{self.store}/category/"
-                "f6042b4f407c4803bf53b59001026901?cp=1",
-                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/137 Safari/537.36",
-            },
-        )
-        return self._open(request, parse_json=True)
-
     def newest(self) -> list[dict[str, Any]]:
         """Fetch the newest 40 products for frequent discovery and stock checks."""
-        return [self._normalize(product) for product in self._page(1).get("simpleProducts", [])]
-
-    def products(self) -> list[dict[str, Any]]:
-        """Build a broad catalog from every public leaf-category backend feed."""
-        self._ensure_session()
-        root = self.preloaded_state["categoryMenu"]["storeCategoryTree"]
-        category_ids: list[str] = []
-
-        def visit(category: dict[str, Any]) -> None:
-            children = category.get("subCategories") or []
-            if category.get("id") != "0" and not children and category.get("exposure", True):
-                category_ids.append(str(category["id"]))
-            for child in children:
-                visit(child)
-
-        visit(root)
-        found = {product["key"]: product for product in self.newest()}
-        failures = 0
-        for category_id in category_ids:
-            try:
-                data = self._page(1, category_id=category_id)
-                for raw in data.get("simpleProducts") or []:
-                    product = self._normalize(raw)
-                    found[product["key"]] = product
-            except (HTTPError, URLError, TimeoutError, ValueError, json.JSONDecodeError):
-                failures += 1
-                logging.warning("Naver category %s could not be read", category_id)
-            time.sleep(0.5)
-        logging.info(
-            "Read %s unique Naver products from %s leaf categories (%s failures)",
-            len(found), len(category_ids), failures,
+        url = (
+            f"https://brand.naver.com/{self.store}/category/{self.category_id}"
+            "?st=RECENT&dt=IMAGE&page=1&size=40"
         )
-        return list(found.values())
+        category = self._preloaded_state(request_text(url))["categoryProducts"]
+        return [self._normalize(product) for product in category.get("simpleProducts") or []]
 
     def _normalize(self, product: dict[str, Any]) -> dict[str, Any]:
         public_id = int(product["id"])
@@ -538,7 +457,7 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             config, state, [pokemon.product(product_no)], feed="pokemonstore-watchlist", notify_new=False
         )
 
-    if config.scan_full_catalog and config.scan_pokemon_catalog:
+    if config.scan_full_catalog:
         logging.info("Refreshing full Pokémon Store catalog")
         observe_products(
             config, state, pokemon.catalog(), feed="pokemonstore-catalog-all",
@@ -546,14 +465,10 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
         )
 
     naver_pokemon = NaverBrandCategoryClient("pokemon")
-    observe_products(config, state, naver_pokemon.newest(), feed="naver-pokemon-recent")
-
-    if config.scan_full_catalog:
-        logging.info("Refreshing full Naver Pokémon Brand Store catalog")
-        observe_products(
-            config, state, naver_pokemon.products(), feed="naver-pokemon-catalog-all",
-            reliable_stock=False,
-        )
+    try:
+        observe_products(config, state, naver_pokemon.newest(), feed="naver-pokemon-recent")
+    except (HTTPError, URLError, TimeoutError, KeyError, ValueError, RuntimeError):
+        logging.exception("Naver public feed is temporarily unavailable; retained previous state")
 
     if config.naver_client_id and config.naver_client_secret:
         xoplay = NaverShoppingSearchClient(
