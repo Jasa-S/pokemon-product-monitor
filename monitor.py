@@ -90,8 +90,10 @@ def load_watchlist(path: str) -> set[int]:
 def normalized_product(
     *, source: str, product_id: int | str, name: str, price: int | float | None,
     image: str | None, available: bool, status: str, url: str,
+    stock_status: str | None = None, available_options: int | None = None,
+    sold_out_options: int | None = None,
 ) -> dict[str, Any]:
-    return {
+    product = {
         "key": f"{source}:{product_id}",
         "source": source,
         "productNo": str(product_id),
@@ -101,7 +103,13 @@ def normalized_product(
         "isSoldOut": not available,
         "saleStatusType": status,
         "url": url,
+        "stockStatus": stock_status or ("AVAILABLE" if available else "SOLD_OUT"),
     }
+    if available_options is not None:
+        product["availableOptionCount"] = available_options
+    if sold_out_options is not None:
+        product["soldOutOptionCount"] = sold_out_options
+    return product
 
 
 class PokemonStoreClient:
@@ -128,6 +136,46 @@ class PokemonStoreClient:
             url=f"{POKEMON_STORE}/pages/product/product-detail.html?productNo={product_no}",
         )
 
+    @staticmethod
+    def _option_sale_types(options: list[dict[str, Any]]) -> list[str]:
+        sale_types: list[str] = []
+        for option in options:
+            children = option.get("children") or []
+            if children:
+                sale_types.extend(PokemonStoreClient._option_sale_types(children))
+            elif option.get("saleType"):
+                sale_types.append(str(option["saleType"]))
+        return sale_types
+
+    def _add_option_stock(self, products: list[dict[str, Any]]) -> None:
+        """Replace optimistic search status with authoritative option availability."""
+        by_no = {product["productNo"]: product for product in products}
+        product_nos = list(by_no)
+        for offset in range(0, len(product_nos), 100):
+            batch = product_nos[offset:offset + 100]
+            data = self._get("/products/options", {"productNos": ",".join(batch)})
+            for info in data.get("optionInfos", []):
+                product = by_no.get(str(info.get("mallProductNo")))
+                if not product:
+                    continue
+                sale_types = self._option_sale_types(info.get("options") or [])
+                if not sale_types:
+                    continue
+                available_count = sum(value == "AVAILABLE" for value in sale_types)
+                sold_out_count = len(sale_types) - available_count
+                if available_count and sold_out_count:
+                    stock_status = "PARTIAL"
+                elif available_count:
+                    stock_status = "AVAILABLE"
+                else:
+                    stock_status = "SOLD_OUT"
+                product.update({
+                    "isSoldOut": available_count == 0,
+                    "stockStatus": stock_status,
+                    "availableOptionCount": available_count,
+                    "soldOutOptionCount": sold_out_count,
+                })
+
     def new_arrivals(self) -> list[dict[str, Any]]:
         data = self._get(
             "/display/sections/ids/SCPC0001/products", {"pageNumber": 1, "pageSize": 20}
@@ -143,6 +191,7 @@ class PokemonStoreClient:
             page_count = int(data.get("pageCount") or 0)
             products.extend(self._normalize(product) for product in data.get("items", []))
             page += 1
+        self._add_option_stock(products)
         return products
 
     def product(self, product_no: int) -> dict[str, Any]:

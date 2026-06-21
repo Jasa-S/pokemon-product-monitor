@@ -10,6 +10,7 @@ from manage_watchlist import update_watchlist
 
 from monitor import (
     NaverBrandCategoryClient,
+    PokemonStoreClient,
     State,
     is_available,
     keyword_match,
@@ -34,6 +35,28 @@ class MonitorTests(unittest.TestCase):
     def test_availability(self):
         self.assertTrue(is_available(sample_product(available=True)))
         self.assertFalse(is_available(sample_product(available=False)))
+
+    def test_option_stock_distinguishes_partial_and_sold_out(self):
+        products = [sample_product(1, source="pokemonstore"), sample_product(2, source="pokemonstore")]
+        client = PokemonStoreClient("test")
+        response = {
+            "optionInfos": [
+                {"mallProductNo": 1, "options": [
+                    {"saleType": "AVAILABLE", "children": []},
+                    {"saleType": "SOLDOUT", "children": []},
+                ]},
+                {"mallProductNo": 2, "options": [
+                    {"saleType": "SOLDOUT", "children": []},
+                ]},
+            ]
+        }
+        with patch.object(client, "_get", return_value=response):
+            client._add_option_stock(products)
+        self.assertEqual(products[0]["stockStatus"], "PARTIAL")
+        self.assertFalse(products[0]["isSoldOut"])
+        self.assertEqual(products[0]["availableOptionCount"], 1)
+        self.assertEqual(products[1]["stockStatus"], "SOLD_OUT")
+        self.assertTrue(products[1]["isSoldOut"])
 
     def test_keyword_filter_is_case_insensitive(self):
         product = sample_product()

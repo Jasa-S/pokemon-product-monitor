@@ -28,6 +28,7 @@
     .row { display:flex; justify-content:space-between; gap:10px; align-items:center }
     .badge { padding:4px 8px; border-radius:999px; font-size:.75rem; background:#dc2626 }
     .badge.available { background:#15803d }
+    .badge.partial { background:#b45309 }
     .source { color:#93c5fd; font-size:.75rem }
     .prices { display:flex; flex-direction:column }
     .eur { color:#9ca3af; font-size:.8rem }
@@ -41,7 +42,7 @@
   <div class="controls">
     <input id="search" type="search" placeholder="Search products…">
     <select id="source"><option value="">All stores</option></select>
-    <select id="availability"><option value="">Any stock status</option><option value="available">In stock</option><option value="unavailable">Unavailable</option></select>
+    <select id="availability"><option value="">Any stock status</option><option value="available">Fully in stock</option><option value="partial">Some variants unavailable</option><option value="unavailable">Sold out</option></select>
     <select id="sort"><option value="name">Name A–Z</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="stock">In stock first</option></select>
     <input id="minprice" type="number" min="0" step="1000" placeholder="Min ₩">
     <input id="maxprice" type="number" min="0" step="1000" placeholder="Max ₩">
@@ -75,11 +76,16 @@
       const min=minValue===''?0:Number(minValue);
       const max=maxValue===''?Infinity:Number(maxValue);
       const order=document.querySelector('#sort').value;
-      const visible=products.filter(p=>(!source||p.source===source)&&p.productName.toLocaleLowerCase().includes(q)&&(!availability||(availability==='available'?!p.isSoldOut:p.isSoldOut))&&((minValue===''&&maxValue==='')||(p.salePrice!=null&&p.salePrice>=min&&p.salePrice<=max)));
-      visible.sort((a,b)=>order==='price-asc'?(a.salePrice??Infinity)-(b.salePrice??Infinity):order==='price-desc'?(b.salePrice??-1)-(a.salePrice??-1):order==='stock'?Number(a.isSoldOut)-Number(b.isSoldOut):a.productName.localeCompare(b.productName));
-      const available=visible.filter(p=>!p.isSoldOut).length;
-      document.querySelector('#stats').textContent=`Showing ${visible.length.toLocaleString()} · ${available.toLocaleString()} in stock · ${(visible.length-available).toLocaleString()} unavailable`;
-      document.querySelector('#grid').innerHTML=visible.map(p=>{const request=watchRequest(p);return `<article><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer"><img loading="lazy" src="${p.image?.startsWith('https://')?esc(p.image):''}" alt=""></a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><span class="prices"><strong>${p.salePrice==null?'—':money.format(p.salePrice)}</strong><span class="eur">${p.salePrice!=null&&eurRate?`≈ ${euros.format(p.salePrice*eurRate)}`:'EUR unavailable'}</span></span><span class="badge ${p.isSoldOut?'':'available'}">${p.isSoldOut?'Unavailable':'Available'}</span></div>${p.source==='pokemonstore'?`<a class="watch ${request.active?'selected':''}" href="${request.url}" target="_blank" rel="noreferrer">${request.active?'✓ Watching — remove':'Watch restock'}</a>`:''}</div></article>`}).join('');
+      const stockState=p=>p.stockStatus||(p.isSoldOut?'SOLD_OUT':'AVAILABLE');
+      const matchesStock=p=>!availability||(availability==='available'&&stockState(p)==='AVAILABLE')||(availability==='partial'&&stockState(p)==='PARTIAL')||(availability==='unavailable'&&stockState(p)==='SOLD_OUT');
+      const stockOrder={AVAILABLE:0,PARTIAL:1,SOLD_OUT:2};
+      const visible=products.filter(p=>(!source||p.source===source)&&p.productName.toLocaleLowerCase().includes(q)&&matchesStock(p)&&((minValue===''&&maxValue==='')||(p.salePrice!=null&&p.salePrice>=min&&p.salePrice<=max)));
+      visible.sort((a,b)=>order==='price-asc'?(a.salePrice??Infinity)-(b.salePrice??Infinity):order==='price-desc'?(b.salePrice??-1)-(a.salePrice??-1):order==='stock'?(stockOrder[stockState(a)]??9)-(stockOrder[stockState(b)]??9):a.productName.localeCompare(b.productName));
+      const available=visible.filter(p=>stockState(p)==='AVAILABLE').length;
+      const partial=visible.filter(p=>stockState(p)==='PARTIAL').length;
+      const unavailable=visible.filter(p=>stockState(p)==='SOLD_OUT').length;
+      document.querySelector('#stats').textContent=`Showing ${visible.length.toLocaleString()} · ${available.toLocaleString()} fully in stock · ${partial.toLocaleString()} partial · ${unavailable.toLocaleString()} sold out`;
+      document.querySelector('#grid').innerHTML=visible.map(p=>{const request=watchRequest(p);const state=stockState(p);const label=state==='PARTIAL'?`Partial (${p.availableOptionCount??'?'} available / ${p.soldOutOptionCount??'?'} sold out)`:state==='SOLD_OUT'?'Sold out':'Available';const badge=state==='AVAILABLE'?'available':state==='PARTIAL'?'partial':'';return `<article><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer"><img loading="lazy" src="${p.image?.startsWith('https://')?esc(p.image):''}" alt=""></a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><span class="prices"><strong>${p.salePrice==null?'—':money.format(p.salePrice)}</strong><span class="eur">${p.salePrice!=null&&eurRate?`≈ ${euros.format(p.salePrice*eurRate)}`:'EUR unavailable'}</span></span><span class="badge ${badge}">${esc(label)}</span></div>${p.source==='pokemonstore'?`<a class="watch ${request.active?'selected':''}" href="${request.url}" target="_blank" rel="noreferrer">${request.active?'✓ Watching — remove':'Watch restock'}</a>`:''}</div></article>`}).join('');
     }
     fetch('status.json').then(r=>r.json()).then(data=>{
       products=data.products;
