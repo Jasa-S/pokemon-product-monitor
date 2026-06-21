@@ -4,7 +4,7 @@ A dependency-free Python monitor and GitHub Pages dashboard for:
 
 - the complete Pokémon Store Korea catalog, **NEW ARRIVAL** products, and explicit product restocks;
 - the 40 newest products and their stock changes in the requested Pokémon Naver Brand Store card category; and
-- Xoplay discoveries through Naver's official Shopping Search API when credentials are configured.
+- Xoplay discoveries through Naver's official Shopping Search API when indexed, plus an optional user-controlled local browser monitor for complete catalogue and stock checks.
 
 The initial run establishes a silent baseline. Later new products and genuine restocks are sent as Discord embeds when a webhook is configured.
 
@@ -24,6 +24,27 @@ To enable five-minute Pokémon Brand Store and Xoplay discovery, create a Naver 
 - `NAVER_CLIENT_SECRET`
 
 The defaults use eleven store-specific Pokémon queries, then retain only results whose links or normalized mall names belong to the requested Brand/Smart Store. At the five-minute schedule this uses at most about 3,179 of the 25,000 daily Search API requests.
+
+### User-controlled Xoplay monitoring
+
+Naver presents CAPTCHAs to GitHub-hosted browsers and its Search API does not reliably index Xoplay. For release windows, run the optional local monitor on a Mac or other desktop. It never starts automatically and stops completely on command.
+
+One-time setup:
+
+```sh
+./xoplay-monitor setup
+```
+
+Turn it on only when wanted:
+
+```sh
+./xoplay-monitor start
+./xoplay-monitor status
+./xoplay-monitor logs
+./xoplay-monitor stop
+```
+
+The visible browser uses `.xoplay-browser/` to retain its session. Complete Naver's CAPTCHA in that window if prompted. The first successful scan silently establishes a baseline; later new products and sold-out-to-available changes trigger the existing translated Discord workflow. Changed Xoplay catalogue data is published separately to `docs/xoplay.json`, so the hosted Pokémon monitor cannot overwrite it. The local machine must remain awake and online while monitoring is enabled. Use `./xoplay-monitor once` for a single interactive check.
 
 ## GitHub configuration
 

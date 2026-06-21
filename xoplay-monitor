@@ -1,0 +1,81 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+VENV="$ROOT/.venv-xoplay"
+PID_FILE="$ROOT/.xoplay-monitor.pid"
+LOG_FILE="$ROOT/.xoplay-monitor.log"
+ENV_FILE="$ROOT/.env.xoplay"
+
+load_env() {
+  if [ -f "$ENV_FILE" ]; then
+    set -a
+    . "$ENV_FILE"
+    set +a
+  fi
+}
+
+running() {
+  [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null
+}
+
+case "${1:-}" in
+  setup)
+    python3 -m venv "$VENV"
+    "$VENV/bin/pip" install -r "$ROOT/requirements-xoplay.txt"
+    "$VENV/bin/playwright" install chromium
+    if [ ! -f "$ENV_FILE" ]; then
+      cp "$ROOT/.env.xoplay.example" "$ENV_FILE"
+    fi
+    gh auth status
+    echo "Setup complete. Run: ./xoplay-monitor start"
+    ;;
+  start)
+    if running; then
+      echo "Xoplay monitor is already running (PID $(cat "$PID_FILE"))."
+      exit 0
+    fi
+    if [ ! -x "$VENV/bin/python" ]; then
+      echo "Run ./xoplay-monitor setup first."
+      exit 1
+    fi
+    load_env
+    nohup "$VENV/bin/python" "$ROOT/xoplay_local_monitor.py" >>"$LOG_FILE" 2>&1 &
+    echo $! >"$PID_FILE"
+    echo "Xoplay monitor started (PID $!). A browser window will open."
+    echo "Logs: ./xoplay-monitor logs"
+    ;;
+  once)
+    if [ ! -x "$VENV/bin/python" ]; then
+      echo "Run ./xoplay-monitor setup first."
+      exit 1
+    fi
+    load_env
+    XOPLAY_RUN_ONCE=true "$VENV/bin/python" "$ROOT/xoplay_local_monitor.py"
+    ;;
+  stop)
+    if running; then
+      kill "$(cat "$PID_FILE")"
+      rm -f "$PID_FILE"
+      echo "Xoplay monitor stopped."
+    else
+      rm -f "$PID_FILE"
+      echo "Xoplay monitor is not running."
+    fi
+    ;;
+  status)
+    if running; then
+      echo "Xoplay monitor is running (PID $(cat "$PID_FILE"))."
+    else
+      echo "Xoplay monitor is stopped."
+    fi
+    ;;
+  logs)
+    touch "$LOG_FILE"
+    tail -n 80 -f "$LOG_FILE"
+    ;;
+  *)
+    echo "Usage: ./xoplay-monitor {setup|start|once|stop|status|logs}"
+    exit 1
+    ;;
+esac

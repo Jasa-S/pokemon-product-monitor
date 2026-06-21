@@ -4,3 +4,9 @@ __pycache__/
 .DS_Store
 work/
 outputs/
+.env.xoplay
+.venv-xoplay/
+.xoplay-browser/
+.xoplay-monitor.pid
+.xoplay-monitor.log
+.xoplay-monitor-state.json

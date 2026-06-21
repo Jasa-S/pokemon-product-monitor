@@ -94,12 +94,16 @@
       more.hidden=shown.length===visible.length;
       more.textContent=`Show ${Math.min(120,visible.length-shown.length).toLocaleString()} more products`;
     }
-    fetch('status.json').then(r=>r.json()).then(data=>{
-      products=data.products;
+    Promise.all([
+      fetch('status.json').then(r=>r.json()),
+      fetch('xoplay.json').then(r=>r.ok?r.json():{products:[]}).catch(()=>({products:[]}))
+    ]).then(([data,xoplay])=>{
+      products=[...data.products.filter(p=>p.source!=='naver-xoplay'),...(xoplay.products||[])];
       watched=new Set(data.watchProductNos||[]);
       eurRate=data.exchangeRate?.rate||null;
       const rateNote=data.exchangeRate?` · EUR reference ${data.exchangeRate.date}`:'';
-      document.querySelector('#meta').textContent=`${products.length.toLocaleString()} tracked · updated ${new Date(data.updatedAt).toLocaleString()}${rateNote}`;
+      const updated=[data.updatedAt,xoplay.updatedAt].filter(Boolean).sort().pop();
+      document.querySelector('#meta').textContent=`${products.length.toLocaleString()} tracked · updated ${new Date(updated).toLocaleString()}${rateNote}`;
       [...new Set(products.map(p=>p.source))].sort().forEach(s=>document.querySelector('#source').insertAdjacentHTML('beforeend',`<option>${esc(s)}</option>`));
       render();
     });
