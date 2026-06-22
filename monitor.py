@@ -60,7 +60,7 @@ class Config:
         ).split(",")
         pokemon_queries = os.getenv(
             "NAVER_POKEMON_QUERIES",
-            "포켓몬 카드,포켓몬카드,포켓몬 카드 게임,포켓몬 덱,포켓몬 카드 슬리브",
+            "포켓몬 스토어 온라인,포켓몬센터 공식,포켓몬센터,포켓몬 스토어,포켓몬 카드",
         ).split(",")
         return cls(
             webhook_url=os.getenv("DISCORD_WEBHOOK_URL", ""),
