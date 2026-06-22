@@ -24,6 +24,24 @@ SHOPBY_API = "https://shop-api.e-ncp.com"
 POKEMON_STORE = "https://www.pokemonstore.co.kr"
 DEFAULT_SHOPBY_CLIENT_ID = "HJGfZ5jPHZk3/PEOkm+/Qw=="
 NAVER_SEARCH_API = "https://openapi.naver.com/v1/search/shop.json"
+NAVER_POKEMON_CARD_QUERIES = (
+    "포켓몬 스토어 온라인 포켓몬 카드",
+    "포켓몬센터 공식 포켓몬 카드",
+    "포켓몬센터 포켓몬 카드 게임",
+    "포켓몬 스토어 포켓몬 카드 게임",
+    "포켓몬 카드 게임 확장팩",
+    "포켓몬 카드 게임 강화 확장팩",
+    "포켓몬 카드 게임 스타터 세트",
+    "포켓몬 카드 게임 스페셜 세트",
+    "포켓몬 카드 게임 덱",
+    "포켓몬 카드 게임 카드 실드",
+    "포켓몬 카드 게임 플레이매트",
+    "포켓몬 카드 게임 컬렉션 파일",
+)
+NAVER_POKEMON_CARD_TERMS = (
+    "카드", "확장팩", "강화팩", "부스터", "스타터", "덱", "플레이매트",
+    "컬렉션 파일", "프로모", "tcg",
+)
 GITHUB_MODELS_API = "https://models.github.ai/inference/chat/completions"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
 POKEMON_CARD_CATEGORY_NO = 488339
@@ -60,7 +78,7 @@ class Config:
         ).split(",")
         pokemon_queries = os.getenv(
             "NAVER_POKEMON_QUERIES",
-            "포켓몬 스토어 온라인,포켓몬센터 공식,포켓몬센터,포켓몬 스토어,포켓몬 카드",
+            ",".join(NAVER_POKEMON_CARD_QUERIES),
         ).split(",")
         return cls(
             webhook_url=os.getenv("DISCORD_WEBHOOK_URL", ""),
@@ -609,9 +627,13 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             config.naver_pokemon_queries,
             hosts=("brand.naver.com", "smartstore.naver.com"),
             mall_names=("포켓몬 스토어 온라인", "포켓몬스토어온라인"),
+            required_title_terms=NAVER_POKEMON_CARD_TERMS,
         )
+        pokemon_card_products = pokemon_search.products()
+        if pokemon_card_products:
+            state.clear_source_once("naver-pokemon", "scope:naver-pokemon-card-search-v2")
         observe_products(
-            config, state, pokemon_search.products(), feed="naver-pokemon-search-store-v4",
+            config, state, pokemon_card_products, feed="naver-pokemon-card-search-v5",
             reliable_stock=False, update_existing=False,
         )
         xoplay = NaverShoppingSearchClient(
