@@ -5,6 +5,7 @@ from xoplay_local_monitor import (
     high_resolution_naver_image,
     normalize_raw_product,
     product_events,
+    scan_events,
     wait_for_access,
 )
 
@@ -22,6 +23,16 @@ class XoplayLocalMonitorTests(unittest.TestCase):
         updated = {"key": "naver-pokemon:1", "productName": "Updated"}
         other = {"key": "naver-pokemon:2", "productName": "Other"}
         self.assertEqual(deduplicate_products([old, updated, other]), [updated, other])
+
+    def test_new_category_scope_is_silently_baselined(self):
+        previous = {
+            "naver-pokemon:1": {"key": "naver-pokemon:1", "isSoldOut": False}
+        }
+        added = {"key": "naver-pokemon:2", "isSoldOut": False}
+        self.assertEqual(
+            scan_events(previous, [*previous.values(), added], {"old"}, {"old", "new"}),
+            [],
+        )
 
     def test_pending_login_can_be_stopped(self):
         class Body:
