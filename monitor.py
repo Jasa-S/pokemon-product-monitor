@@ -17,6 +17,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 
+from external_stores import EXPECTED_NETWORK_ERRORS, requested_category_clients
+
 
 SHOPBY_API = "https://shop-api.e-ncp.com"
 POKEMON_STORE = "https://www.pokemonstore.co.kr"
@@ -43,6 +45,7 @@ class Config:
     naver_search_queries: tuple[str, ...]
     check_naver_public: bool
     scan_full_catalog: bool
+    external_store_interval: int
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -71,6 +74,9 @@ class Config:
             naver_search_queries=tuple(query.strip() for query in queries if query.strip()),
             check_naver_public=os.getenv("CHECK_NAVER_PUBLIC", "true").casefold() == "true",
             scan_full_catalog=os.getenv("SCAN_FULL_CATALOG", "false").casefold() == "true",
+            external_store_interval=max(
+                300, int(os.getenv("EXTERNAL_STORE_INTERVAL_SECONDS", "600"))
+            ),
         )
 
 
@@ -118,6 +124,7 @@ def normalized_product(
     image: str | None, available: bool, status: str, url: str,
     stock_status: str | None = None, available_options: int | None = None,
     sold_out_options: int | None = None,
+    currency: str = "KRW",
 ) -> dict[str, Any]:
     product = {
         "key": f"{source}:{product_id}",
@@ -125,6 +132,7 @@ def normalized_product(
         "productNo": str(product_id),
         "productName": name,
         "salePrice": price,
+        "currency": currency,
         "image": normalize_image(image),
         "isSoldOut": not available,
         "saleStatusType": status,
@@ -347,6 +355,9 @@ class State:
         self.db.execute(
             "CREATE TABLE IF NOT EXISTS initialized_feeds (feed TEXT PRIMARY KEY)"
         )
+        self.db.execute(
+            "CREATE TABLE IF NOT EXISTS check_times (feed TEXT PRIMARY KEY, checked_at REAL NOT NULL)"
+        )
         self.db.commit()
 
     def get(self, product_key: str) -> dict[str, Any] | None:
@@ -400,6 +411,20 @@ class State:
             if json.loads(row[1]).get("source") == source and row[0] not in product_keys
         ]
         self.db.executemany("DELETE FROM observations WHERE product_key = ?", ((key,) for key in keys))
+        self.db.commit()
+
+    def check_due(self, feed: str, interval_seconds: int, now: float | None = None) -> bool:
+        row = self.db.execute(
+            "SELECT checked_at FROM check_times WHERE feed = ?", (feed,)
+        ).fetchone()
+        return row is None or (now if now is not None else time.time()) - float(row[0]) >= interval_seconds
+
+    def mark_checked(self, feed: str, checked_at: float | None = None) -> None:
+        self.db.execute(
+            "INSERT INTO check_times(feed, checked_at) VALUES(?, ?) "
+            "ON CONFLICT(feed) DO UPDATE SET checked_at = excluded.checked_at",
+            (feed, checked_at if checked_at is not None else time.time()),
+        )
         self.db.commit()
 
 
@@ -465,6 +490,11 @@ def send_discord(webhook_url: str, title: str, product: dict[str, Any], color: i
         logging.info("Discord is not configured; skipped alert: %s", product["productName"])
         return
     price = product.get("salePrice")
+    currency = product.get("currency", "KRW")
+    if isinstance(price, (int, float)):
+        price_text = f"€{price:,.2f}" if currency == "EUR" else f"₩{price:,.0f}"
+    else:
+        price_text = "Unknown"
     translated = translate_product_name(product["productName"])
     description = (
         f"**{translated}**\nOriginal: {product['productName']}" if translated else product["productName"]
@@ -474,7 +504,7 @@ def send_discord(webhook_url: str, title: str, product: dict[str, Any], color: i
         "fields": [
             {"name": "Store", "value": product["source"], "inline": True},
             {"name": "Product", "value": f"#{product['productNo']}", "inline": True},
-            {"name": "Price", "value": f"₩{price:,.0f}" if isinstance(price, (int, float)) else "Unknown", "inline": True},
+            {"name": "Price", "value": price_text, "inline": True},
         ],
         "footer": {"text": "Pokémon product monitor"},
     }
@@ -565,6 +595,21 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
         )
     else:
         logging.info("Naver Search API credentials absent; skipping fast Naver discovery")
+
+    if state.check_due("external-card-categories", config.external_store_interval):
+        for client in requested_category_clients():
+            try:
+                products = client.products()
+                state.retain_source_products(
+                    client.source, {product["key"] for product in products}
+                )
+                observe_products(
+                    config, state, products, feed=f"external:{client.source}", reliable_stock=True
+                )
+                logging.info("External category %s: %s products", client.source, len(products))
+            except EXPECTED_NETWORK_ERRORS:
+                logging.exception("External category %s is temporarily unavailable", client.source)
+        state.mark_checked("external-card-categories")
 
 
 def main() -> None:

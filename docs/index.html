@@ -10,7 +10,7 @@
     header { display:flex; gap:20px; justify-content:space-between; align-items:end; flex-wrap:wrap }
     h1 { margin:0; font-size:clamp(2rem,6vw,4.5rem); line-height:.95; color:#ffcb05 }
     #meta { color:#9ca3af }
-    .controls { display:grid; grid-template-columns:minmax(220px,2fr) repeat(4,minmax(130px,1fr)) auto; gap:10px; margin:32px 0 14px }
+    .controls { display:grid; grid-template-columns:minmax(220px,2fr) repeat(5,minmax(120px,1fr)) auto; gap:10px; margin:32px 0 14px }
     input, select, button { padding:12px 14px; border-radius:10px; border:1px solid #374151; background:#1f2937; color:white; font:inherit }
     input { flex:1; min-width:220px }
     .controls input { min-width:0 }
@@ -43,6 +43,7 @@
   <div class="controls">
     <input id="search" type="search" placeholder="Search name or product number…">
     <select id="source"><option value="">All stores</option></select>
+    <select id="currency"><option value="">Any currency</option><option value="KRW">KRW</option><option value="EUR">EUR</option></select>
     <select id="availability"><option value="">Any stock status</option><option value="available">Fully in stock</option><option value="partial">Some variants unavailable</option><option value="unavailable">Sold out</option></select>
     <select id="sort"><option value="name">Name A–Z</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="stock">In stock first</option></select>
     <input id="minprice" type="number" min="0" step="1000" placeholder="Min ₩">
@@ -73,6 +74,7 @@
     function render(){
       const q=document.querySelector('#search').value.toLocaleLowerCase();
       const source=document.querySelector('#source').value;
+      const currency=document.querySelector('#currency').value;
       const availability=document.querySelector('#availability').value;
       const minValue=document.querySelector('#minprice').value;
       const maxValue=document.querySelector('#maxprice').value;
@@ -82,35 +84,36 @@
       const stockState=p=>p.stockStatus||(p.isSoldOut?'SOLD_OUT':'AVAILABLE');
       const matchesStock=p=>!availability||(availability==='available'&&stockState(p)==='AVAILABLE')||(availability==='partial'&&stockState(p)==='PARTIAL')||(availability==='unavailable'&&stockState(p)==='SOLD_OUT');
       const stockOrder={AVAILABLE:0,PARTIAL:1,SOLD_OUT:2};
-      const visible=products.filter(p=>(!source||p.source===source)&&(p.productName.toLocaleLowerCase().includes(q)||p.productNo.includes(q))&&matchesStock(p)&&((minValue===''&&maxValue==='')||(p.salePrice!=null&&p.salePrice>=min&&p.salePrice<=max)));
+      const visible=products.filter(p=>(!source||p.source===source)&&(!currency||(p.currency||'KRW')===currency)&&(p.productName.toLocaleLowerCase().includes(q)||p.productNo.includes(q))&&matchesStock(p)&&((minValue===''&&maxValue==='')||(p.salePrice!=null&&p.salePrice>=min&&p.salePrice<=max)));
       visible.sort((a,b)=>order==='price-asc'?(a.salePrice??Infinity)-(b.salePrice??Infinity):order==='price-desc'?(b.salePrice??-1)-(a.salePrice??-1):order==='stock'?(stockOrder[stockState(a)]??9)-(stockOrder[stockState(b)]??9):a.productName.localeCompare(b.productName));
       const available=visible.filter(p=>stockState(p)==='AVAILABLE').length;
       const partial=visible.filter(p=>stockState(p)==='PARTIAL').length;
       const unavailable=visible.filter(p=>stockState(p)==='SOLD_OUT').length;
       const shown=visible.slice(0,displayLimit);
       document.querySelector('#stats').textContent=`Showing ${shown.length.toLocaleString()} of ${visible.length.toLocaleString()} matches · ${available.toLocaleString()} fully in stock · ${partial.toLocaleString()} partial · ${unavailable.toLocaleString()} sold out`;
-      document.querySelector('#grid').innerHTML=shown.map(p=>{const request=watchRequest(p);const state=stockState(p);const label=state==='PARTIAL'?`Partial (${p.availableOptionCount??'?'} available / ${p.soldOutOptionCount??'?'} sold out)`:state==='SOLD_OUT'?'Sold out':'Available';const badge=state==='AVAILABLE'?'available':state==='PARTIAL'?'partial':'';return `<article><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer"><img loading="lazy" src="${p.image?.startsWith('https://')?esc(p.image):''}" alt=""></a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><span class="prices"><strong>${p.salePrice==null?'—':money.format(p.salePrice)}</strong><span class="eur">${p.salePrice!=null&&eurRate?`≈ ${euros.format(p.salePrice*eurRate)}`:'EUR unavailable'}</span></span><span class="badge ${badge}">${esc(label)}</span></div>${p.source==='pokemonstore'?`<a class="watch ${request.active?'selected':''}" href="${request.url}" target="_blank" rel="noreferrer">${request.active?'✓ Watching — remove':'Watch restock'}</a>`:''}</div></article>`}).join('');
+      document.querySelector('#grid').innerHTML=shown.map(p=>{const request=watchRequest(p);const state=stockState(p);const label=state==='PARTIAL'?`Partial (${p.availableOptionCount??'?'} available / ${p.soldOutOptionCount??'?'} sold out)`:state==='SOLD_OUT'?'Sold out':'Available';const badge=state==='AVAILABLE'?'available':state==='PARTIAL'?'partial':'';const isEuro=p.currency==='EUR';const primary=p.salePrice==null?'—':isEuro?euros.format(p.salePrice):money.format(p.salePrice);const secondary=isEuro?'EUR shop price':p.salePrice!=null&&eurRate?`≈ ${euros.format(p.salePrice*eurRate)}`:'EUR unavailable';return `<article><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer"><img loading="lazy" src="${p.image?.startsWith('https://')?esc(p.image):''}" alt=""></a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><span class="prices"><strong>${primary}</strong><span class="eur">${secondary}</span></span><span class="badge ${badge}">${esc(label)}</span></div>${p.source==='pokemonstore'?`<a class="watch ${request.active?'selected':''}" href="${request.url}" target="_blank" rel="noreferrer">${request.active?'✓ Watching — remove':'Watch restock'}</a>`:''}</div></article>`}).join('');
       const more=document.querySelector('#more');
       more.hidden=shown.length===visible.length;
       more.textContent=`Show ${Math.min(120,visible.length-shown.length).toLocaleString()} more products`;
     }
     Promise.all([
       fetch('status.json').then(r=>r.json()),
-      fetch('xoplay.json').then(r=>r.ok?r.json():{products:[]}).catch(()=>({products:[]}))
-    ]).then(([data,xoplay])=>{
-      products=[...data.products.filter(p=>p.source!=='naver-xoplay'),...(xoplay.products||[])];
+      fetch('local-naver.json').then(r=>r.ok?r.json():{products:[]}).catch(()=>({products:[]}))
+    ]).then(([data,localNaver])=>{
+      const localSources=new Set((localNaver.products||[]).map(p=>p.source));
+      products=[...data.products.filter(p=>!localSources.has(p.source)),...(localNaver.products||[])];
       watched=new Set(data.watchProductNos||[]);
       eurRate=data.exchangeRate?.rate||null;
       const rateNote=data.exchangeRate?` · EUR reference ${data.exchangeRate.date}`:'';
-      const updated=[data.updatedAt,xoplay.updatedAt].filter(Boolean).sort().pop();
+      const updated=[data.updatedAt,localNaver.updatedAt].filter(Boolean).sort().pop();
       document.querySelector('#meta').textContent=`${products.length.toLocaleString()} tracked · updated ${new Date(updated).toLocaleString()}${rateNote}`;
       [...new Set(products.map(p=>p.source))].sort().forEach(s=>document.querySelector('#source').insertAdjacentHTML('beforeend',`<option>${esc(s)}</option>`));
       render();
     });
-    ['search','source','availability','sort','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).addEventListener(id==='search'||id.includes('price')?'input':'change',()=>{displayLimit=120;render()}));
+    ['search','source','currency','availability','sort','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).addEventListener(id==='search'||id.includes('price')?'input':'change',()=>{displayLimit=120;render()}));
     document.querySelector('#more').addEventListener('click',()=>{displayLimit+=120;render()});
     document.querySelector('#clear').addEventListener('click',()=>{
-      ['search','source','availability','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).value='');
+      ['search','source','currency','availability','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).value='');
       document.querySelector('#sort').value='name'; displayLimit=120; render();
     });
   </script>

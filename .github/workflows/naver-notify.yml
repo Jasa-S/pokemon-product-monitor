@@ -1,4 +1,4 @@
-name: Send Xoplay notification
+name: Send local Naver notification
 
 on:
   workflow_dispatch:
@@ -32,6 +32,6 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          XOPLAY_EVENT: ${{ inputs.event }}
-          XOPLAY_PRODUCT_JSON: ${{ inputs.product_json }}
-        run: python send_xoplay_notification.py
+          NAVER_EVENT: ${{ inputs.event }}
+          NAVER_PRODUCT_JSON: ${{ inputs.product_json }}
+        run: python send_naver_notification.py

@@ -23,7 +23,7 @@ case "${1:-}" in
   setup)
     python3 -m venv "$VENV"
     "$VENV/bin/pip" install -r "$ROOT/requirements-xoplay.txt"
-    "$VENV/bin/playwright" install chromium
+    "$VENV/bin/playwright" install webkit
     if [ ! -f "$ENV_FILE" ]; then
       cp "$ROOT/.env.xoplay.example" "$ENV_FILE"
     fi
@@ -42,7 +42,7 @@ case "${1:-}" in
     load_env
     nohup "$VENV/bin/python" "$ROOT/xoplay_local_monitor.py" >>"$LOG_FILE" 2>&1 &
     echo $! >"$PID_FILE"
-    echo "Xoplay monitor started (PID $!). A browser window will open."
+    echo "Local Naver monitor started (PID $!). A WebKit window will open."
     echo "Logs: ./xoplay-monitor logs"
     ;;
   once)
