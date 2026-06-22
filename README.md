@@ -29,7 +29,7 @@ Naver has two different limits. The documented non-login Search API quota is 25,
 
 ### User-controlled Naver monitoring
 
-Naver presents CAPTCHAs to GitHub-hosted browsers and its Search API does not reliably index Xoplay or expose exact Brand Store category membership. For release windows, run the optional local monitor on a Mac. It checks both Xoplay and the exact Naver Pokémon card category. It never starts automatically and stops completely on command.
+Naver presents CAPTCHAs to GitHub-hosted browsers and its Search API does not reliably index Xoplay or expose exact Brand Store category membership. For release windows, run the optional local monitor on a Mac. It checks Xoplay plus both requested Naver Pokémon card categories (`c94139abcef14362997090c5da975e28` and `7d4ef8ffe7ca4427b42a1a61751656e4`), deduplicates overlapping products, and upgrades Naver's tiny gallery thumbnails to 750×750 images. It never starts automatically and stops completely on command.
 
 One-time setup:
 

@@ -31,6 +31,10 @@ NAVER_CATEGORIES = (
         "label": "Pokémon Brand cards", "source": "naver-pokemon", "slug": "pokemon",
         "url": "https://brand.naver.com/pokemon/category/c94139abcef14362997090c5da975e28",
     },
+    {
+        "label": "Pokémon Brand card catalogue", "source": "naver-pokemon", "slug": "pokemon",
+        "url": "https://brand.naver.com/pokemon/category/7d4ef8ffe7ca4427b42a1a61751656e4",
+    },
 )
 
 
@@ -48,6 +52,20 @@ def save_json(path: Path, payload: Any) -> None:
         json.dump(payload, output, ensure_ascii=False, indent=2)
         output.write("\n")
     temporary.replace(path)
+
+
+def high_resolution_naver_image(url: str | None) -> str | None:
+    if not url:
+        return None
+    if "shop-phinf.pstatic.net" not in url:
+        return url
+    if re.search(r"([?&])type=f\d+_\d+", url):
+        return re.sub(r"([?&])type=f\d+_\d+", r"\1type=f750_750", url)
+    return f"{url}{'&' if '?' in url else '?'}type=f750_750"
+
+
+def deduplicate_products(products: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return list({product["key"]: product for product in products}.values())
 
 
 def normalize_raw_product(
@@ -71,7 +89,7 @@ def normalize_raw_product(
         "key": f"{source}:{match.group(1)}", "source": source,
         "productNo": match.group(1), "productName": name,
         "salePrice": min(prices) if prices else None, "currency": "KRW",
-        "image": raw.get("image") or None, "isSoldOut": sold_out,
+        "image": high_resolution_naver_image(raw.get("image")), "isSoldOut": sold_out,
         "saleStatusType": "OUTOFSTOCK" if sold_out else "SALE",
         "stockStatus": "SOLD_OUT" if sold_out else "AVAILABLE",
         "url": raw["url"].split("?", 1)[0],
@@ -283,10 +301,17 @@ def run() -> None:
                         logging.warning("No %s products found; previous state retained", category["label"])
                 except Exception:
                     logging.exception("%s check failed; previous state retained", category["label"])
+                    if page.is_closed():
+                        logging.error("Browser window was closed; stopping the local monitor")
+                        stopping = True
+                        break
                     combined.extend(
                         product for product in previous_list
                         if product.get("source") == category["source"]
                     )
+            combined = deduplicate_products(combined)
+            if stopping:
+                break
             if combined:
                 for event, product in product_events(previous, combined):
                     dispatch_alert(event, product)
@@ -301,7 +326,8 @@ def run() -> None:
             deadline = time.monotonic() + poll_seconds
             while not stopping and time.monotonic() < deadline:
                 time.sleep(1)
-        context.close()
+        if not page.is_closed():
+            context.close()
 
 
 if __name__ == "__main__":

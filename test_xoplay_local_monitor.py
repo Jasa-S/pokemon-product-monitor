@@ -1,9 +1,28 @@
 import unittest
 
-from xoplay_local_monitor import normalize_raw_product, product_events, wait_for_access
+from xoplay_local_monitor import (
+    deduplicate_products,
+    high_resolution_naver_image,
+    normalize_raw_product,
+    product_events,
+    wait_for_access,
+)
 
 
 class XoplayLocalMonitorTests(unittest.TestCase):
+    def test_upgrades_naver_thumbnail_image(self):
+        thumbnail = "https://shop-phinf.pstatic.net/image.png?type=f80_80"
+        self.assertEqual(
+            high_resolution_naver_image(thumbnail),
+            "https://shop-phinf.pstatic.net/image.png?type=f750_750",
+        )
+
+    def test_deduplicates_overlapping_naver_categories(self):
+        old = {"key": "naver-pokemon:1", "productName": "Old"}
+        updated = {"key": "naver-pokemon:1", "productName": "Updated"}
+        other = {"key": "naver-pokemon:2", "productName": "Other"}
+        self.assertEqual(deduplicate_products([old, updated, other]), [updated, other])
+
     def test_pending_login_can_be_stopped(self):
         class Body:
             def inner_text(self):
