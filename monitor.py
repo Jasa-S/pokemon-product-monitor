@@ -25,18 +25,9 @@ POKEMON_STORE = "https://www.pokemonstore.co.kr"
 DEFAULT_SHOPBY_CLIENT_ID = "HJGfZ5jPHZk3/PEOkm+/Qw=="
 NAVER_SEARCH_API = "https://openapi.naver.com/v1/search/shop.json"
 NAVER_POKEMON_CARD_QUERIES = (
-    "포켓몬 스토어 온라인 포켓몬 카드",
-    "포켓몬센터 공식 포켓몬 카드",
-    "포켓몬센터 포켓몬 카드 게임",
-    "포켓몬 스토어 포켓몬 카드 게임",
-    "포켓몬 카드 게임 확장팩",
-    "포켓몬 카드 게임 강화 확장팩",
-    "포켓몬 카드 게임 스타터 세트",
-    "포켓몬 카드 게임 스페셜 세트",
-    "포켓몬 카드 게임 덱",
-    "포켓몬 카드 게임 카드 실드",
-    "포켓몬 카드 게임 플레이매트",
-    "포켓몬 카드 게임 컬렉션 파일",
+    "포켓몬 스토어 온라인",
+    "포켓몬센터 공식",
+    "포켓몬센터",
 )
 NAVER_POKEMON_CARD_TERMS = (
     "카드", "확장팩", "강화팩", "부스터", "스타터", "덱", "플레이매트",
@@ -323,6 +314,7 @@ class NaverShoppingSearchClient:
         queries: tuple[str, ...], hosts: tuple[str, ...] = ("smartstore.naver.com",),
         mall_names: tuple[str, ...] = (),
         required_title_terms: tuple[str, ...] = (),
+        pages_per_query: int = 1,
     ) -> None:
         self.headers = {"X-Naver-Client-Id": client_id, "X-Naver-Client-Secret": client_secret}
         self.store_slug = store_slug
@@ -330,6 +322,7 @@ class NaverShoppingSearchClient:
         self.hosts = hosts
         self.mall_names = {self._normalize_mall_name(name) for name in mall_names}
         self.required_title_terms = tuple(term.casefold() for term in required_title_terms)
+        self.pages_per_query = max(1, min(10, pages_per_query))
 
     @staticmethod
     def _normalize_mall_name(name: str) -> str:
@@ -340,35 +333,42 @@ class NaverShoppingSearchClient:
         examined = 0
         seen_malls: set[str] = set()
         for query in self.queries:
-            params = urlencode({"query": query, "display": 100, "start": 1, "sort": "date"})
-            for item in request_json(f"{NAVER_SEARCH_API}?{params}", self.headers).get("items", []):
-                examined += 1
-                link = item.get("link", "")
-                mall_name = self._normalize_mall_name(item.get("mallName", ""))
-                if mall_name:
-                    seen_malls.add(mall_name)
-                parsed_link = urlparse(link)
-                path_parts = [part for part in parsed_link.path.split("/") if part]
-                link_matches = (
-                    parsed_link.hostname in self.hosts
-                    and bool(path_parts)
-                    and path_parts[0].casefold() == self.store_slug.casefold()
-                )
-                if not link_matches and mall_name not in self.mall_names:
-                    continue
-                link_id = link.rstrip("/").rsplit("/", 1)[-1]
-                product_id = link_id if link_id.isdigit() else item.get("productId")
-                name = unescape(re.sub(r"<[^>]+>", "", item.get("title", "")))
-                if self.required_title_terms and not any(
-                    term in name.casefold() for term in self.required_title_terms
-                ):
-                    continue
-                found[str(product_id)] = normalized_product(
-                    source=f"naver-{self.store_slug}", product_id=product_id, name=name,
-                    price=int(item["lprice"]) if item.get("lprice") else None,
-                    image=item.get("image"), available=True, status="SEARCH_RESULT", url=link,
-                    stock_status="UNKNOWN",
-                )
+            for page_number in range(self.pages_per_query):
+                start = page_number * 100 + 1
+                params = urlencode({"query": query, "display": 100, "start": start, "sort": "date"})
+                response = request_json(f"{NAVER_SEARCH_API}?{params}", self.headers)
+                items = response.get("items", [])
+                for item in items:
+                    examined += 1
+                    link = item.get("link", "")
+                    mall_name = self._normalize_mall_name(item.get("mallName", ""))
+                    if mall_name:
+                        seen_malls.add(mall_name)
+                    parsed_link = urlparse(link)
+                    path_parts = [part for part in parsed_link.path.split("/") if part]
+                    link_matches = (
+                        parsed_link.hostname in self.hosts
+                        and bool(path_parts)
+                        and path_parts[0].casefold() == self.store_slug.casefold()
+                    )
+                    if not link_matches and mall_name not in self.mall_names:
+                        continue
+                    link_id = link.rstrip("/").rsplit("/", 1)[-1]
+                    product_id = link_id if link_id.isdigit() else item.get("productId")
+                    name = unescape(re.sub(r"<[^>]+>", "", item.get("title", "")))
+                    if self.required_title_terms and not any(
+                        term in name.casefold() for term in self.required_title_terms
+                    ):
+                        continue
+                    found[str(product_id)] = normalized_product(
+                        source=f"naver-{self.store_slug}", product_id=product_id, name=name,
+                        price=int(item["lprice"]) if item.get("lprice") else None,
+                        image=item.get("image"), available=True, status="SEARCH_RESULT", url=link,
+                        stock_status="UNKNOWN",
+                    )
+                total = int(response.get("total") or 0)
+                if len(items) < 100 or start + len(items) > total:
+                    break
         logging.info(
             "Naver Search %s examined %s results and accepted %s; malls=%s",
             self.store_slug, examined, len(found), ",".join(sorted(seen_malls)[:12]),
@@ -628,12 +628,13 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             hosts=("brand.naver.com", "smartstore.naver.com"),
             mall_names=("포켓몬 스토어 온라인", "포켓몬스토어온라인"),
             required_title_terms=NAVER_POKEMON_CARD_TERMS,
+            pages_per_query=10 if config.scan_full_catalog else 1,
         )
         pokemon_card_products = pokemon_search.products()
         if pokemon_card_products:
             state.clear_source_once("naver-pokemon", "scope:naver-pokemon-card-search-v2")
         observe_products(
-            config, state, pokemon_card_products, feed="naver-pokemon-card-search-v5",
+            config, state, pokemon_card_products, feed="naver-pokemon-card-search-v6",
             reliable_stock=False, update_existing=False,
         )
         xoplay = NaverShoppingSearchClient(

@@ -183,8 +183,28 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual([product["productNo"] for product in products], ["2"])
 
     def test_default_naver_pokemon_queries_are_card_focused(self):
-        self.assertEqual(len(NAVER_POKEMON_CARD_QUERIES), 12)
-        self.assertTrue(all("카드" in query for query in NAVER_POKEMON_CARD_QUERIES))
+        self.assertEqual(len(NAVER_POKEMON_CARD_QUERIES), 3)
+        self.assertTrue(all("포켓몬" in query for query in NAVER_POKEMON_CARD_QUERIES))
+
+    def test_naver_search_paginates_when_requested(self):
+        client = NaverShoppingSearchClient(
+            "id", "secret", "pokemon", ("포켓몬센터",),
+            hosts=("brand.naver.com",), pages_per_query=2,
+        )
+        page = {"total": 200, "items": [
+            {"link": f"https://brand.naver.com/pokemon/products/{number}",
+             "title": f"카드 {number}"}
+            for number in range(100)
+        ]}
+        second_page = {"total": 200, "items": [
+            {"link": f"https://brand.naver.com/pokemon/products/{number}",
+             "title": f"카드 {number}"}
+            for number in range(100, 200)
+        ]}
+        with patch("monitor.request_json", side_effect=[page, second_page]) as fetch:
+            products = client.products()
+        self.assertEqual(len(products), 200)
+        self.assertIn("start=101", fetch.call_args_list[1].args[0])
 
     def test_official_naver_search_accepts_matching_mall_name(self):
         client = NaverShoppingSearchClient(
