@@ -43,6 +43,7 @@ class Config:
     naver_client_id: str
     naver_client_secret: str
     naver_search_queries: tuple[str, ...]
+    naver_pokemon_queries: tuple[str, ...]
     check_naver_public: bool
     scan_full_catalog: bool
     external_store_interval: int
@@ -56,6 +57,10 @@ class Config:
             "NAVER_XOPLAY_QUERIES",
             "XOPLAY 포켓몬,엑스오플레이 포켓몬,XOPLAY 포켓몬카드,"
             "엑스오플레이 포켓몬카드,포켓몬카드,포켓몬 카드",
+        ).split(",")
+        pokemon_queries = os.getenv(
+            "NAVER_POKEMON_QUERIES",
+            "포켓몬 카드,포켓몬카드,포켓몬 카드 게임,포켓몬 덱,포켓몬 카드 슬리브",
         ).split(",")
         return cls(
             webhook_url=os.getenv("DISCORD_WEBHOOK_URL", ""),
@@ -72,6 +77,9 @@ class Config:
             naver_client_id=os.getenv("NAVER_CLIENT_ID", ""),
             naver_client_secret=os.getenv("NAVER_CLIENT_SECRET", ""),
             naver_search_queries=tuple(query.strip() for query in queries if query.strip()),
+            naver_pokemon_queries=tuple(
+                query.strip() for query in pokemon_queries if query.strip()
+            ),
             check_naver_public=os.getenv("CHECK_NAVER_PUBLIC", "true").casefold() == "true",
             scan_full_catalog=os.getenv("SCAN_FULL_CATALOG", "false").casefold() == "true",
             external_store_interval=max(
@@ -296,12 +304,14 @@ class NaverShoppingSearchClient:
         self, client_id: str, client_secret: str, store_slug: str,
         queries: tuple[str, ...], hosts: tuple[str, ...] = ("smartstore.naver.com",),
         mall_names: tuple[str, ...] = (),
+        required_title_terms: tuple[str, ...] = (),
     ) -> None:
         self.headers = {"X-Naver-Client-Id": client_id, "X-Naver-Client-Secret": client_secret}
         self.store_slug = store_slug
         self.queries = queries
         self.hosts = hosts
         self.mall_names = {self._normalize_mall_name(name) for name in mall_names}
+        self.required_title_terms = tuple(term.casefold() for term in required_title_terms)
 
     @staticmethod
     def _normalize_mall_name(name: str) -> str:
@@ -331,10 +341,15 @@ class NaverShoppingSearchClient:
                 link_id = link.rstrip("/").rsplit("/", 1)[-1]
                 product_id = link_id if link_id.isdigit() else item.get("productId")
                 name = unescape(re.sub(r"<[^>]+>", "", item.get("title", "")))
+                if self.required_title_terms and not any(
+                    term in name.casefold() for term in self.required_title_terms
+                ):
+                    continue
                 found[str(product_id)] = normalized_product(
                     source=f"naver-{self.store_slug}", product_id=product_id, name=name,
                     price=int(item["lprice"]) if item.get("lprice") else None,
                     image=item.get("image"), available=True, status="SEARCH_RESULT", url=link,
+                    stock_status="UNKNOWN",
                 )
         logging.info(
             "Naver Search %s examined %s results and accepted %s; malls=%s",
@@ -439,9 +454,12 @@ def product_url(product_no: int) -> str:
 
 
 def is_available(product: dict[str, Any]) -> bool:
-    return not bool(product.get("isSoldOut")) and product.get("saleStatusType") in {
-        "ONSALE", "SALE", "SEARCH_RESULT"
-    }
+    stock_status = product.get("stockStatus")
+    return (
+        stock_status in {"AVAILABLE", "PARTIAL"}
+        and not bool(product.get("isSoldOut"))
+        and product.get("saleStatusType") in {"ONSALE", "SALE"}
+    )
 
 
 def translate_product_name(name: str) -> str | None:
@@ -586,6 +604,17 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             logging.exception("Naver public feed is temporarily unavailable; retained previous state")
 
     if config.naver_client_id and config.naver_client_secret:
+        pokemon_search = NaverShoppingSearchClient(
+            config.naver_client_id, config.naver_client_secret, "pokemon",
+            config.naver_pokemon_queries,
+            hosts=("brand.naver.com", "smartstore.naver.com"),
+            mall_names=("포켓몬 스토어 온라인", "포켓몬스토어온라인"),
+            required_title_terms=("카드", "덱", "슬리브"),
+        )
+        observe_products(
+            config, state, pokemon_search.products(), feed="naver-pokemon-search-card-v3",
+            reliable_stock=False, update_existing=False,
+        )
         xoplay = NaverShoppingSearchClient(
             config.naver_client_id, config.naver_client_secret, "xoplay", config.naver_search_queries,
             mall_names=("XOPLAY", "엑스오플레이"),
