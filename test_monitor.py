@@ -182,6 +182,21 @@ class MonitorTests(unittest.TestCase):
             products = client.products()
         self.assertEqual([product["productNo"] for product in products], ["2"])
 
+    def test_naver_tcg_terms_do_not_match_unrelated_card_substrings(self):
+        client = NaverShoppingSearchClient(
+            "id", "secret", "pokemon", ("포켓몬센터",),
+            hosts=("brand.naver.com",),
+            required_title_terms=("포켓몬 카드 게임", "pokemon tcg"),
+        )
+        result = {"items": [
+            {"link": "https://brand.naver.com/pokemon/products/1", "title": "메세지 카드"},
+            {"link": "https://brand.naver.com/pokemon/products/2", "title": "인덱스 노트"},
+            {"link": "https://brand.naver.com/pokemon/products/3", "title": "포켓몬 카드 게임 카드 실드"},
+        ]}
+        with patch("monitor.request_json", return_value=result):
+            products = client.products()
+        self.assertEqual([product["productNo"] for product in products], ["3"])
+
     def test_default_naver_pokemon_queries_are_card_focused(self):
         self.assertEqual(len(NAVER_POKEMON_CARD_QUERIES), 3)
         self.assertTrue(all("포켓몬" in query for query in NAVER_POKEMON_CARD_QUERIES))
