@@ -23,7 +23,7 @@ class ExternalStoreTests(unittest.TestCase):
         <section data-hook="product-list"><li data-hook="product-list-grid-item">
         <div data-slug="korean-box" data-hook="product-item-root">
         <a href="https://www.crazycards.eu/product-page/korean-box">
-        <img src="https://img.test/box.jpg" alt="Korean Box"></a>
+        <img src="https://static.wixstatic.com/media/box~mv2.png/v1/fill/w_80,h_80,blur_2/box~mv2.png" alt="Korean Box"></a>
         <p data-hook="product-item-name">Korean Box</p>
         <span data-wix-price="49,95 €">49,95 €</span>
         <button aria-label="Ausverkauft" disabled>Ausverkauft</button></div></li></section>
@@ -33,6 +33,7 @@ class ExternalStoreTests(unittest.TestCase):
             product = client.products()[0]
         self.assertEqual(product["productNo"], "korean-box")
         self.assertEqual(product["salePrice"], 49.95)
+        self.assertEqual(product["image"], "https://static.wixstatic.com/media/box~mv2.png")
         self.assertTrue(product["isSoldOut"])
 
 

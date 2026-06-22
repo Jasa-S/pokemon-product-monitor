@@ -15,6 +15,14 @@ from urllib.request import Request, urlopen
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
 
 
+def _wix_original_image(url: str | None) -> str | None:
+    """Return Wix's original media asset instead of its tiny blurred gallery thumbnail."""
+    if not url:
+        return None
+    match = re.match(r"(https://static\.wixstatic\.com/media/[^/?]+)", unescape(url))
+    return match.group(1) if match else unescape(url)
+
+
 def _request(url: str, *, as_json: bool) -> Any:
     request = Request(url, headers={
         "Accept": "application/json" if as_json else "text/html,application/xhtml+xml",
@@ -109,7 +117,7 @@ class CrazyCardsCategoryClient:
             products[slug] = _product(
                 source=self.source, product_id=slug,
                 name=re.sub(r"<[^>]+>", "", name_match.group(1)).strip(), price=price,
-                image=unescape(image_match.group(1)) if image_match else None,
+                image=_wix_original_image(image_match.group(1)) if image_match else None,
                 available=not sold_out, url=unescape(url_match.group(1)),
             )
         if not products and 'data-hook="product-list"' not in html:
