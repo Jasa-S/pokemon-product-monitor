@@ -36,6 +36,12 @@ class MonitorTests(unittest.TestCase):
     def test_availability(self):
         self.assertTrue(is_available(sample_product(available=True)))
         self.assertFalse(is_available(sample_product(available=False)))
+        unknown = normalized_product(
+            source="naver-pokemon", product_id=1, name="Card", price=1000,
+            image=None, available=True, status="SEARCH_RESULT",
+            stock_status="UNKNOWN", url="https://example.com/unknown",
+        )
+        self.assertFalse(is_available(unknown))
 
     def test_option_stock_distinguishes_partial_and_sold_out(self):
         products = [sample_product(1, source="pokemonstore"), sample_product(2, source="pokemonstore")]
@@ -160,6 +166,20 @@ class MonitorTests(unittest.TestCase):
             products = client.products()
         self.assertEqual(products[0]["productNo"], "123")
         self.assertEqual(products[0]["productName"], "피카츄")
+        self.assertEqual(products[0]["stockStatus"], "UNKNOWN")
+
+    def test_naver_search_can_require_card_title_terms(self):
+        client = NaverShoppingSearchClient(
+            "id", "secret", "pokemon", ("포켓몬",),
+            hosts=("brand.naver.com",), required_title_terms=("카드",),
+        )
+        result = {"items": [
+            {"link": "https://brand.naver.com/pokemon/products/1", "title": "피카츄 인형"},
+            {"link": "https://brand.naver.com/pokemon/products/2", "title": "피카츄 카드"},
+        ]}
+        with patch("monitor.request_json", return_value=result):
+            products = client.products()
+        self.assertEqual([product["productNo"] for product in products], ["2"])
 
     def test_official_naver_search_accepts_matching_mall_name(self):
         client = NaverShoppingSearchClient(
