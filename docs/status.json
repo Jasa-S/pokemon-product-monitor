@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T13:07:42.397470+00:00",
+  "updatedAt": "2026-06-22T13:14:06.096762+00:00",
   "exchangeRate": {
     "base": "KRW",
     "quote": "EUR",
@@ -333,32 +333,6 @@
       "source": "crazycards-pokemon",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.crazycards.eu/product-page/pokémon-tcg-pikachu-v-union-card-frame-collection-box"
-    },
-    {
-      "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_8890505/88905057652.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:11360547301",
-      "productName": "포켓몬 스토어 전통에디션 병풍 카드",
-      "productNo": "11360547301",
-      "salePrice": 11000,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/11360547301"
-    },
-    {
-      "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_8758608/87586081268.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:10041578764",
-      "productName": "포켓몬 스토어 포켓파를레의 대타출동 인덱스 노트",
-      "productNo": "10041578764",
-      "salePrice": 7500,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/10041578764"
     },
     {
       "currency": "KRW",
@@ -817,71 +791,6 @@
     },
     {
       "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_8863640/88636401572.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:11091891251",
-      "productName": "포켓몬센터 Pokemon accessory 목걸이 불꽃 테라스탈 부스터",
-      "productNo": "11091891251",
-      "salePrice": 22000,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/11091891251"
-    },
-    {
-      "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_8863640/88636401858.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:11091891536",
-      "productName": "포켓몬센터 Pokemon accessory 반지 불꽃 테라스탈 부스터",
-      "productNo": "11091891536",
-      "salePrice": 20000,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/11091891536"
-    },
-    {
-      "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_8863640/88636401563.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:11091891242",
-      "productName": "포켓몬센터 Pokemon accessory 접이식 거울 불꽃 테라스탈 부스터",
-      "productNo": "11091891242",
-      "salePrice": 27000,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/11091891242"
-    },
-    {
-      "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_8863640/88636401867.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:11091891545",
-      "productName": "포켓몬센터 Pokemon accessory 피어스 불꽃 테라스탈 부스터",
-      "productNo": "11091891545",
-      "salePrice": 25000,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/11091891545"
-    },
-    {
-      "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_9038454/90384542211.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:12840031222",
-      "productName": "포켓몬센터 메세지 카드 Pokémon Holiday Blessings",
-      "productNo": "12840031222",
-      "salePrice": 13000,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/12840031222"
-    },
-    {
-      "currency": "KRW",
       "image": "https://shopping-phinf.pstatic.net/main_8961575/89615757717.jpg",
       "isSoldOut": false,
       "key": "naver-pokemon:12071247018",
@@ -918,32 +827,6 @@
       "source": "naver-pokemon",
       "stockStatus": "UNKNOWN",
       "url": "https://smartstore.naver.com/main/products/12071247019"
-    },
-    {
-      "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_8961575/89615757723.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:12071247024",
-      "productName": "포켓몬센터 프리미엄 레더 릴홀더 카드케이스 메타몽",
-      "productNo": "12071247024",
-      "salePrice": 150000,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/12071247024"
-    },
-    {
-      "currency": "KRW",
-      "image": "https://shopping-phinf.pstatic.net/main_8900165/89001653429.jpg",
-      "isSoldOut": false,
-      "key": "naver-pokemon:11457143065",
-      "productName": "포켓몬센터 핸드타월 Snowy Gathering 자카드",
-      "productNo": "11457143065",
-      "salePrice": 9000,
-      "saleStatusType": "SEARCH_RESULT",
-      "source": "naver-pokemon",
-      "stockStatus": "UNKNOWN",
-      "url": "https://smartstore.naver.com/main/products/11457143065"
     },
     {
       "availableOptionCount": 0,
