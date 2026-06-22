@@ -4,13 +4,15 @@ A dependency-free Python monitor and GitHub Pages dashboard for:
 
 - Pokémon Store Korea card-category products, including sold-out products and explicit restocks;
 - the newest products and their stock changes in the requested Pokémon Naver Brand Store card category; and
-- Xoplay discoveries through Naver's official Shopping Search API when indexed, plus an optional user-controlled local browser monitor for complete catalogue and stock checks.
+- Xoplay discoveries through Naver Search plus an optional user-controlled WebKit monitor;
+- Korean Pokémon and One Piece categories at Spielwarenparadies24; and
+- the Pokémon and One Piece catalogues at CrazyCardsEU.
 
 The initial run establishes a silent baseline. Later new products and genuine restocks are sent as Discord embeds when a webhook is configured.
 
 ## Hosted architecture
 
-GitHub Actions checks Pokémon Store's card category, selected restocks, and the official Naver Search API for Xoplay every five minutes. A separate daily job refreshes the complete Pokémon Store card category—including sold-out products—and attempts Naver's authoritative card-category page. Both update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods, so five minutes is the target cadence rather than a real-time guarantee.
+GitHub Actions checks Pokémon Store every five minutes. The four German/EU category pages are checked at most every ten minutes to avoid unnecessary load. A separate daily job refreshes the complete Pokémon Store card category—including sold-out products—and attempts Naver's authoritative card-category page. These jobs update the SQLite state and `docs/status.json`; GitHub Pages serves the dashboard from `docs/`. Scheduled Actions can be delayed during busy periods.
 
 Discord is optional. Without it, the dashboard and Action still update. To receive Discord alerts, add a repository Actions secret named `DISCORD_WEBHOOK_URL`.
 
@@ -23,11 +25,11 @@ To enable Xoplay Search API discovery, create a Naver Developers application wit
 - `NAVER_CLIENT_ID`
 - `NAVER_CLIENT_SECRET`
 
-The hosted Xoplay fallback uses six queries. At the five-minute schedule this uses at most about 1,734 of the 25,000 daily Search API requests.
+Naver has two different limits. The documented non-login Search API quota is 25,000 calls per day per client ID. The hosted Xoplay fallback uses six queries every five minutes plus the daily catalogue run, or at most about 1,734 calls per day. The storefront's HTTP 429/CAPTCHA behavior is separate anti-automation protection with no published fixed request allowance; reducing Search API calls cannot remove that storefront block. The local WebKit monitor solves the architecture problem by using a user-controlled, logged-in residential browser session without bypassing Naver verification.
 
-### User-controlled Xoplay monitoring
+### User-controlled Naver monitoring
 
-Naver presents CAPTCHAs to GitHub-hosted browsers and its Search API does not reliably index Xoplay. For release windows, run the optional local monitor on a Mac or other desktop. It never starts automatically and stops completely on command.
+Naver presents CAPTCHAs to GitHub-hosted browsers and its Search API does not reliably index Xoplay or expose exact Brand Store category membership. For release windows, run the optional local monitor on a Mac. It checks both Xoplay and the exact Naver Pokémon card category. It never starts automatically and stops completely on command.
 
 One-time setup:
 
@@ -44,7 +46,7 @@ Turn it on only when wanted:
 ./xoplay-monitor stop
 ```
 
-The visible browser uses `.xoplay-browser/` to retain its session. Complete Naver's CAPTCHA in that window if prompted. The first successful scan silently establishes a baseline; later new products and sold-out-to-available changes trigger the existing translated Discord workflow. Changed Xoplay catalogue data is published separately to `docs/xoplay.json`, so the hosted Pokémon monitor cannot overwrite it. The local machine must remain awake and online while monitoring is enabled. Use `./xoplay-monitor once` for a single interactive check.
+The visible browser is Playwright WebKit—the closest supported engine to Safari, though not the branded Safari application—and uses `.naver-webkit-profile/` to retain its session. Complete Naver login or CAPTCHA yourself in that window if prompted. The first successful scan silently establishes a baseline; later new products and sold-out-to-available changes trigger translated Discord alerts. Local Naver data is published separately to `docs/local-naver.json`, so hosted jobs cannot overwrite it. The Mac must remain awake and online while monitoring is enabled. Use `./xoplay-monitor once` for a single interactive check.
 
 ## GitHub configuration
 
@@ -67,7 +69,7 @@ The daily catalog refresh keeps all card-category products visible without hamme
 
 Discord alerts include the original Korean title, an English title generated through GitHub Models when available, product number, price, store, image, and direct product link. Run **Actions → Test Discord notification → Run workflow** after configuring the webhook to verify delivery.
 
-The dashboard can filter by store, fully available/partially available/sold-out status, KRW price range, and product name, and can sort by name, price, or availability. EUR prices are approximate conversions based on the latest daily ECB reference rate supplied through Frankfurter; they do not include card, bank, or merchant conversion fees.
+The dashboard can filter by store, currency, availability, native price, and product name. Korean prices receive an approximate EUR conversion based on the latest daily ECB reference rate supplied through Frankfurter. German/EU shops display their native EUR prices.
 
 ## Local use
 

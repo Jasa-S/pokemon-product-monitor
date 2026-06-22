@@ -28,6 +28,14 @@ class XoplayLocalMonitorTests(unittest.TestCase):
         self.assertEqual(product["salePrice"], 12000)
         self.assertTrue(product["isSoldOut"])
 
+    def test_normalizes_exact_naver_pokemon_category_product(self):
+        product = normalize_raw_product({
+            "url": "https://brand.naver.com/pokemon/products/456?query=x",
+            "text": "포켓몬 카드\n20,000원", "name": "포켓몬 카드",
+        }, source="naver-pokemon", slug="pokemon")
+        self.assertEqual(product["key"], "naver-pokemon:456")
+        self.assertEqual(product["url"], "https://brand.naver.com/pokemon/products/456")
+
     def test_first_scan_is_silent_then_detects_new_and_restock(self):
         sold_out = normalize_raw_product({
             "url": "https://smartstore.naver.com/xoplay/products/1",

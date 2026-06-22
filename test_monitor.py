@@ -117,6 +117,14 @@ class MonitorTests(unittest.TestCase):
             state.clear_source_once("naver-pokemon", "scope:cards")
             self.assertIn(naver, state.all())
 
+    def test_external_check_interval_is_persisted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = State(os.path.join(directory, "state.db"))
+            self.assertTrue(state.check_due("external", 600, now=1000))
+            state.mark_checked("external", checked_at=1000)
+            self.assertFalse(state.check_due("external", 600, now=1599))
+            self.assertTrue(state.check_due("external", 600, now=1600))
+
     def test_naver_preloaded_state(self):
         state = {"categoryProducts": {"simpleProducts": [], "sort": None}}
         html = f'<script>window.__PRELOADED_STATE__= {json.dumps(state)}</script>'

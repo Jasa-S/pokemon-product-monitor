@@ -10,3 +10,6 @@ outputs/
 .xoplay-monitor.pid
 .xoplay-monitor.log
 .xoplay-monitor-state.json
+.naver-local-monitor-state.json
+.naver-webkit-profile/
+.naver-chromium-profile/
