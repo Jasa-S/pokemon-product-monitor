@@ -609,10 +609,9 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
             config.naver_pokemon_queries,
             hosts=("brand.naver.com", "smartstore.naver.com"),
             mall_names=("포켓몬 스토어 온라인", "포켓몬스토어온라인"),
-            required_title_terms=("카드", "덱", "슬리브"),
         )
         observe_products(
-            config, state, pokemon_search.products(), feed="naver-pokemon-search-card-v3",
+            config, state, pokemon_search.products(), feed="naver-pokemon-search-store-v4",
             reliable_stock=False, update_existing=False,
         )
         xoplay = NaverShoppingSearchClient(
