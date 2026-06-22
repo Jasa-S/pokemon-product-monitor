@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T12:20:41.935206+00:00",
+  "updatedAt": "2026-06-22T12:40:46.721839+00:00",
   "exchangeRate": {
     "base": "KRW",
     "quote": "EUR",
@@ -11,7 +11,7 @@
   "products": [
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_f283602adf4e440e92b9b88c7b4e3e5e~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_f283602adf4e440e92b9b88c7b4e3e5e~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_f283602adf4e440e92b9b88c7b4e3e5e~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-onepiece:one-piece-card-game-a-fist-of-divine-speed-display-opk-11-koreanisch",
       "productName": "One Piece Card Game - A Fist of Divine Speed Display OPK-11 - Koreanisch",
@@ -24,7 +24,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_f495ef6f016e4d5fb626c204b38741e7~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_f495ef6f016e4d5fb626c204b38741e7~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_f495ef6f016e4d5fb626c204b38741e7~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-onepiece:one-piece-card-game-anime-25th-collection-booster-box-epk-01-koreanisch",
       "productName": "One Piece Card Game - Anime 25th Collection Booster Box (EBK-02) - Koreanisch",
@@ -37,7 +37,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_b2bfa33f969a4a0d8308094463508d9e~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_b2bfa33f969a4a0d8308094463508d9e~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_b2bfa33f969a4a0d8308094463508d9e~mv2.png",
       "isSoldOut": false,
       "key": "crazycards-onepiece:one-piece-card-game-anime-25th-collection-booster-pack-epk-01-koreanisch",
       "productName": "One Piece Card Game - Anime 25th Collection Booster Pack (EBK-02) - Koreanisch",
@@ -50,7 +50,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_e68b0a3e03a34a7e9572dc3082552795~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_e68b0a3e03a34a7e9572dc3082552795~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_e68b0a3e03a34a7e9572dc3082552795~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-onepiece:one-piece-card-game-egghead-crisis-booster-box-display-eb-04-japanisch",
       "productName": "One Piece Card Game - Egghead Crisis Booster Box Display (EB-04) - Japanisch",
@@ -63,7 +63,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_cd115c84f56343739f6df1418dcb86b5~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_cd115c84f56343739f6df1418dcb86b5~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_cd115c84f56343739f6df1418dcb86b5~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-onepiece:one-piece-card-game-emperors-in-the-new-world-box-display-opk-09-koreanisch",
       "productName": "One Piece Card Game - Emperors in the New World Box Display OPK-09 - Koreanisch",
@@ -76,7 +76,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_9a4c7bbdecc8429fb1e758e17588cbce~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_9a4c7bbdecc8429fb1e758e17588cbce~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_9a4c7bbdecc8429fb1e758e17588cbce~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-onepiece:one-piece-card-game-memorial-collection-booster-box-epk-01-koreanis",
       "productName": "One Piece Card Game - Memorial Collection Booster Box (EBK-01) - Koreanisch",
@@ -89,7 +89,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_582fa39a6fc749e2946a78011898a0dd~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_582fa39a6fc749e2946a78011898a0dd~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_582fa39a6fc749e2946a78011898a0dd~mv2.png",
       "isSoldOut": false,
       "key": "crazycards-onepiece:one-piece-card-game-memorial-collection-booster-pack-epk-01-koreanisch",
       "productName": "One Piece Card Game - Memorial Collection Booster Pack (EBK-01) - Koreanisch",
@@ -102,7 +102,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_51fec251deda4fb6ba7ee3cc8ed3cbf7~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_51fec251deda4fb6ba7ee3cc8ed3cbf7~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_51fec251deda4fb6ba7ee3cc8ed3cbf7~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-onepiece:one-piece-card-game-royal-blood-box-display-opk-10-koreanisch",
       "productName": "One Piece Card Game - Royal Blood Box Display (OPK-10) - Koreanisch",
@@ -115,7 +115,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_199c4da2ad0340adb413136bac8fd94e~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_199c4da2ad0340adb413136bac8fd94e~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_199c4da2ad0340adb413136bac8fd94e~mv2.png",
       "isSoldOut": false,
       "key": "crazycards-onepiece:one-piece-card-game-the-best-volume-2-booster-box-display-prb-02-japanisch",
       "productName": "One Piece Card Game - The Best Volume 2 Booster Box Display (PRB-02) - Japanisch",
@@ -128,7 +128,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_4586e618606048798586def2dc499954~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_4586e618606048798586def2dc499954~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_4586e618606048798586def2dc499954~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-onepiece:one-piece-card-game-two-legends-world-box-display-opk-08-koreanisch",
       "productName": "One Piece Card Game - Two Legends World Box Display (OPK-08) - Koreanisch",
@@ -141,7 +141,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_ff57933f4d66429fafda59eebf4d1c0b~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_ff57933f4d66429fafda59eebf4d1c0b~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_ff57933f4d66429fafda59eebf4d1c0b~mv2.png",
       "isSoldOut": false,
       "key": "crazycards-pokemon:pokemon-151-display-koreanisch",
       "productName": "Pokémon 151 sv2A Display Booster Box (20 Booster) - Koreanisch",
@@ -154,7 +154,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_762f53817bba4202ac4bd0a00c51dbd1~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_762f53817bba4202ac4bd0a00c51dbd1~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_762f53817bba4202ac4bd0a00c51dbd1~mv2.png",
       "isSoldOut": false,
       "key": "crazycards-pokemon:pokémon-tcg-mega-ninja-spinner-m4-booster-pack-japanisch",
       "productName": "Pokémon TCG -  Mega Ninja Spinner m4 Booster Pack - Japanisch",
@@ -167,7 +167,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_b9f8c2b7af4748e5bc6b988daba04e36~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_b9f8c2b7af4748e5bc6b988daba04e36~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_b9f8c2b7af4748e5bc6b988daba04e36~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-mega-ninja-spinner-m4-display-booster-box-japanisch",
       "productName": "Pokémon TCG -  Mega Ninja Spinner m4 Display Booster Box - Japanisch",
@@ -180,7 +180,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_dacef1ceed33431bb7cec1f832f96f86~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_dacef1ceed33431bb7cec1f832f96f86~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_dacef1ceed33431bb7cec1f832f96f86~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-151c-collect-coint-set-slim-chinesisch",
       "productName": "Pokémon TCG - 151C: Collect Surprise Coin Set (Slim) - Chinesisch",
@@ -193,7 +193,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_986d31bfdbb04d05aa94ea3dfb43d41c~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_986d31bfdbb04d05aa94ea3dfb43d41c~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_986d31bfdbb04d05aa94ea3dfb43d41c~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-30th-anniversary-first-partner-card-set-vol-1-chinesisch",
       "productName": "Pokémon TCG - 30th Anniversary - First Partner Card Set Vol. 1 - Chinesisch",
@@ -206,7 +206,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_16a3e968343240dc9a24c390ccbda706~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_16a3e968343240dc9a24c390ccbda706~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_16a3e968343240dc9a24c390ccbda706~mv2.png",
       "isSoldOut": false,
       "key": "crazycards-pokemon:pokémon-tcg-abyss-eye-m5-display-booster-box-japanisch",
       "productName": "Pokémon TCG - Abyss Eye m5 Display Booster Box - Japanisch",
@@ -232,7 +232,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_8a6b980af89942d083dce64c9c0a143f~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_8a6b980af89942d083dce64c9c0a143f~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_8a6b980af89942d083dce64c9c0a143f~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-gem-pack-vol-5-booster-box-cbb5c-chinesisch",
       "productName": "Pokémon TCG - Gem Pack Vol. 5 Booster Box (CBB5C) - Chinesisch",
@@ -245,7 +245,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_c844fbb53088487195908190e0e61810~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_c844fbb53088487195908190e0e61810~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_c844fbb53088487195908190e0e61810~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-glory-of-team-rocket-sv10-booster-box-display-koreanisch",
       "productName": "Pokémon TCG - Glory of Team Rocket sv10 Booster Box Display - Koreanisch",
@@ -258,7 +258,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_0a7e06d8e8e9490b82305c7bc4e749cd~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_0a7e06d8e8e9490b82305c7bc4e749cd~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_0a7e06d8e8e9490b82305c7bc4e749cd~mv2.png",
       "isSoldOut": false,
       "key": "crazycards-pokemon:pokémon-tcg-marnie-morpeko-v-union-collection-box-cse4-chinesisch",
       "productName": "Pokémon TCG - Marnie & Morpeko V-Union Collection Box (CSE4) - Chinesisch",
@@ -271,7 +271,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_33eece07e12145c4b52e6517ce02c986~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_33eece07e12145c4b52e6517ce02c986~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_33eece07e12145c4b52e6517ce02c986~mv2.png",
       "isSoldOut": false,
       "key": "crazycards-pokemon:pokémon-tcg-mega-dream-ex-m2a-display-booster-box-koreanisch",
       "productName": "Pokémon TCG - Mega Dream ex m2a Display Booster Box - Koreanisch",
@@ -284,7 +284,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_862393be7e8c4829a46b069ec168aa4e~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_862393be7e8c4829a46b069ec168aa4e~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_862393be7e8c4829a46b069ec168aa4e~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-mega-nihil-zero-m3-booster-pack-koreanisch",
       "productName": "Pokémon TCG - Mega Nihil Zero m3 Booster Pack - Koreanisch",
@@ -297,7 +297,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_474ddb2c70634ca8a035956657b58e12~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_474ddb2c70634ca8a035956657b58e12~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_474ddb2c70634ca8a035956657b58e12~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-mega-nihil-zero-m3-display-booster-box-koreanisch",
       "productName": "Pokémon TCG - Mega Nihil Zero m3 Display Booster Box - Koreanisch",
@@ -310,7 +310,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_514513b729504dffaf9ba044e76a8e57~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_514513b729504dffaf9ba044e76a8e57~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_514513b729504dffaf9ba044e76a8e57~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-ninja-spinner-m4-booster-box-display-koreanisch",
       "productName": "Pokémon TCG - Ninja Spinner m4 Booster Box Display - Koreanisch",
@@ -323,7 +323,7 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_f7f1c4b18da148dbaaec5ff07192bcfe~mv2.png/v1/fill/w_80,h_80,al_c,q_85,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/cb7d81_f7f1c4b18da148dbaaec5ff07192bcfe~mv2.png",
+      "image": "https://static.wixstatic.com/media/cb7d81_f7f1c4b18da148dbaaec5ff07192bcfe~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-pikachu-v-union-card-frame-collection-box",
       "productName": "Pokémon TCG - Pikachu V-Union Card Frame Collection Box - Chinesisch",
@@ -1411,6 +1411,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131910333"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260206/154310.738331033/N.png",
       "isSoldOut": true,
@@ -1419,11 +1420,13 @@
       "productNo": "132736546",
       "salePrice": 85000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132736546"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260326/105525.532538184/메가엘레이드 ex_0.png",
       "isSoldOut": true,
@@ -1432,11 +1435,13 @@
       "productNo": "133226843",
       "salePrice": 16000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133226843"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260427/013247.700936606/900.png",
       "isSoldOut": true,
@@ -1445,6 +1450,7 @@
       "productNo": "133451675",
       "salePrice": 50000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133451675"
@@ -1465,6 +1471,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131912440"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260313/115525.697238253/니힐제로_1.png",
       "isSoldOut": true,
@@ -1473,11 +1480,13 @@
       "productNo": "133053545",
       "salePrice": 30000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133053545"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260427/102529.161308635/8800286279389.png",
       "isSoldOut": true,
@@ -1486,6 +1495,7 @@
       "productNo": "133451674",
       "salePrice": 30000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133451674"
@@ -1521,6 +1531,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131608745"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/142057.460526980/MEGA 인페르노.png",
       "isSoldOut": true,
@@ -1529,11 +1540,13 @@
       "productNo": "132207057",
       "salePrice": 30000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207057"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/122151.125313088/8800286279754.png",
       "isSoldOut": true,
@@ -1542,11 +1555,13 @@
       "productNo": "133683675",
       "salePrice": 20000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683675"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260212/183035.297781912/스타트덱100배틀컬렉션.png",
       "isSoldOut": true,
@@ -1555,6 +1570,7 @@
       "productNo": "132784814",
       "salePrice": 9000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132784814"
@@ -3285,18 +3301,18 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=116183731"
     },
     {
-      "availableOptionCount": 1,
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597133/1000004658_detail_094.png",
-      "isSoldOut": false,
+      "isSoldOut": true,
       "key": "pokemonstore:114166293",
       "productName": "포켓몬 카드 게임 카드 실드 「디아루가 오리진폼」",
       "productNo": "114166293",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
-      "soldOutOptionCount": 0,
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
-      "stockStatus": "AVAILABLE",
+      "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=114166293"
     },
     {
@@ -3450,6 +3466,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131702849"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/134144.486818753/무우마직.png",
       "isSoldOut": false,
@@ -3458,6 +3475,7 @@
       "productNo": "132207370",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207370"
@@ -3568,6 +3586,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=114167521"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/133844.826020611/빛나.png",
       "isSoldOut": true,
@@ -3576,6 +3595,7 @@
       "productNo": "132207315",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207315"
@@ -3926,6 +3946,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=114166417"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/134005.159133799/토게데마루멍파치.png",
       "isSoldOut": true,
@@ -3934,6 +3955,7 @@
       "productNo": "132207346",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207346"
@@ -4029,6 +4051,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=123970498"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/133657.967384582/팽도리 팽태자 엠페르트.png",
       "isSoldOut": true,
@@ -4037,6 +4060,7 @@
       "productNo": "132207304",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207304"
@@ -4432,6 +4456,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=123242812"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260313/114828.225557748/1000 (2).png",
       "isSoldOut": true,
@@ -4440,11 +4465,13 @@
       "productNo": "133053407",
       "salePrice": 10000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133053407"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://pokemon.hgodo.com/shopby/8800286279013.png",
       "isSoldOut": true,
@@ -4453,11 +4480,13 @@
       "productNo": "132398173",
       "salePrice": 10000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132398173"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/120938.82474825/보르쥐.png",
       "isSoldOut": false,
@@ -4466,11 +4495,13 @@
       "productNo": "133683413",
       "salePrice": 10000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683413"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/121124.378189263/메가플라엣테.png",
       "isSoldOut": false,
@@ -4479,11 +4510,13 @@
       "productNo": "133683486",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683486"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/120247.798266507/미끄메미끄네일.png",
       "isSoldOut": false,
@@ -4492,6 +4525,7 @@
       "productNo": "133683375",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683375"
@@ -4512,6 +4546,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=114167553"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/105642.201570713/치라미치라치노.png",
       "isSoldOut": false,
@@ -4520,11 +4555,13 @@
       "productNo": "133682906",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133682906"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260313/115000.906807021/1000.png",
       "isSoldOut": true,
@@ -4533,6 +4570,7 @@
       "productNo": "133053466",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133053466"
@@ -4598,6 +4636,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131326460"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251024/183109.848413517/8800286278733].jpg",
       "isSoldOut": true,
@@ -4606,6 +4645,7 @@
       "productNo": "131912928",
       "salePrice": 5000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131912928"
