@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T07:16:02.608124+00:00",
+  "updatedAt": "2026-06-22T09:25:34.074266+00:00",
   "exchangeRate": {
     "base": "KRW",
     "quote": "EUR",
@@ -336,6 +336,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5594685/1000001924_detail_054.jpg",
       "isSoldOut": true,
       "key": "pokemonstore:114163827",
@@ -350,6 +351,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20241021/154006.533453000/500500팩@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:123578157",
@@ -364,6 +366,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20231214/174718.811054000/main.png",
       "isSoldOut": true,
       "key": "pokemonstore:115634309",
@@ -378,6 +381,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251024/182110.753881231/8800286278368.jpg",
       "isSoldOut": true,
       "key": "pokemonstore:131910389",
@@ -392,6 +396,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251024/181914.2871500/8800286278344.jpg",
       "isSoldOut": true,
       "key": "pokemonstore:131910333",
@@ -405,6 +410,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131910333"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260206/154310.738331033/N.png",
       "isSoldOut": true,
@@ -413,11 +419,13 @@
       "productNo": "132736546",
       "salePrice": 85000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132736546"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260326/105525.532538184/메가엘레이드 ex_0.png",
       "isSoldOut": true,
@@ -426,11 +434,13 @@
       "productNo": "133226843",
       "salePrice": 16000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133226843"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260427/013247.700936606/900.png",
       "isSoldOut": true,
@@ -439,12 +449,14 @@
       "productNo": "133451675",
       "salePrice": 50000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133451675"
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251024/181022.838137621/8800286278283.png",
       "isSoldOut": true,
       "key": "pokemonstore:131912440",
@@ -458,6 +470,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131912440"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260313/115525.697238253/니힐제로_1.png",
       "isSoldOut": true,
@@ -466,11 +479,13 @@
       "productNo": "133053545",
       "salePrice": 30000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133053545"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260427/102529.161308635/8800286279389.png",
       "isSoldOut": true,
@@ -479,12 +494,14 @@
       "productNo": "133451674",
       "salePrice": 30000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133451674"
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250910/115610.989109318/M1L_INNER_1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:131608736",
@@ -499,6 +516,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250910/120003.510259535/M1S_INNER_1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:131608745",
@@ -512,6 +530,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131608745"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/142057.460526980/MEGA 인페르노.png",
       "isSoldOut": true,
@@ -520,11 +539,13 @@
       "productNo": "132207057",
       "salePrice": 30000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207057"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/122151.125313088/8800286279754.png",
       "isSoldOut": true,
@@ -533,11 +554,13 @@
       "productNo": "133683675",
       "salePrice": 20000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683675"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260212/183035.297781912/스타트덱100배틀컬렉션.png",
       "isSoldOut": true,
@@ -546,12 +569,14 @@
       "productNo": "132784814",
       "salePrice": 9000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132784814"
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251024/182426.551635936/8800286278719.jpg",
       "isSoldOut": true,
       "key": "pokemonstore:131912819",
@@ -566,6 +591,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250801/134111.825326212/2025-07-18_09-54-41-14578-1752800081.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326295",
@@ -580,6 +606,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250923/141905.595608330/2025-09-05_09-41-23-80070-1757032883.png",
       "isSoldOut": true,
       "key": "pokemonstore:131702920",
@@ -594,6 +621,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250923/141718.684331170/2025-09-05_09-43-28-19766-1757033008.png",
       "isSoldOut": true,
       "key": "pokemonstore:131702915",
@@ -608,6 +636,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598587/1000005546_detail_068.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167763",
@@ -622,6 +651,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20231124/170100.646488000/리자몽_덱케이스_수정.png",
       "isSoldOut": true,
       "key": "pokemonstore:115399805",
@@ -636,6 +666,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250211/095300.359560000/2024-08-14_10-30-02-82310-1723599002.png",
       "isSoldOut": true,
       "key": "pokemonstore:127466965",
@@ -650,6 +681,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/134235.701183105/2025-07-18_10-04-10-64043-1752800650.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326319",
@@ -664,6 +696,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598589/1000005546_detail_048.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167765",
@@ -678,6 +711,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20241126/152544.375347000/2024-11-15_17-33-09-49192-1731659589.png",
       "isSoldOut": true,
       "key": "pokemonstore:123970792",
@@ -692,6 +726,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/133722.372187442/2025-07-18_10-16-27-98603-1752801387.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326217",
@@ -706,6 +741,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251024/193643.319295708/포켓몬 카드 게임 라운드 틴 케이스 「가디(히스이의 모습)」.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166407",
@@ -720,6 +756,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5598289/1000005360_detail_061.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167457",
@@ -734,6 +771,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596179/1000003446_detail_053.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165321",
@@ -748,6 +786,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597221/1000004765_detail_098.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166383",
@@ -762,6 +801,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596655/1000004180_detail_07.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165799",
@@ -776,6 +816,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596987/1000004546_detail_081.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166147",
@@ -790,6 +831,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596645/1000004171_detail_025.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165789",
@@ -804,6 +846,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596267/1000003596_detail_058.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165409",
@@ -818,6 +861,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596657/1000004181_detail_085.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165801",
@@ -832,6 +876,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596207/1000003486_detail_088.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165349",
@@ -846,6 +891,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5596083/1000003310_detail_057.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165225",
@@ -860,6 +906,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597199/1000004751_detail_067.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166361",
@@ -874,6 +921,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597201/1000004751_detail_080.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166363",
@@ -888,6 +936,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5598393/1000005423_detail_077.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167563",
@@ -902,6 +951,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5598391/1000005422_detail_044.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167561",
@@ -916,6 +966,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5598395/1000005422_detail_057.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167565",
@@ -930,6 +981,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596705/1000004276_detail_056.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165851",
@@ -944,6 +996,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598373/1000005400_detail_073.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167543",
@@ -958,6 +1011,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596241/1000003549_detail_028.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165383",
@@ -972,6 +1026,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596185/1000003460_detail_018.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165327",
@@ -986,6 +1041,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597869/1000005130_detail_045.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167037",
@@ -1000,6 +1056,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597865/1000005128_detail_070.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167033",
@@ -1014,6 +1071,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5594695/1000001935_detail_081.png",
       "isSoldOut": true,
       "key": "pokemonstore:114163837",
@@ -1028,6 +1086,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596299/1000003650_detail_018.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165441",
@@ -1042,6 +1101,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596367/1000003911_detail_057.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165509",
@@ -1056,6 +1116,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597087/1000004628_detail_035.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166247",
@@ -1070,6 +1131,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597871/1000005133_detail_052.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167039",
@@ -1084,6 +1146,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5596709/1000004279_detail_088.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165855",
@@ -1098,6 +1161,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597247/1000004780_detail_094.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166411",
@@ -1112,6 +1176,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597249/1000004780_detail_083.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166413",
@@ -1126,6 +1191,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597003/1000004554_detail_047.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166163",
@@ -1140,6 +1206,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597127/1000004652_detail_024.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166287",
@@ -1154,6 +1221,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597367/1000004858_detail_034.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166533",
@@ -1168,6 +1236,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250417/170048.440208000/썸네일_900.png",
       "isSoldOut": true,
       "key": "pokemonstore:129556793",
@@ -1182,6 +1251,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5600181/1000009281_detail_08.png",
       "isSoldOut": true,
       "key": "pokemonstore:114169357",
@@ -1196,6 +1266,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250417/165732.177064000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:129556703",
@@ -1210,6 +1281,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250417/165854.54016000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:129556740",
@@ -1224,6 +1296,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20240806/185745.886951000/500500팩@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:122776807",
@@ -1238,6 +1311,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20231017/111358.475092000/500500@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:114754705",
@@ -1252,6 +1326,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250522/095931.484426641/이너박스_900.png",
       "isSoldOut": true,
       "key": "pokemonstore:130382695",
@@ -1266,6 +1341,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20240523/181647.68846000/500.png",
       "isSoldOut": true,
       "key": "pokemonstore:120618617",
@@ -1280,6 +1356,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5599095/1000005902_detail_034.png",
       "isSoldOut": true,
       "key": "pokemonstore:114168271",
@@ -1294,6 +1371,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5600197/1000009289_detail_015.png",
       "isSoldOut": true,
       "key": "pokemonstore:114169373",
@@ -1308,6 +1386,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250623/151033.934837981/상품 썸네일 (카드홈)   900x900   .png",
       "isSoldOut": true,
       "key": "pokemonstore:130921272",
@@ -1322,6 +1401,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250326/174317.16161000/상품 썸네일 (카드홈)   900x900   @4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:129186595",
@@ -1336,6 +1416,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20240910/102744.870198000/900x900.png",
       "isSoldOut": true,
       "key": "pokemonstore:123258153",
@@ -1350,6 +1431,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240705/173013.683649000/상품 썸네일 (카드홈)   900x900   @4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:120951109",
@@ -1364,6 +1446,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240705/173137.919634000/상품 썸네일 (카드홈)   900x900   _1@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:120951150",
@@ -1378,6 +1461,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250421/100820.79557000/SVOM_900.png",
       "isSoldOut": true,
       "key": "pokemonstore:129586749",
@@ -1392,6 +1476,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250421/100557.470165000/SVOD_900.png",
       "isSoldOut": true,
       "key": "pokemonstore:129586745",
@@ -1406,6 +1491,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20231011/115800.153478000/라우드본.png",
       "isSoldOut": true,
       "key": "pokemonstore:114674205",
@@ -1420,6 +1506,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20240927/152500.111547000/상품 썸네일 (카드홈)   900x900   @4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:123414892",
@@ -1434,6 +1521,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20240927/151518.262174000/900x900@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:123414802",
@@ -1448,6 +1536,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20241212/153141.18263000/상품 썸네일 (카드홈)   900x900   @4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:124160520",
@@ -1462,6 +1551,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20231214/171803.26622000/main.png",
       "isSoldOut": true,
       "key": "pokemonstore:115633805",
@@ -1476,6 +1566,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250401/101617.980066000/SV9-모야모-번들_온라인홍보물_900.png",
       "isSoldOut": true,
       "key": "pokemonstore:129309905",
@@ -1490,6 +1581,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250620/121948.217853384/1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:130905008",
@@ -1504,6 +1596,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20240628/095920.915502000/상품 썸네일 (카드홈)   900x900   @4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:120889360",
@@ -1518,6 +1611,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20241212/153744.39668000/241120_SV8세트_상품썸네일_900x900.png",
       "isSoldOut": true,
       "key": "pokemonstore:124160547",
@@ -1532,6 +1626,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250220/135603.672889000/SV8a_앨범세트박스_3D_04.png",
       "isSoldOut": true,
       "key": "pokemonstore:128154186",
@@ -1546,6 +1641,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5599083/1000005896_detail_056.png",
       "isSoldOut": true,
       "key": "pokemonstore:114168259",
@@ -1560,6 +1656,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250225/114017.5512000/상품 썸네일 (카드홈)   900x900   _1@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:128564055",
@@ -1574,6 +1671,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240124/160736.482788000/thumbnail.png",
       "isSoldOut": true,
       "key": "pokemonstore:116178963",
@@ -1588,6 +1686,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250120/102017.317940000/500500팩@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:124381031",
@@ -1602,6 +1701,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20231130/181108.68615000/500_SV4K.png",
       "isSoldOut": true,
       "key": "pokemonstore:115456633",
@@ -1616,6 +1716,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20231130/180300.915800000/500_SV4M.png",
       "isSoldOut": true,
       "key": "pokemonstore:115455807",
@@ -1630,6 +1731,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598579/1000005542_detail_090.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167755",
@@ -1644,6 +1746,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250312/102738.367688000/500500팩@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:128841940",
@@ -1658,6 +1761,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/133356.480382663/블랙볼트썸네일.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326182",
@@ -1672,6 +1776,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240305/181706.76118000/500_sv5m.png",
       "isSoldOut": true,
       "key": "pokemonstore:118032205",
@@ -1686,6 +1791,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5599791/1000009084_detail_010.png",
       "isSoldOut": true,
       "key": "pokemonstore:114168967",
@@ -1700,6 +1806,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598581/1000005542_detail_048.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167757",
@@ -1714,6 +1821,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240905/185426.968930000/500500팩@4x.png",
       "isSoldOut": true,
       "key": "pokemonstore:123242730",
@@ -1728,6 +1836,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240305/181358.199534000/500_sv5k.png",
       "isSoldOut": true,
       "key": "pokemonstore:118032181",
@@ -1742,6 +1851,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5599789/1000009084_detail_028.png",
       "isSoldOut": true,
       "key": "pokemonstore:114168965",
@@ -1756,6 +1866,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/132921.566404888/화이트플레어썸네일.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326168",
@@ -1770,6 +1881,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5600207/1000009294_detail_059.png",
       "isSoldOut": true,
       "key": "pokemonstore:114169383",
@@ -1784,6 +1896,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5600215/1000009299_detail_050.png",
       "isSoldOut": true,
       "key": "pokemonstore:114169391",
@@ -1798,6 +1911,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5600213/1000009298_detail_080.png",
       "isSoldOut": true,
       "key": "pokemonstore:114169389",
@@ -1812,6 +1926,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598481/1000005489_detail_080.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167657",
@@ -1826,6 +1941,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598485/1000005489_detail_034.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167661",
@@ -1840,6 +1956,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598483/1000005490_detail_068.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167659",
@@ -1854,6 +1971,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5596209/1000003489_detail_097.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165351",
@@ -1868,6 +1986,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/152952.748731000/08.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185219",
@@ -1882,6 +2001,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/152652.168624000/09.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185208",
@@ -1896,6 +2016,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/153104.917107000/07.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185235",
@@ -1910,6 +2031,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/153447.491587000/04.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185267",
@@ -1924,6 +2046,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/153224.636526000/06.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185243",
@@ -1938,6 +2061,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/153952.525716000/02.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185300",
@@ -1952,6 +2076,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/153333.284237000/05.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185253",
@@ -1966,6 +2091,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/154044.952503000/01.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185306",
@@ -1980,6 +2106,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250326/153613.599784000/03.png",
       "isSoldOut": true,
       "key": "pokemonstore:129185278",
@@ -1994,6 +2121,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250220/135855.395733000/2025-02-07_16-40-58-14404-1738914058.png",
       "isSoldOut": true,
       "key": "pokemonstore:128154258",
@@ -2008,6 +2136,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597167/1000004680_detail_09.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166329",
@@ -2022,6 +2151,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597169/1000004681_detail_034.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166331",
@@ -2036,6 +2166,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250620/122657.39220538/실드_썸네일_1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:130905026",
@@ -2050,6 +2181,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/141059.795962000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:124347993",
@@ -2064,6 +2196,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/140322.448876000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:124347952",
@@ -2078,6 +2211,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598377/1000005415_detail_054.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167547",
@@ -2092,6 +2226,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597417/1000004885_detail_082.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166583",
@@ -2106,6 +2241,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598547/1000005526_detail_052.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167723",
@@ -2120,6 +2256,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250522/101240.149462502/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:130382763",
@@ -2134,6 +2271,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240812/122120.533796000/2024-08-05_18-32-09-24992-1722850329.png",
       "isSoldOut": false,
       "key": "pokemonstore:122818153",
@@ -2148,6 +2286,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240124/172658.977998000/900_이루카만.png",
       "isSoldOut": true,
       "key": "pokemonstore:116183731",
@@ -2162,6 +2301,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597133/1000004658_detail_094.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166293",
@@ -2176,6 +2316,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250616/111941.397510521/1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:130849942",
@@ -2190,6 +2331,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20241030/101544.350112000/500.png",
       "isSoldOut": true,
       "key": "pokemonstore:123809152",
@@ -2204,6 +2346,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/140527.777484372/2025-07-09_16-29-21-88306-1752046161.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326511",
@@ -2218,6 +2361,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597419/1000004886_detail_054.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166585",
@@ -2232,6 +2376,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250616/112106.742594918/1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:130850183",
@@ -2246,6 +2391,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250312/105033.430157000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:128842044",
@@ -2260,6 +2406,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5599645/1000009011_detail_045.png",
       "isSoldOut": false,
       "key": "pokemonstore:114168821",
@@ -2274,6 +2421,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598545/1000005525_detail_068.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167721",
@@ -2288,6 +2436,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250923/141534.831051029/2025-09-05_09-45-08-60215-1757033108.png",
       "isSoldOut": false,
       "key": "pokemonstore:131702908",
@@ -2302,6 +2451,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250923/140521.494575319/2025-09-05_09-46-04-97170-1757033164.png",
       "isSoldOut": true,
       "key": "pokemonstore:131702849",
@@ -2315,6 +2465,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131702849"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/134144.486818753/무우마직.png",
       "isSoldOut": false,
@@ -2323,12 +2474,14 @@
       "productNo": "132207370",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207370"
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598385/1000005414_detail_044.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167555",
@@ -2343,6 +2496,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5600195/1000009288_detail_023.png",
       "isSoldOut": true,
       "key": "pokemonstore:114169371",
@@ -2357,6 +2511,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597171/1000004682_detail_082.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166333",
@@ -2371,6 +2526,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597227/1000004768_detail_029.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166389",
@@ -2385,6 +2541,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598549/1000005527_detail_083.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167725",
@@ -2399,6 +2556,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598349/1000005396_detail_083.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167519",
@@ -2413,6 +2571,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598351/1000005397_detail_093.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167521",
@@ -2426,6 +2585,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=114167521"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/133844.826020611/빛나.png",
       "isSoldOut": true,
@@ -2434,12 +2594,14 @@
       "productNo": "132207315",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207315"
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597491/1000004922_detail_062.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166657",
@@ -2454,6 +2616,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/140411.237095000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:124347958",
@@ -2468,6 +2631,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597223/1000004766_detail_094.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166385",
@@ -2482,6 +2646,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597493/1000004923_detail_092.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166659",
@@ -2496,6 +2661,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20240523/182819.886574000/500_수련_re01_ks.png",
       "isSoldOut": true,
       "key": "pokemonstore:120618991",
@@ -2510,6 +2676,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250522/101130.47399439/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:130382757",
@@ -2524,6 +2691,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598381/1000005417_detail_02.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167551",
@@ -2538,6 +2706,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/140641.423171000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:124347970",
@@ -2552,6 +2721,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20241030/101148.652163000/나시_500.png",
       "isSoldOut": true,
       "key": "pokemonstore:123809147",
@@ -2566,6 +2736,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/140953.392660000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:124347983",
@@ -2580,6 +2751,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598375/1000005414_detail_041.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167545",
@@ -2594,6 +2766,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250121/115141.724702000/2025-01-17_12-23-40-54742-1737084220.png",
       "isSoldOut": true,
       "key": "pokemonstore:124390472",
@@ -2608,6 +2781,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597423/1000004888_detail_09.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166589",
@@ -2622,6 +2796,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250210/165210.580813000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:126731410",
@@ -2636,6 +2811,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597251/1000004783_detail_090.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166415",
@@ -2650,6 +2826,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/140858.661100117/2025-07-09_16-30-15-90033-1752046215.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326542",
@@ -2664,6 +2841,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597229/1000004769_detail_063.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166391",
@@ -2678,6 +2856,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598543/1000005524_detail_044.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167719",
@@ -2692,6 +2871,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598541/1000005523_detail_074.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167717",
@@ -2706,6 +2886,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597225/1000004767_detail_04.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166387",
@@ -2720,6 +2901,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/140903.410813000/900.png",
       "isSoldOut": false,
       "key": "pokemonstore:124347976",
@@ -2734,6 +2916,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598551/1000005523_detail_015.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167727",
@@ -2748,6 +2931,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597253/1000004783_detail_092.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166417",
@@ -2761,6 +2945,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=114166417"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/134005.159133799/토게데마루멍파치.png",
       "isSoldOut": true,
@@ -2769,12 +2954,14 @@
       "productNo": "132207346",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207346"
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/140250.957134433/2025-07-09_16-22-49-38407-1752045769.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326479",
@@ -2789,6 +2976,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20241030/101647.282575000/2024-10-29_17-57-26-76434-1730192246.png",
       "isSoldOut": true,
       "key": "pokemonstore:123809155",
@@ -2803,6 +2991,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597489/1000004921_detail_020.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166655",
@@ -2817,6 +3006,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250616/111855.4892855/1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:130849938",
@@ -2831,6 +3021,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/141143.400607000/900.png",
       "isSoldOut": false,
       "key": "pokemonstore:124348003",
@@ -2845,6 +3036,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20241126/151239.381254000/2024-11-15_17-23-53-77753-1731659033.png",
       "isSoldOut": true,
       "key": "pokemonstore:123970498",
@@ -2858,6 +3050,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=123970498"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251128/133657.967384582/팽도리 팽태자 엠페르트.png",
       "isSoldOut": true,
@@ -2866,12 +3059,14 @@
       "productNo": "132207304",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132207304"
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597135/1000004659_detail_089.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166295",
@@ -2886,6 +3081,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597873/1000005134_detail_075.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167041",
@@ -2900,6 +3096,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5599643/1000009010_detail_046.png",
       "isSoldOut": true,
       "key": "pokemonstore:114168819",
@@ -2914,6 +3111,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250616/111732.338494920/1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:130849935",
@@ -2928,6 +3126,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240124/172755.792754000/900_세카이.png",
       "isSoldOut": true,
       "key": "pokemonstore:116183739",
@@ -2942,6 +3141,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/140740.42561000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:124347973",
@@ -2956,6 +3156,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240124/172527.768521000/900_한판내기.png",
       "isSoldOut": true,
       "key": "pokemonstore:116183705",
@@ -2970,6 +3171,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250312/105240.791182000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:128842047",
@@ -2984,6 +3186,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250114/140525.822220000/900.png",
       "isSoldOut": false,
       "key": "pokemonstore:124347964",
@@ -2998,6 +3201,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5600217/1000009300_detail_058.png",
       "isSoldOut": true,
       "key": "pokemonstore:114169393",
@@ -3012,6 +3216,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20250312/104724.783087000/900.png",
       "isSoldOut": true,
       "key": "pokemonstore:128841996",
@@ -3026,6 +3231,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597283/1000004800_detail_078.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166449",
@@ -3040,6 +3246,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20240523/183545.77025000/900_개굴닌자_re01_ks.png",
       "isSoldOut": true,
       "key": "pokemonstore:120618999",
@@ -3054,6 +3261,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597281/1000004799_detail_099.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166447",
@@ -3068,6 +3276,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20231017/185435.649561000/H_900x900.png",
       "isSoldOut": false,
       "key": "pokemonstore:114772895",
@@ -3082,6 +3291,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/20231017/185328.136408000/M_900x900.png",
       "isSoldOut": true,
       "key": "pokemonstore:114772893",
@@ -3096,6 +3306,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240812/121722.483153000/2024-08-05_18-31-42-26323-1722850302.png",
       "isSoldOut": false,
       "key": "pokemonstore:122818149",
@@ -3110,6 +3321,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597279/1000004798_detail_067.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166445",
@@ -3124,6 +3336,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250616/112024.417626123/1000.png",
       "isSoldOut": true,
       "key": "pokemonstore:130850088",
@@ -3138,6 +3351,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598379/1000005416_detail_050.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167549",
@@ -3152,6 +3366,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597495/1000004924_detail_025.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166661",
@@ -3166,6 +3381,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240812/122016.801792000/2024-08-05_18-32-35-86051-1722850355.png",
       "isSoldOut": true,
       "key": "pokemonstore:122818151",
@@ -3180,6 +3396,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5599641/1000009009_detail_019.png",
       "isSoldOut": true,
       "key": "pokemonstore:114168817",
@@ -3194,6 +3411,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240620/100653.658972000/900x900_오거폰.png",
       "isSoldOut": false,
       "key": "pokemonstore:120814268",
@@ -3208,6 +3426,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5599639/1000009008_detail_034.png",
       "isSoldOut": false,
       "key": "pokemonstore:114168815",
@@ -3222,6 +3441,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20240905/190541.648459000/900x900_스텔라미라클.png",
       "isSoldOut": false,
       "key": "pokemonstore:123242812",
@@ -3235,6 +3455,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=123242812"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260313/114828.225557748/1000 (2).png",
       "isSoldOut": true,
@@ -3243,11 +3464,13 @@
       "productNo": "133053407",
       "salePrice": 10000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133053407"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://pokemon.hgodo.com/shopby/8800286279013.png",
       "isSoldOut": true,
@@ -3256,11 +3479,13 @@
       "productNo": "132398173",
       "salePrice": 10000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=132398173"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/120938.82474825/보르쥐.png",
       "isSoldOut": false,
@@ -3269,11 +3494,13 @@
       "productNo": "133683413",
       "salePrice": 10000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683413"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/121124.378189263/메가플라엣테.png",
       "isSoldOut": false,
@@ -3282,11 +3509,13 @@
       "productNo": "133683486",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683486"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/120247.798266507/미끄메미끄네일.png",
       "isSoldOut": false,
@@ -3295,12 +3524,14 @@
       "productNo": "133683375",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683375"
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598383/1000005418_detail_035.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167553",
@@ -3314,6 +3545,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=114167553"
     },
     {
+      "availableOptionCount": 1,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/105642.201570713/치라미치라치노.png",
       "isSoldOut": false,
@@ -3322,11 +3554,13 @@
       "productNo": "133682906",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 0,
       "source": "pokemonstore",
       "stockStatus": "AVAILABLE",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133682906"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260313/115000.906807021/1000.png",
       "isSoldOut": true,
@@ -3335,12 +3569,14 @@
       "productNo": "133053466",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133053466"
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5596717/1000004284_detail_063.png",
       "isSoldOut": true,
       "key": "pokemonstore:114165865",
@@ -3355,6 +3591,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250121/114922.864878000/2025-01-17_12-20-16-78790-1737084016.png",
       "isSoldOut": true,
       "key": "pokemonstore:124390384",
@@ -3369,6 +3606,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598583/1000005544_detail_015.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167759",
@@ -3383,6 +3621,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/135935.832029111/컬파썸네일1.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326460",
@@ -3396,6 +3635,7 @@
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131326460"
     },
     {
+      "availableOptionCount": 0,
       "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251024/183109.848413517/8800286278733].jpg",
       "isSoldOut": true,
@@ -3404,12 +3644,14 @@
       "productNo": "131912928",
       "salePrice": 5000.0,
       "saleStatusType": "ONSALE",
+      "soldOutOptionCount": 1,
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131912928"
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597245/1000004779_detail_039.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166409",
@@ -3424,6 +3666,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597289/1000004805_detail_07.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166455",
@@ -3438,6 +3681,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20251024/182817.155116701/8800286278726.jpg",
       "isSoldOut": true,
       "key": "pokemonstore:131912888",
@@ -3452,6 +3696,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597287/1000004804_detail_049.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166453",
@@ -3466,6 +3711,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597285/1000004801_detail_032.png",
       "isSoldOut": false,
       "key": "pokemonstore:114166451",
@@ -3480,6 +3726,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250211/094942.838413000/2024-08-14_10-24-16-97972-1723598656.png",
       "isSoldOut": true,
       "key": "pokemonstore:127467037",
@@ -3494,6 +3741,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250801/133921.917958345/2025-07-18_10-18-02-52823-1752801482.png",
       "isSoldOut": true,
       "key": "pokemonstore:131326259",
@@ -3508,6 +3756,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597899/1000005148_detail_037.JPG",
       "isSoldOut": true,
       "key": "pokemonstore:114167067",
@@ -3522,6 +3771,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5598265/1000005348_detail_038.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167433",
@@ -3536,6 +3786,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597349/1000004849_detail_053.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166515",
@@ -3550,6 +3801,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597909/1000005153_detail_059.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167077",
@@ -3564,6 +3816,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597903/1000005150_detail_043.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167071",
@@ -3578,6 +3831,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597901/1000005149_detail_045.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167069",
@@ -3592,6 +3846,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597911/1000005154_detail_060.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167079",
@@ -3606,6 +3861,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597757/1000005071_detail_027.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166923",
@@ -3620,6 +3876,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597219/1000004764_detail_079.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166381",
@@ -3634,6 +3891,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597217/1000004763_detail_047.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166379",
@@ -3648,6 +3906,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597215/1000004762_detail_018.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166377",
@@ -3662,6 +3921,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597973/1000005185_detail_086.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167141",
@@ -3676,6 +3936,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5597977/1000005187_detail_030.png",
       "isSoldOut": false,
       "key": "pokemonstore:114167145",
@@ -3690,6 +3951,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/migration/69615/product/5597213/1000004761_detail_060.png",
       "isSoldOut": true,
       "key": "pokemonstore:114166375",
@@ -3704,6 +3966,7 @@
     },
     {
       "availableOptionCount": 0,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/migration/69615/product/5598275/1000005353_detail_059.png",
       "isSoldOut": true,
       "key": "pokemonstore:114167443",
@@ -3718,6 +3981,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250701/165137.596011057/4521329430133.jpg",
       "isSoldOut": false,
       "key": "pokemonstore:131038464",
@@ -3732,6 +3996,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250701/165137.297465898/4521329430140.jpg",
       "isSoldOut": false,
       "key": "pokemonstore:131038463",
@@ -3746,6 +4011,7 @@
     },
     {
       "availableOptionCount": 1,
+      "currency": "KRW",
       "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20250701/165137.639816101/4521329430126.jpg",
       "isSoldOut": false,
       "key": "pokemonstore:131038465",
