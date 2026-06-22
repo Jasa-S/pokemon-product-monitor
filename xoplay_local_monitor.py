@@ -111,6 +111,16 @@ def product_events(
     return events
 
 
+def scan_events(
+    previous: dict[str, dict[str, Any]], products: list[dict[str, Any]],
+    previous_categories: set[str], current_categories: set[str],
+) -> list[tuple[str, dict[str, Any]]]:
+    if current_categories - previous_categories:
+        logging.info("New category scope detected; establishing a silent baseline")
+        return []
+    return product_events(previous, products)
+
+
 def gh_token() -> str:
     token = os.getenv("GH_TOKEN", "").strip()
     if token:
@@ -277,7 +287,10 @@ def run() -> None:
     signal.signal(signal.SIGINT, stop)
     signal.signal(signal.SIGTERM, stop)
     token = gh_token()
-    previous_list = load_json(STATE_PATH, {}).get("products", [])
+    previous_state = load_json(STATE_PATH, {})
+    previous_list = previous_state.get("products", [])
+    previous_categories = set(previous_state.get("categories", []))
+    current_categories = {category["url"].rsplit("/", 1)[-1] for category in NAVER_CATEGORIES}
     with sync_playwright() as playwright:
         profile = ROOT / f".naver-{browser_name}-profile"
         context = getattr(playwright, browser_name).launch_persistent_context(
@@ -313,14 +326,20 @@ def run() -> None:
             if stopping:
                 break
             if combined:
-                for event, product in product_events(previous, combined):
-                    dispatch_alert(event, product)
+                events = scan_events(
+                    previous, combined, previous_categories, current_categories
+                )
                 previous_list = combined
                 save_json(STATE_PATH, {
-                    "updatedAt": datetime.now(timezone.utc).isoformat(), "products": combined,
+                    "updatedAt": datetime.now(timezone.utc).isoformat(),
+                    "categories": sorted(current_categories),
+                    "products": combined,
                 })
                 sync_dashboard(combined, token)
+                previous_categories = current_categories
                 logging.info("Local Naver check complete: %s products", len(combined))
+                for event, product in events:
+                    dispatch_alert(event, product)
             if run_once:
                 break
             deadline = time.monotonic() + poll_seconds
