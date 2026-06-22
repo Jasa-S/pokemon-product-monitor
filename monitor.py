@@ -30,8 +30,7 @@ NAVER_POKEMON_CARD_QUERIES = (
     "포켓몬센터",
 )
 NAVER_POKEMON_CARD_TERMS = (
-    "카드", "확장팩", "강화팩", "부스터", "스타터", "덱", "플레이매트",
-    "컬렉션 파일", "프로모", "tcg",
+    "포켓몬 카드 게임", "포켓몬카드 게임", "pokemon card game", "pokemon tcg",
 )
 GITHUB_MODELS_API = "https://models.github.ai/inference/chat/completions"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
@@ -632,9 +631,9 @@ def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> Non
         )
         pokemon_card_products = pokemon_search.products()
         if pokemon_card_products:
-            state.clear_source_once("naver-pokemon", "scope:naver-pokemon-card-search-v2")
+            state.clear_source_once("naver-pokemon", "scope:naver-pokemon-tcg-search-v3")
         observe_products(
-            config, state, pokemon_card_products, feed="naver-pokemon-card-search-v6",
+            config, state, pokemon_card_products, feed="naver-pokemon-tcg-search-v7",
             reliable_stock=False, update_existing=False,
         )
         xoplay = NaverShoppingSearchClient(
