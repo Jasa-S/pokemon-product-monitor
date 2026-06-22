@@ -11,6 +11,7 @@ from manage_watchlist import update_watchlist
 from monitor import (
     NaverBrandCategoryClient,
     NaverShoppingSearchClient,
+    NAVER_POKEMON_CARD_QUERIES,
     PokemonStoreClient,
     State,
     is_available,
@@ -180,6 +181,10 @@ class MonitorTests(unittest.TestCase):
         with patch("monitor.request_json", return_value=result):
             products = client.products()
         self.assertEqual([product["productNo"] for product in products], ["2"])
+
+    def test_default_naver_pokemon_queries_are_card_focused(self):
+        self.assertEqual(len(NAVER_POKEMON_CARD_QUERIES), 12)
+        self.assertTrue(all("카드" in query for query in NAVER_POKEMON_CARD_QUERIES))
 
     def test_official_naver_search_accepts_matching_mall_name(self):
         client = NaverShoppingSearchClient(
