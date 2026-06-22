@@ -3,57 +3,108 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
   <title>Pokémon Product Monitor</title>
   <style>
-    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; background:#111827; color:#f9fafb }
-    body { max-width:1100px; margin:auto; padding:32px 20px 80px }
-    header { display:flex; gap:20px; justify-content:space-between; align-items:end; flex-wrap:wrap }
-    h1 { margin:0; font-size:clamp(2rem,6vw,4.5rem); line-height:.95; color:#ffcb05 }
-    #meta { color:#9ca3af }
-    .controls { display:grid; grid-template-columns:minmax(220px,2fr) repeat(5,minmax(120px,1fr)) auto; gap:10px; margin:32px 0 14px }
-    input, select, button { padding:12px 14px; border-radius:10px; border:1px solid #374151; background:#1f2937; color:white; font:inherit }
-    input { flex:1; min-width:220px }
-    .controls input { min-width:0 }
+    * { box-sizing:border-box }
+    :root {
+      color-scheme:light; font-family:Inter,system-ui,-apple-system,sans-serif;
+      --bg:#fff; --text:#111827; --muted:#6b7280; --card:#f9fafb;
+      --card-hover:#f0f0f0; --border:rgba(0,0,0,.07); --line:#e5e7eb;
+      --accent:#7c3aed; --accent-rgb:124,58,237; --radius:.75rem;
+      background:var(--bg); color:var(--text);
+    }
+    :root.dark {
+      color-scheme:dark; --bg:#0a0a0a; --text:#fff; --muted:#a1a1aa;
+      --card:#141414; --card-hover:#1e1e1e; --border:rgba(255,255,255,.07); --line:#27272a;
+    }
+    body { max-width:76rem; margin:auto; padding:3rem 1.5rem 5rem; background:var(--bg); color:var(--text); transition:background .3s,color .3s }
+    header { display:flex; gap:1.25rem; justify-content:space-between; align-items:flex-start; margin-bottom:2rem }
+    h1 { margin:0; font-size:1.75rem; font-weight:600; letter-spacing:0; display:flex; align-items:center }
+    .icon-globe { display:inline-block; margin-right:.5rem; animation:spin 8s linear infinite }
+    @keyframes spin { to { transform:rotate(360deg) } }
+    #meta { color:var(--muted); font-size:.78rem; margin-top:.55rem }
+    .header-actions { display:flex; align-items:center; gap:.45rem; flex-shrink:0 }
+    .tool-btn { display:inline-flex; align-items:center; justify-content:center; gap:.35rem; min-height:2rem; padding:.4rem .7rem; border-radius:999px; border:1px solid var(--border); background:var(--card); color:var(--muted); font:500 .72rem/1 Inter,system-ui,sans-serif; cursor:pointer; white-space:nowrap }
+    .tool-btn:hover { color:var(--accent); background:var(--card-hover) }
+    #filter-toggle { display:none }
+    .controls { display:grid; grid-template-columns:minmax(15rem,2fr) repeat(4,minmax(8rem,1fr)) repeat(2,minmax(7rem,.8fr)) auto; gap:.6rem; margin:0 0 1rem }
+    input,select,button { font:inherit }
+    .controls > * { width:100%; min-width:0; max-width:100% }
+    .controls input,.controls select,.controls #clear { padding:.65rem .8rem; border-radius:.55rem; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:.75rem }
+    .controls select { appearance:auto }
+    .controls input:focus,.controls select:focus { outline:2px solid var(--accent); outline-offset:1px }
     button { cursor:pointer }
-    .watch { display:block; margin-top:12px; padding:10px 12px; border-radius:10px; text-align:center; background:#374151 }
-    .watch.selected { background:#ffcb05; color:#111827; font-weight:700 }
-    #watchbox { padding:16px; border:1px solid #4b5563; border-radius:14px; background:#172033; margin:0 0 28px }
-    #watchbox p { margin:0 0 10px; color:#d1d5db }
-    #grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px }
-    article { border:1px solid #374151; background:#1f2937; border-radius:16px; overflow:hidden }
+    .watch { display:block; margin-top:.75rem; padding:.6rem .75rem; border-radius:.55rem; text-align:center; background:var(--card-hover); color:var(--muted); font-size:.78rem }
+    .watch.selected { color:var(--accent); border:1px solid rgba(var(--accent-rgb),.35); font-weight:600 }
+    #watchbox { padding:.85rem 1rem; border:1px solid var(--border); border-radius:var(--radius); background:var(--card); margin:0 0 1.5rem }
+    #watchbox p { margin:0; color:var(--muted); font-size:.78rem; line-height:1.45 }
+    #grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(13.5rem,1fr)); gap:.75rem }
+    article { border:1px solid var(--border); background:var(--card); border-radius:var(--radius); overflow:hidden; transition:background .2s,border-color .2s,transform .2s }
+    article:hover { background:var(--card-hover); border-color:rgba(125,125,125,.3); transform:translateY(-2px) }
     article img { width:100%; aspect-ratio:1; object-fit:cover; background:white }
-    .body { padding:14px }
-    h2 { font-size:1rem; min-height:2.5em; margin:0 0 12px }
+    .body { padding:.85rem }
+    h2 { font-size:.9rem; line-height:1.35; min-height:2.45em; margin:0 0 .7rem; font-weight:600 }
     a { color:inherit; text-decoration:none }
-    .row { display:flex; justify-content:space-between; gap:10px; align-items:center }
-    .badge { padding:4px 8px; border-radius:999px; font-size:.75rem; background:#dc2626 }
-    .badge.available { background:#15803d }
-    .badge.partial { background:#b45309 }
-    .badge.unknown { background:#4b5563 }
-    .source { color:#93c5fd; font-size:.75rem }
+    .row { display:flex; justify-content:space-between; gap:.65rem; align-items:center }
+    .badge { padding:.24rem .55rem; border-radius:999px; font-size:.68rem; color:#b91c1c; background:rgba(220,38,38,.1); white-space:nowrap }
+    .badge.available { color:#15803d; background:rgba(21,128,61,.1) }
+    .badge.partial { color:#b45309; background:rgba(180,83,9,.1) }
+    .badge.unknown { color:var(--muted); background:var(--card-hover) }
+    .source { color:var(--muted); font-size:.66rem; letter-spacing:.04em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:.35rem }
     .prices { display:flex; flex-direction:column }
-    .eur { color:#9ca3af; font-size:.8rem }
-    #stats { margin:0 0 24px; color:#d1d5db }
-    #more { display:block; margin:24px auto 0 }
-    body.gallery #grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px }
-    body.gallery article { border-radius:12px }
-    body.gallery .body { padding:9px }
-    body.gallery h2 { font-size:.85rem; min-height:3.2em; margin-bottom:8px }
+    .eur { color:var(--muted); font-size:.7rem }
+    #stats { margin:0 0 1.25rem; color:var(--muted); font-size:.72rem; line-height:1.45 }
+    #more { display:block; width:auto; margin:1.5rem auto 0 }
+    body.gallery #grid { grid-template-columns:repeat(auto-fill,minmax(9.75rem,1fr)); gap:.5rem }
+    body.gallery article { border-radius:.55rem }
+    body.gallery .body { padding:.6rem }
+    body.gallery h2 { font-size:.78rem; min-height:3.2em; margin-bottom:.5rem }
     body.gallery .source { overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-    body.gallery .row { align-items:flex-start; flex-direction:column; gap:6px }
-    body.gallery .watch { padding:7px; font-size:.75rem }
-    @media (max-width:850px) { .controls { grid-template-columns:1fr 1fr } #search { grid-column:1/-1 } }
-    @media (max-width:520px) {
-      .controls { grid-template-columns:1fr 1fr }
-      #search { grid-column:1/-1 }
+    body.gallery .row { align-items:flex-start; flex-direction:column; gap:.35rem }
+    body.gallery .watch { padding:.45rem; font-size:.68rem }
+    @media (max-width:1100px) {
+      #filter-toggle { display:inline-flex }
+      .controls {
+        display:none; position:fixed; z-index:100; top:5rem; left:1rem; right:1rem;
+        width:auto; max-height:calc(100dvh - 6rem); overflow-y:auto;
+        grid-template-columns:minmax(0,1fr); gap:.55rem; margin:0; padding:.85rem;
+        background:var(--bg); border:1px solid var(--border); border-radius:var(--radius);
+        box-shadow:0 .5rem 2rem rgba(0,0,0,.16);
+      }
+      body.filters-open .controls { display:grid }
+      .controls > * { inline-size:100%; min-inline-size:0 }
+      #search { grid-column:auto }
+    }
+    @media (max-width:760px) {
+      body { padding:2.5rem 1rem 4rem; overflow-x:hidden }
+      header { align-items:center; margin-bottom:1.5rem }
+      h1 { font-size:1.35rem }
+      #meta { font-size:.68rem }
+      .header-actions .tool-btn { width:2rem; padding:.4rem; font-size:0 }
+      .header-actions .tool-btn::before { font-size:.8rem }
+      #filter-toggle::before { content:'≡' }
+      #view::before { content:'▦' }
+      #theme-toggle::before { content:'◐' }
+      #watchbox { padding:.75rem; margin-bottom:1rem }
+      #grid { grid-template-columns:1fr; gap:.65rem }
       body.gallery #grid { grid-template-columns:repeat(2,minmax(0,1fr)) }
       body.gallery .eur { font-size:.7rem }
     }
+    @media (prefers-reduced-motion:reduce) { .icon-globe { animation:none } article { transition:none } }
   </style>
 </head>
 <body>
-  <header><h1>Pokémon<br>Product Monitor</h1><div id="meta">Loading…</div></header>
-  <div class="controls">
+  <header>
+    <div><h1><span class="icon-globe">🌏</span>Card Monitor</h1><div id="meta">Loading…</div></div>
+    <div class="header-actions">
+      <button id="filter-toggle" class="tool-btn" type="button" aria-expanded="false" aria-controls="filters">Filters</button>
+      <button id="view" class="tool-btn" type="button" aria-pressed="false">Gallery view</button>
+      <button id="theme-toggle" class="tool-btn" type="button" aria-label="Toggle theme">Theme</button>
+    </div>
+  </header>
+  <div class="controls" id="filters">
     <input id="search" type="search" placeholder="Search name or product number…">
     <select id="source"><option value="">All stores</option></select>
     <select id="currency"><option value="">Any currency</option><option value="KRW">KRW</option><option value="EUR">EUR</option></select>
@@ -61,7 +112,6 @@
     <select id="sort"><option value="name">Name A–Z</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="stock">In stock first</option></select>
     <input id="minprice" type="number" min="0" step="1000" placeholder="Min ₩">
     <input id="maxprice" type="number" min="0" step="1000" placeholder="Max ₩">
-    <button id="view" type="button" aria-pressed="false">Gallery view</button>
     <button id="clear" type="button">Clear</button>
   </div>
   <div id="stats"></div>
@@ -87,6 +137,15 @@
     const money=new Intl.NumberFormat('ko-KR',{style:'currency',currency:'KRW',maximumFractionDigits:0});
     const euros=new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR'});
     const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    function setTheme(dark){
+      document.documentElement.classList.toggle('dark',dark);
+      document.querySelector('#theme-toggle').setAttribute('aria-pressed',String(dark));
+      localStorage.setItem('theme',dark?'dark':'light');
+    }
+    function setFilters(open){
+      document.body.classList.toggle('filters-open',open);
+      document.querySelector('#filter-toggle').setAttribute('aria-expanded',String(open));
+    }
     function setGallery(enabled){
       document.body.classList.toggle('gallery',enabled);
       const button=document.querySelector('#view');
@@ -144,10 +203,16 @@
     ['search','source','currency','availability','sort','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).addEventListener(id==='search'||id.includes('price')?'input':'change',()=>{displayLimit=120;render()}));
     document.querySelector('#more').addEventListener('click',()=>{displayLimit+=120;render()});
     document.querySelector('#view').addEventListener('click',()=>setGallery(!document.body.classList.contains('gallery')));
+    document.querySelector('#theme-toggle').addEventListener('click',()=>setTheme(!document.documentElement.classList.contains('dark')));
+    document.querySelector('#filter-toggle').addEventListener('click',event=>{event.stopPropagation();setFilters(!document.body.classList.contains('filters-open'))});
+    document.querySelector('#filters').addEventListener('click',event=>event.stopPropagation());
+    document.addEventListener('click',()=>setFilters(false));
+    document.addEventListener('keydown',event=>{if(event.key==='Escape')setFilters(false)});
     document.querySelector('#clear').addEventListener('click',()=>{
       ['search','source','currency','availability','minprice','maxprice'].forEach(id=>document.querySelector(`#${id}`).value='');
-      document.querySelector('#sort').value='name'; displayLimit=120; render();
+      document.querySelector('#sort').value='name'; displayLimit=120; render(); setFilters(false);
     });
+    document.querySelector('#theme-toggle').setAttribute('aria-pressed',String(document.documentElement.classList.contains('dark')));
     setGallery(localStorage.getItem('galleryView')===null?matchMedia('(max-width: 520px)').matches:localStorage.getItem('galleryView')==='true');
   </script>
 </body>
