@@ -25,7 +25,7 @@ To enable discovery-only Pokémon Brand and Xoplay Search API feeds, create a Na
 - `NAVER_CLIENT_ID`
 - `NAVER_CLIENT_SECRET`
 
-Naver has two different limits. The documented non-login Search API quota is 25,000 calls per day per client ID. The hosted card-focused Pokémon and Xoplay fallbacks use eighteen queries every five minutes plus the daily catalogue run, or at most about 5,202 calls per day (20.8%). The storefront's HTTP 429/CAPTCHA behavior is separate anti-automation protection with no published fixed request allowance; reducing Search API calls cannot remove that storefront block. The local browser monitor solves the architecture problem by using a user-controlled, logged-in residential browser session without bypassing Naver verification.
+Naver has two different limits. The documented non-login Search API quota is 25,000 calls per day per client ID. Frequent checks use three Pokémon store queries and six Xoplay queries; the daily catalogue refresh paginates the Pokémon searches up to ten pages. The maximum is about 2,628 calls per day (10.5%). The storefront's HTTP 429/CAPTCHA behavior is separate anti-automation protection with no published fixed request allowance; reducing Search API calls cannot remove that storefront block. The local browser monitor solves the architecture problem by using a user-controlled, logged-in residential browser session without bypassing Naver verification.
 
 ### User-controlled Naver monitoring
 
