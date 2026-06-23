@@ -297,8 +297,9 @@ def scrape_catalog_by_click(
     page: Any, category: dict[str, str], max_pages: int,
     should_stop: Callable[[], bool] = lambda: False,
 ) -> list[dict[str, Any]]:
-    """Paginate by clicking numbered page buttons — required for brand.naver.com SPA."""
-    # Load page 1 via URL
+    """Paginate by clicking numbered page buttons — required for brand.naver.com SPA.
+    Buttons use data-shp-area-id='pgn' and data-shp-contents-id='{page_number}'.
+    """
     params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": 1, "size": 80})
     page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
     if not wait_for_access(page, should_stop):
@@ -316,21 +317,17 @@ def scrape_catalog_by_click(
         if not products:
             break
 
-        # Find the next page button (numbered button with value page_number+1)
         next_page = page_number + 1
-        # Try aria-label, text content, or data attributes Naver uses for page buttons
-        next_btn = page.locator(
-            f'[aria-label="{next_page}페이지"], '
-            f'[aria-label="페이지 {next_page}"], '
-            f'button:has-text("{next_page}"), '
-            f'a:has-text("{next_page}")'
-        ).first
-        if not next_btn.is_visible():
-            # No next page button visible — we're on the last page
+        # Naver brand store page buttons: <a data-shp-area-id="pgn" data-shp-contents-id="2">2</a>
+        next_btn = page.locator(f'a[data-shp-area-id="pgn"][data-shp-contents-id="{next_page}"]').first
+        try:
+            next_btn.wait_for(state="visible", timeout=3000)
+        except Exception:
+            # No button for the next page — we are on the last page
             break
         next_btn.click()
-        # Wait for new products to load after click
-        page.wait_for_timeout(2000)
+        # Wait for the SPA to re-render the product list
+        page.wait_for_timeout(2500)
         page_number += 1
 
     return list(found.values())
