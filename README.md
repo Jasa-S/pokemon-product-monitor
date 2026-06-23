@@ -48,6 +48,20 @@ Turn it on only when wanted:
 
 The visible browser is Playwright WebKit—the closest supported engine to Safari, though not the branded Safari application—and uses `.naver-webkit-profile/` to retain its session. Complete Naver login or CAPTCHA yourself in that window if prompted. The first successful scan silently establishes a baseline; later new products and sold-out-to-available changes trigger translated Discord alerts. Local Naver data is published separately to `docs/local-naver.json`, so hosted jobs cannot overwrite it. The Mac must remain awake and online while monitoring is enabled. Use `./xoplay-monitor once` for a single interactive check.
 
+### Run the local monitor on Windows instead
+
+Download only `xoplay-monitor-windows.ps1` onto the Windows laptop. Open PowerShell in that folder and run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\xoplay-monitor-windows.ps1 setup
+.\xoplay-monitor-windows.ps1 start
+```
+
+The setup installs an isolated environment under `%LOCALAPPDATA%\PokemonProductMonitor`, downloads the current monitor, installs Playwright WebKit, and retains the Naver browser profile there. Python 3 and GitHub CLI are required; the script prints the relevant `winget` command if either is missing. Authenticate once with `gh auth login --web --git-protocol https`. No Discord webhook or Naver API secret needs to be copied to Windows because notifications are queued through the repository's existing GitHub Actions secrets.
+
+Use `status`, `logs`, `stop`, `once`, or `update` in place of `start` as needed. **Stop the Mac monitor before starting Windows, and stop Windows before returning to the Mac.** Both instances publish the same `docs/local-naver.json`; they must not run simultaneously. The Windows laptop must remain awake, signed in, and online. The visible WebKit window must remain open, and any Naver login or CAPTCHA must be completed manually.
+
 ## GitHub configuration
 
 Optional repository variables:
