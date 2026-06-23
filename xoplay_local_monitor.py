@@ -31,10 +31,6 @@ NAVER_CATEGORIES = (
         "label": "Pokémon Brand cards", "source": "naver-pokemon", "slug": "pokemon",
         "url": "https://brand.naver.com/pokemon/category/c94139abcef14362997090c5da975e28",
     },
-    {
-        "label": "Pokémon Brand card catalogue", "source": "naver-pokemon", "slug": "pokemon",
-        "url": "https://brand.naver.com/pokemon/category/7d4ef8ffe7ca4427b42a1a61751656e4",
-    },
 )
 
 
@@ -254,7 +250,9 @@ def scrape_page(
     page: Any, category: dict[str, str], page_number: int,
     should_stop: Callable[[], bool] = lambda: False,
 ) -> list[dict[str, Any]]:
-    page.goto(f"{category['url']}?{urlencode({'cp': page_number})}", wait_until="domcontentloaded")
+    # Naver uses ?page=N&size=40 for pagination (not ?cp=N)
+    params = urlencode({"page": page_number, "size": 40})
+    page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
     if not wait_for_access(page, should_stop):
         return []
     page.wait_for_timeout(1500)
@@ -290,9 +288,9 @@ def scrape_catalog(
             "%s page %s: %s products (%s new)",
             category["label"], page_number, len(products), new_count,
         )
-        # Stop when no results at all, or when a full page came back with zero new products
-        # (Naver repeats the last page indefinitely instead of returning empty)
-        if not products or new_count == 0:
+        # Stop only when a page returns no products at all
+        # (Naver returns an empty page past the last one)
+        if not products:
             break
     return list(found.values())
 
