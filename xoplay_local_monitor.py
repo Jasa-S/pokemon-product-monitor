@@ -24,12 +24,12 @@ STATE_PATH = ROOT / ".naver-local-monitor-state.json"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
 NAVER_CATEGORIES = (
     {
-        "label": "Xoplay", "source": "naver-xoplay", "slug": "xoplay",
-        "url": "https://smartstore.naver.com/xoplay/category/b6472710a7524259aae727a12b3495a3",
-    },
-    {
         "label": "Pokémon Brand cards", "source": "naver-pokemon", "slug": "pokemon",
         "url": "https://brand.naver.com/pokemon/category/c94139abcef14362997090c5da975e28",
+    },
+    {
+        "label": "Xoplay", "source": "naver-xoplay", "slug": "xoplay",
+        "url": "https://smartstore.naver.com/xoplay/category/b6472710a7524259aae727a12b3495a3",
     },
 )
 # Pause between scraping each category so Naver doesn't return empty pages
