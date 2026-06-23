@@ -273,32 +273,12 @@ def collect_products_from_page(
     return list(found.values())
 
 
-def scrape_catalog_by_url(
+def scrape_catalog(
     page: Any, category: dict[str, str], max_pages: int,
     should_stop: Callable[[], bool] = lambda: False,
 ) -> list[dict[str, Any]]:
-    """Paginate by building ?page=N URLs — works for smartstore.naver.com."""
-    found = {}
-    for page_number in range(1, max_pages + 1):
-        params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": page_number, "size": 80})
-        page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
-        if not wait_for_access(page, should_stop):
-            break
-        products = collect_products_from_page(page, category)
-        new_count = sum(p["productNo"] not in found for p in products)
-        found.update({p["productNo"]: p for p in products})
-        logging.info("%s page %s: %s products (%s new)", category["label"], page_number, len(products), new_count)
-        if not products or (page_number > 1 and new_count == 0):
-            break
-    return list(found.values())
-
-
-def scrape_catalog_by_click(
-    page: Any, category: dict[str, str], max_pages: int,
-    should_stop: Callable[[], bool] = lambda: False,
-) -> list[dict[str, Any]]:
-    """Paginate by clicking numbered page buttons — required for brand.naver.com SPA.
-    Buttons use data-shp-area-id='pgn' and data-shp-contents-id='{page_number}'.
+    """Paginate by clicking numbered page buttons — works for both smartstore and brand.naver.com.
+    Both use <a data-shp-area-id="pgn" data-shp-contents-id="{page_number}"> buttons.
     """
     params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": 1, "size": 80})
     page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
@@ -312,14 +292,20 @@ def scrape_catalog_by_click(
         products = collect_products_from_page(page, category)
         new_count = sum(p["productNo"] not in found for p in products)
         found.update({p["productNo"]: p for p in products})
-        logging.info("%s page %s: %s products (%s new)", category["label"], page_number, len(products), new_count)
+        logging.info(
+            "%s page %s: %s products (%s new)",
+            category["label"], page_number, len(products), new_count,
+        )
 
         if not products:
             break
 
         next_page = page_number + 1
-        # Naver brand store page buttons: <a data-shp-area-id="pgn" data-shp-contents-id="2">2</a>
-        next_btn = page.locator(f'a[data-shp-area-id="pgn"][data-shp-contents-id="{next_page}"]').first
+        # Both smartstore and brand.naver.com use this button structure:
+        # <a data-shp-area-id="pgn" data-shp-contents-id="2">2</a>
+        next_btn = page.locator(
+            f'a[data-shp-area-id="pgn"][data-shp-contents-id="{next_page}"]'
+        ).first
         try:
             next_btn.wait_for(state="visible", timeout=3000)
         except Exception:
@@ -331,16 +317,6 @@ def scrape_catalog_by_click(
         page_number += 1
 
     return list(found.values())
-
-
-def scrape_catalog(
-    page: Any, category: dict[str, str], max_pages: int,
-    should_stop: Callable[[], bool] = lambda: False,
-) -> list[dict[str, Any]]:
-    """Route to click-based or URL-based pagination depending on the store domain."""
-    if "brand.naver.com" in category["url"]:
-        return scrape_catalog_by_click(page, category, max_pages, should_stop)
-    return scrape_catalog_by_url(page, category, max_pages, should_stop)
 
 
 def run() -> None:
