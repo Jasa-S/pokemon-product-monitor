@@ -12,7 +12,7 @@
       color-scheme:light; font-family:Inter,system-ui,-apple-system,sans-serif;
       --bg:#fff; --text:#111827; --muted:#6b7280; --card:#f9fafb;
       --card-hover:#f0f0f0; --border:rgba(0,0,0,.07); --line:#e5e7eb;
-      --accent:#7c3aed; --accent-rgb:124,58,237; --radius:.75rem;
+      --accent:#2563eb; --accent-rgb:37,99,235; --radius:.75rem;
       background:var(--bg); color:var(--text);
     }
     :root.dark {
@@ -29,6 +29,9 @@
     .tool-btn { display:inline-flex; align-items:center; justify-content:center; gap:.35rem; min-height:2rem; padding:.4rem .7rem; border-radius:999px; border:1px solid var(--border); background:var(--card); color:var(--muted); font:500 .72rem/1 Inter,system-ui,sans-serif; cursor:pointer; white-space:nowrap }
     .tool-btn:hover { color:var(--accent); background:var(--card-hover) }
     .tool-icon { display:inline-flex; width:1rem; height:1rem }
+    #theme-toggle .theme-sun { display:none }
+    :root.dark #theme-toggle .theme-moon { display:none }
+    :root.dark #theme-toggle .theme-sun { display:inline-flex }
     #view .view-list-icon { display:none }
     #view[aria-pressed="true"] .view-grid-icon { display:none }
     #view[aria-pressed="true"] .view-list-icon { display:inline-flex }
@@ -42,8 +45,6 @@
     .controls select { appearance:auto }
     .controls input:focus,.controls select:focus { outline:2px solid var(--accent); outline-offset:1px }
     button { cursor:pointer }
-    .watch { display:block; margin-top:.75rem; padding:.6rem .75rem; border-radius:.55rem; text-align:center; background:var(--card-hover); color:var(--muted); font-size:.78rem }
-    .watch.selected { color:var(--accent); border:1px solid rgba(var(--accent-rgb),.35); font-weight:600 }
     .monitor-note { display:block; margin-top:.75rem; color:var(--muted); font-size:.68rem; letter-spacing:.04em }
     #grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(13.5rem,1fr)); gap:.75rem }
     article { display:flex; flex-direction:column; border:1px solid var(--border); background:var(--card); border-radius:var(--radius); overflow:hidden; transition:background .2s,border-color .2s,transform .2s }
@@ -70,7 +71,6 @@
     body.gallery h2 { display:-webkit-box; min-height:2.15em; max-height:2.15em; margin-bottom:.5rem; overflow:hidden; font-size:.78rem; line-height:1.08; -webkit-box-orient:vertical; -webkit-line-clamp:2 }
     body.gallery .source { overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
     body.gallery .row { align-items:flex-start; flex-direction:column; gap:.35rem; margin-top:auto }
-    body.gallery .watch { padding:.45rem; font-size:.68rem }
     body.gallery .monitor-note { margin-top:.5rem; font-size:.6rem }
     @media (max-width:1100px) {
       #filter-toggle { display:inline-flex }
@@ -106,7 +106,7 @@
     <div class="header-actions">
       <button id="filter-toggle" class="tool-btn" type="button" aria-label="Open filters" aria-expanded="false" aria-controls="filters"><span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span><span class="tool-label">Filters</span></button>
       <button id="view" class="tool-btn" type="button" aria-pressed="false"><span class="tool-icon view-grid-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg></span><span class="tool-icon view-list-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="5" cy="6" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="5" cy="18" r="1"/></svg></span><span id="view-label" class="tool-label">Gallery</span></button>
-      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle dark mode"><span id="theme-icon" aria-hidden="true">☾</span></button>
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle dark mode"><span id="theme-icon" class="tool-icon" aria-hidden="true"><svg class="theme-moon" viewBox="0 0 24 24"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span></button>
     </div>
   </header>
   <div class="controls" id="filters">
@@ -125,7 +125,6 @@
   <script>
     let products=[];
     let eurRate=null;
-    let watched=new Set();
     let displayLimit=120;
     const configuredSources=[
       'crazycards-onepiece',
@@ -142,7 +141,6 @@
     function setTheme(dark){
       document.documentElement.classList.toggle('dark',dark);
       document.querySelector('#theme-toggle').setAttribute('aria-pressed',String(dark));
-      document.querySelector('#theme-icon').textContent=dark?'☀':'☾';
       document.querySelector('#theme-toggle').setAttribute('aria-label',dark?'Use light mode':'Use dark mode');
       localStorage.setItem('theme',dark?'dark':'light');
     }
@@ -157,13 +155,6 @@
       button.setAttribute('aria-label',enabled?'Use details view':'Use gallery view');
       document.querySelector('#view-label').textContent=enabled?'Details':'Gallery';
       localStorage.setItem('galleryView',String(enabled));
-    }
-    function watchRequest(product){
-      const active=watched.has(product.productNo);
-      const action=active?'unwatch':'watch';
-      const title=encodeURIComponent(`[${action}] ${product.productNo}`);
-      const body=encodeURIComponent(`${active?'Stop watching':'Watch'} ${product.productName}\n\nProduct: ${product.url}\n\nThis request will be processed and closed automatically.`);
-      return {active,url:`https://github.com/Jasa-S/pokemon-product-monitor/issues/new?title=${title}&body=${body}`};
     }
     function render(){
       const q=document.querySelector('#search').value.toLocaleLowerCase();
@@ -186,7 +177,7 @@
       const unknown=visible.filter(p=>stockState(p)==='UNKNOWN').length;
       const shown=visible.slice(0,displayLimit);
       document.querySelector('#stats').textContent=`Showing ${shown.length.toLocaleString()} of ${visible.length.toLocaleString()} matches · ${available.toLocaleString()} fully in stock · ${partial.toLocaleString()} partial · ${unavailable.toLocaleString()} sold out · ${unknown.toLocaleString()} unknown`;
-      document.querySelector('#grid').innerHTML=shown.map(p=>{const request=watchRequest(p);const state=stockState(p);const label=state==='PARTIAL'?`Partial (${p.availableOptionCount??'?'} available / ${p.soldOutOptionCount??'?'} sold out)`:state==='SOLD_OUT'?'Sold out':state==='UNKNOWN'?'Unknown':'Available';const badge=state==='AVAILABLE'?'available':state==='PARTIAL'?'partial':state==='UNKNOWN'?'unknown':'';const isEuro=p.currency==='EUR';const primary=p.salePrice==null?'—':isEuro?euros.format(p.salePrice):money.format(p.salePrice);const secondary=isEuro?'EUR shop price':p.salePrice!=null&&eurRate?`≈ ${euros.format(p.salePrice*eurRate)}`:'EUR unavailable';const monitoring=p.source==='pokemonstore'?`<a class="watch ${request.active?'selected':''}" href="${request.url}" target="_blank" rel="noreferrer">${request.active?'✓ Exact restock watched — remove':'Watch exact restock via GitHub'}</a>`:'<span class="monitor-note">● Monitored automatically</span>';const media=p.image?.startsWith('https://')?`<img loading="lazy" src="${esc(p.image)}" alt="${esc(p.productName)}">`:'<span class="image-placeholder" aria-hidden="true">▧</span>';return `<article><a class="product-media" href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer" aria-label="${esc(p.productName)}">${media}</a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><span class="prices"><strong>${primary}</strong><span class="eur">${secondary}</span></span><span class="badge ${badge}">${esc(label)}</span></div>${monitoring}</div></article>`}).join('');
+      document.querySelector('#grid').innerHTML=shown.map(p=>{const state=stockState(p);const label=state==='PARTIAL'?`Partial (${p.availableOptionCount??'?'} available / ${p.soldOutOptionCount??'?'} sold out)`:state==='SOLD_OUT'?'Sold out':state==='UNKNOWN'?'Unknown':'Available';const badge=state==='AVAILABLE'?'available':state==='PARTIAL'?'partial':state==='UNKNOWN'?'unknown':'';const isEuro=p.currency==='EUR';const primary=p.salePrice==null?'—':isEuro?euros.format(p.salePrice):money.format(p.salePrice);const secondary=isEuro?'EUR shop price':p.salePrice!=null&&eurRate?`≈ ${euros.format(p.salePrice*eurRate)}`:'EUR unavailable';const monitoring='<span class="monitor-note">● Monitored automatically</span>';const media=p.image?.startsWith('https://')?`<img loading="lazy" src="${esc(p.image)}" alt="${esc(p.productName)}">`:'<span class="image-placeholder" aria-hidden="true">▧</span>';return `<article><a class="product-media" href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer" aria-label="${esc(p.productName)}">${media}</a><div class="body"><div class="source">${esc(p.source)} · #${esc(p.productNo)}</div><h2><a href="${p.url.startsWith('https://')?esc(p.url):'#'}" target="_blank" rel="noreferrer">${esc(p.productName)}</a></h2><div class="row"><span class="prices"><strong>${primary}</strong><span class="eur">${secondary}</span></span><span class="badge ${badge}">${esc(label)}</span></div>${monitoring}</div></article>`}).join('');
       const more=document.querySelector('#more');
       more.hidden=shown.length===visible.length;
       more.textContent=`Show ${Math.min(120,visible.length-shown.length).toLocaleString()} more products`;
@@ -197,7 +188,6 @@
     ]).then(([data,localNaver])=>{
       const localSources=new Set((localNaver.products||[]).map(p=>p.source));
       products=[...data.products.filter(p=>!localSources.has(p.source)),...(localNaver.products||[])];
-      watched=new Set(data.watchProductNos||[]);
       eurRate=data.exchangeRate?.rate||null;
       const rateNote=data.exchangeRate?` · EUR reference ${data.exchangeRate.date}`:'';
       const updated=[data.updatedAt,localNaver.updatedAt].filter(Boolean).sort().pop();
@@ -219,7 +209,6 @@
     });
     const initialDark=document.documentElement.classList.contains('dark');
     document.querySelector('#theme-toggle').setAttribute('aria-pressed',String(initialDark));
-    document.querySelector('#theme-icon').textContent=initialDark?'☀':'☾';
     document.querySelector('#theme-toggle').setAttribute('aria-label',initialDark?'Use light mode':'Use dark mode');
     setGallery(localStorage.getItem('galleryView')===null?matchMedia('(max-width: 520px)').matches:localStorage.getItem('galleryView')==='true');
   </script>
