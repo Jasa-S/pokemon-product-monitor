@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T18:49:05.157855+00:00",
+  "updatedAt": "2026-06-23T19:30:39.432282+00:00",
   "products": [
     {
       "key": "naver-pokemon:13106045292",
@@ -442,6 +442,19 @@
       "saleStatusType": "OUTOFSTOCK",
       "stockStatus": "SOLD_OUT",
       "url": "https://brand.naver.com/pokemon/products/11993372023"
+    },
+    {
+      "key": "naver-pokemon:11498488708",
+      "source": "naver-pokemon",
+      "productNo": "11498488708",
+      "productName": "포켓몬 카드 게임 스칼렛&바이올렛 이브이 덱 케이스 세트「테라스탈 페스타 ex」",
+      "salePrice": 3000,
+      "currency": "KRW",
+      "image": "https://shop-phinf.pstatic.net/20250220_116/1740027755276KArkO_PNG/15645850715372865_1185766602.png?type=f750_750",
+      "isSoldOut": true,
+      "saleStatusType": "OUTOFSTOCK",
+      "stockStatus": "SOLD_OUT",
+      "url": "https://brand.naver.com/pokemon/products/11498488708"
     },
     {
       "key": "naver-pokemon:9882091987",
@@ -897,19 +910,6 @@
       "saleStatusType": "SALE",
       "stockStatus": "AVAILABLE",
       "url": "https://brand.naver.com/pokemon/products/11973473442"
-    },
-    {
-      "key": "naver-pokemon:8601056788",
-      "source": "naver-pokemon",
-      "productNo": "8601056788",
-      "productName": "포켓몬 카드 게임 카드 실드 프리미엄 「테라스탈 갸라도스」",
-      "salePrice": 3000,
-      "currency": "KRW",
-      "image": "https://shop-phinf.pstatic.net/20260405_93/1775396211631F5ISD_PNG/32036443762113636_52395079.png?type=f750_750",
-      "isSoldOut": false,
-      "saleStatusType": "SALE",
-      "stockStatus": "AVAILABLE",
-      "url": "https://brand.naver.com/pokemon/products/8601056788"
     },
     {
       "key": "naver-pokemon:12186998990",
