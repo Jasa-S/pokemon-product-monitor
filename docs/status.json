@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-06-23T08:50:54.029520+00:00",
+  "updatedAt": "2026-06-23T14:37:37.133803+00:00",
   "exchangeRate": {
     "base": "KRW",
     "quote": "EUR",
     "rate": 0.00057,
-    "date": "2026-06-22",
+    "date": "2026-06-23",
     "source": "Frankfurter (ECB reference rate)"
   },
   "watchProductNos": [],
@@ -206,19 +206,6 @@
     },
     {
       "currency": "EUR",
-      "image": "https://static.wixstatic.com/media/cb7d81_862393be7e8c4829a46b069ec168aa4e~mv2.png",
-      "isSoldOut": true,
-      "key": "crazycards-pokemon:pokémon-tcg-mega-nihil-zero-m3-booster-pack-koreanisch",
-      "productName": "Pokémon TCG - Mega Nihil Zero m3 Booster Pack - Koreanisch",
-      "productNo": "pokémon-tcg-mega-nihil-zero-m3-booster-pack-koreanisch",
-      "salePrice": 1.95,
-      "saleStatusType": "OUTOFSTOCK",
-      "source": "crazycards-pokemon",
-      "stockStatus": "SOLD_OUT",
-      "url": "https://www.crazycards.eu/product-page/pokémon-tcg-mega-nihil-zero-m3-booster-pack-koreanisch"
-    },
-    {
-      "currency": "EUR",
       "image": "https://static.wixstatic.com/media/cb7d81_514513b729504dffaf9ba044e76a8e57~mv2.png",
       "isSoldOut": true,
       "key": "crazycards-pokemon:pokémon-tcg-ninja-spinner-m4-booster-box-display-koreanisch",
@@ -242,6 +229,19 @@
       "source": "crazycards-pokemon",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.crazycards.eu/product-page/pokémon-tcg-pikachu-v-union-card-frame-collection-box"
+    },
+    {
+      "currency": "EUR",
+      "image": "https://static.wixstatic.com/media/cb7d81_bdf954fbf9ed4f118d2272e179bb02f0~mv2.png",
+      "isSoldOut": true,
+      "key": "crazycards-pokemon:pokémon-tcg-stellar-crystal-csv9-coin-set-chinesisch",
+      "productName": "Pokémon TCG - Stellar Crystal (CSV9) Coin Set - Chinesisch",
+      "productNo": "pokémon-tcg-stellar-crystal-csv9-coin-set-chinesisch",
+      "salePrice": 9.95,
+      "saleStatusType": "OUTOFSTOCK",
+      "source": "crazycards-pokemon",
+      "stockStatus": "SOLD_OUT",
+      "url": "https://www.crazycards.eu/product-page/pokémon-tcg-stellar-crystal-csv9-coin-set-chinesisch"
     },
     {
       "currency": "EUR",
