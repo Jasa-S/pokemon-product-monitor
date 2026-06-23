@@ -258,7 +258,9 @@ def scrape_page(
     if not wait_for_access(page, should_stop):
         return []
     page.wait_for_timeout(1500)
-    selector = f'a[href*="/{category["slug"]}/products/"]'
+    slug = category["slug"]
+    # Match both smartstore.naver.com/<slug>/products/ and brand.naver.com/<slug>/products/
+    selector = f'a[href*="/{slug}/products/"]'
     raw_products = page.locator(selector).evaluate_all("""
         links => links.map(link => {
           const card = link.closest('li') || link.closest('article') || link.parentElement?.parentElement || link;
@@ -269,7 +271,7 @@ def scrape_page(
     """)
     found = {}
     for raw in raw_products:
-        product = normalize_raw_product(raw, category["source"], category["slug"])
+        product = normalize_raw_product(raw, category["source"], slug)
         if product:
             found[product["productNo"]] = product
     return list(found.values())
@@ -288,7 +290,9 @@ def scrape_catalog(
             "%s page %s: %s products (%s new)",
             category["label"], page_number, len(products), new_count,
         )
-        if not products:
+        # Stop when no results at all, or when a full page came back with zero new products
+        # (Naver repeats the last page indefinitely instead of returning empty)
+        if not products or new_count == 0:
             break
     return list(found.values())
 
