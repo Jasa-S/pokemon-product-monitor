@@ -255,10 +255,17 @@ def scrape_page(
     page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
     if not wait_for_access(page, should_stop):
         return []
-    page.wait_for_timeout(1500)
     slug = category["slug"]
-    # Match both smartstore.naver.com/<slug>/products/ and brand.naver.com/<slug>/products/
     selector = f'a[href*="/{slug}/products/"]'
+    # Wait up to 8 seconds for product links to actually render (brand.naver.com is JS-heavy)
+    try:
+        page.wait_for_selector(selector, timeout=8000)
+    except Exception:
+        # No products appeared within timeout — page is empty or failed to load
+        return []
+    # Extra settle time for remaining lazy-loaded items
+    page.wait_for_timeout(1000)
+    # Match both smartstore.naver.com/<slug>/products/ and brand.naver.com/<slug>/products/
     raw_products = page.locator(selector).evaluate_all("""
         links => links.map(link => {
           const card = link.closest('li') || link.closest('article') || link.parentElement?.parentElement || link;
@@ -288,9 +295,9 @@ def scrape_catalog(
             "%s page %s: %s products (%s new)",
             category["label"], page_number, len(products), new_count,
         )
-        # Stop only when a page returns no products at all
-        # (Naver returns an empty page past the last one)
-        if not products:
+        # Stop when no products at all, or when page 2+ returns nothing new
+        # (Naver repeats all products on every page for small catalogues like Xoplay)
+        if not products or (page_number > 1 and new_count == 0):
             break
     return list(found.values())
 
