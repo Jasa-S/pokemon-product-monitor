@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   update:
-    if: startsWith(github.event.issue.title, '[watch] ') || startsWith(github.event.issue.title, '[unwatch] ')
+    if: github.event.issue.user.login == github.repository_owner && (startsWith(github.event.issue.title, '[watch] ') || startsWith(github.event.issue.title, '[unwatch] '))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
