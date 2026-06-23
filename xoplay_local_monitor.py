@@ -246,26 +246,17 @@ def wait_for_access(page: Any, should_stop: Callable[[], bool]) -> bool:
     return True
 
 
-def scrape_page(
-    page: Any, category: dict[str, str], page_number: int,
-    should_stop: Callable[[], bool] = lambda: False,
+def collect_products_from_page(
+    page: Any, category: dict[str, str]
 ) -> list[dict[str, Any]]:
-    # Naver uses ?st=RECENT&dt=IMAGE&page=N&size=80 for pagination
-    params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": page_number, "size": 80})
-    page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
-    if not wait_for_access(page, should_stop):
-        return []
+    """Extract all product links currently visible on the page."""
     slug = category["slug"]
     selector = f'a[href*="/{slug}/products/"]'
-    # Wait up to 8 seconds for product links to actually render (brand.naver.com is JS-heavy)
     try:
         page.wait_for_selector(selector, timeout=8000)
     except Exception:
-        # No products appeared within timeout — page is empty or failed to load
         return []
-    # Extra settle time for remaining lazy-loaded items
     page.wait_for_timeout(1000)
-    # Match both smartstore.naver.com/<slug>/products/ and brand.naver.com/<slug>/products/
     raw_products = page.locator(selector).evaluate_all("""
         links => links.map(link => {
           const card = link.closest('li') || link.closest('article') || link.parentElement?.parentElement || link;
@@ -282,24 +273,77 @@ def scrape_page(
     return list(found.values())
 
 
+def scrape_catalog_by_url(
+    page: Any, category: dict[str, str], max_pages: int,
+    should_stop: Callable[[], bool] = lambda: False,
+) -> list[dict[str, Any]]:
+    """Paginate by building ?page=N URLs — works for smartstore.naver.com."""
+    found = {}
+    for page_number in range(1, max_pages + 1):
+        params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": page_number, "size": 80})
+        page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
+        if not wait_for_access(page, should_stop):
+            break
+        products = collect_products_from_page(page, category)
+        new_count = sum(p["productNo"] not in found for p in products)
+        found.update({p["productNo"]: p for p in products})
+        logging.info("%s page %s: %s products (%s new)", category["label"], page_number, len(products), new_count)
+        if not products or (page_number > 1 and new_count == 0):
+            break
+    return list(found.values())
+
+
+def scrape_catalog_by_click(
+    page: Any, category: dict[str, str], max_pages: int,
+    should_stop: Callable[[], bool] = lambda: False,
+) -> list[dict[str, Any]]:
+    """Paginate by clicking numbered page buttons — required for brand.naver.com SPA."""
+    # Load page 1 via URL
+    params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": 1, "size": 80})
+    page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
+    if not wait_for_access(page, should_stop):
+        return []
+
+    found = {}
+    page_number = 1
+
+    while page_number <= max_pages and not should_stop():
+        products = collect_products_from_page(page, category)
+        new_count = sum(p["productNo"] not in found for p in products)
+        found.update({p["productNo"]: p for p in products})
+        logging.info("%s page %s: %s products (%s new)", category["label"], page_number, len(products), new_count)
+
+        if not products:
+            break
+
+        # Find the next page button (numbered button with value page_number+1)
+        next_page = page_number + 1
+        # Try aria-label, text content, or data attributes Naver uses for page buttons
+        next_btn = page.locator(
+            f'[aria-label="{next_page}페이지"], '
+            f'[aria-label="페이지 {next_page}"], '
+            f'button:has-text("{next_page}"), '
+            f'a:has-text("{next_page}")'
+        ).first
+        if not next_btn.is_visible():
+            # No next page button visible — we're on the last page
+            break
+        next_btn.click()
+        # Wait for new products to load after click
+        page.wait_for_timeout(2000)
+        page_number += 1
+
+    return list(found.values())
+
+
 def scrape_catalog(
     page: Any, category: dict[str, str], max_pages: int,
     should_stop: Callable[[], bool] = lambda: False,
 ) -> list[dict[str, Any]]:
-    found = {}
-    for page_number in range(1, max_pages + 1):
-        products = scrape_page(page, category, page_number, should_stop)
-        new_count = sum(product["productNo"] not in found for product in products)
-        found.update({product["productNo"]: product for product in products})
-        logging.info(
-            "%s page %s: %s products (%s new)",
-            category["label"], page_number, len(products), new_count,
-        )
-        # Stop when no products at all, or when page 2+ returns nothing new
-        # (Naver repeats all products on every page for small catalogues like Xoplay)
-        if not products or (page_number > 1 and new_count == 0):
-            break
-    return list(found.values())
+    """Route to click-based or URL-based pagination depending on the store domain."""
+    if "brand.naver.com" in category["url"]:
+        return scrape_catalog_by_click(page, category, max_pages, should_stop)
+    return scrape_catalog_by_url(page, category, max_pages, should_stop)
 
 
 def run() -> None:
