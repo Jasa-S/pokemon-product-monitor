@@ -250,8 +250,8 @@ def scrape_page(
     page: Any, category: dict[str, str], page_number: int,
     should_stop: Callable[[], bool] = lambda: False,
 ) -> list[dict[str, Any]]:
-    # Naver uses ?page=N&size=40 for pagination (not ?cp=N)
-    params = urlencode({"page": page_number, "size": 40})
+    # Naver uses ?st=RECENT&dt=IMAGE&page=N&size=80 for pagination
+    params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": page_number, "size": 80})
     page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
     if not wait_for_access(page, should_stop):
         return []
