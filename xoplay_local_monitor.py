@@ -32,6 +32,8 @@ NAVER_CATEGORIES = (
         "url": "https://brand.naver.com/pokemon/category/c94139abcef14362997090c5da975e28",
     },
 )
+# Pause between scraping each category so Naver doesn't return empty pages
+CATEGORY_COOLDOWN_SECONDS = 3
 
 
 def load_json(path: Path, fallback: Any) -> Any:
@@ -359,7 +361,10 @@ def run() -> None:
         while not stopping:
             previous = {product["key"]: product for product in previous_list}
             combined = []
-            for category in NAVER_CATEGORIES:
+            for index, category in enumerate(NAVER_CATEGORIES):
+                if index > 0 and not stopping:
+                    logging.info("Cooling down %ss before next category...", CATEGORY_COOLDOWN_SECONDS)
+                    time.sleep(CATEGORY_COOLDOWN_SECONDS)
                 try:
                     products = scrape_catalog(page, category, max_pages, lambda: stopping)
                     if products:
