@@ -288,7 +288,7 @@ def scrape_catalog(
             "%s page %s: %s products (%s new)",
             category["label"], page_number, len(products), new_count,
         )
-        if not products or new_count == 0:
+        if not products:
             break
     return list(found.values())
 
