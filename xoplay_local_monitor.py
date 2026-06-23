@@ -149,6 +149,31 @@ def github_request(
         return json.load(response)
 
 
+def newer_dashboard_state(
+    local: dict[str, Any], remote: dict[str, Any], categories: set[str]
+) -> dict[str, Any]:
+    if not remote.get("products") or remote.get("updatedAt", "") <= local.get("updatedAt", ""):
+        return local
+    return {
+        "updatedAt": remote["updatedAt"],
+        "categories": sorted(categories),
+        "products": remote["products"],
+    }
+
+
+def load_dashboard_state(token: str) -> dict[str, Any]:
+    if not token or os.getenv("XOPLAY_GITHUB_SYNC", "true").casefold() != "true":
+        return {}
+    repository = os.getenv("GITHUB_REPOSITORY", "Jasa-S/pokemon-product-monitor")
+    api_url = f"https://api.github.com/repos/{repository}/contents/docs/local-naver.json"
+    try:
+        current = github_request(api_url, token)
+        return json.loads(base64.b64decode(current["content"]).decode())
+    except (HTTPError, OSError, ValueError, KeyError, json.JSONDecodeError):
+        logging.warning("Could not load the shared Naver baseline; local state retained")
+        return {}
+
+
 def sync_dashboard(products: list[dict[str, Any]], token: str) -> None:
     if os.getenv("XOPLAY_GITHUB_SYNC", "true").casefold() != "true":
         return
@@ -288,9 +313,16 @@ def run() -> None:
     signal.signal(signal.SIGTERM, stop)
     token = gh_token()
     previous_state = load_json(STATE_PATH, {})
+    current_categories = {category["url"].rsplit("/", 1)[-1] for category in NAVER_CATEGORIES}
+    shared_state = newer_dashboard_state(
+        previous_state, load_dashboard_state(token), current_categories
+    )
+    if shared_state is not previous_state:
+        previous_state = shared_state
+        save_json(STATE_PATH, previous_state)
+        logging.info("Resumed from the newer shared Naver baseline")
     previous_list = previous_state.get("products", [])
     previous_categories = set(previous_state.get("categories", []))
-    current_categories = {category["url"].rsplit("/", 1)[-1] for category in NAVER_CATEGORIES}
     with sync_playwright() as playwright:
         profile = ROOT / f".naver-{browser_name}-profile"
         context = getattr(playwright, browser_name).launch_persistent_context(

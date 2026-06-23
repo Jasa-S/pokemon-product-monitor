@@ -4,6 +4,7 @@ from xoplay_local_monitor import (
     deduplicate_products,
     high_resolution_naver_image,
     normalize_raw_product,
+    newer_dashboard_state,
     product_events,
     scan_events,
     wait_for_access,
@@ -11,6 +12,13 @@ from xoplay_local_monitor import (
 
 
 class XoplayLocalMonitorTests(unittest.TestCase):
+    def test_newer_shared_dashboard_state_supports_computer_handoff(self):
+        local = {"updatedAt": "2026-01-01T10:00:00+00:00", "products": [{"key": "old"}]}
+        remote = {"updatedAt": "2026-01-01T11:00:00+00:00", "products": [{"key": "new"}]}
+        result = newer_dashboard_state(local, remote, {"category-id"})
+        self.assertEqual(result["products"], [{"key": "new"}])
+        self.assertEqual(result["categories"], ["category-id"])
+
     def test_upgrades_naver_thumbnail_image(self):
         thumbnail = "https://shop-phinf.pstatic.net/image.png?type=f80_80"
         self.assertEqual(
