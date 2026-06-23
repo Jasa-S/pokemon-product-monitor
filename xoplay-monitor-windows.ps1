@@ -51,6 +51,19 @@ function Import-MonitorEnvironment {
     }
 }
 
+function Set-WindowsBrowserConfig {
+    if (-not (Test-Path $EnvFile)) { return }
+    $Lines = @(Get-Content $EnvFile)
+    $Found = @($Lines | Where-Object { $_ -match '^\s*XOPLAY_BROWSER=' }).Count -gt 0
+    $Lines = $Lines | ForEach-Object {
+        if ($_ -match '^\s*XOPLAY_BROWSER=') {
+            "XOPLAY_BROWSER=chromium"
+        } else { $_ }
+    }
+    if (-not $Found) { $Lines += "XOPLAY_BROWSER=chromium" }
+    $Lines | Set-Content -Encoding UTF8 $EnvFile
+}
+
 function Assert-Ready {
     if (-not (Test-Path $PythonExe) -or -not (Test-Path $MonitorFile)) {
         throw "Run setup first: .\xoplay-monitor-windows.ps1 setup"
@@ -81,19 +94,20 @@ switch ($Action) {
         }
         & $PythonExe -m pip install --upgrade pip
         & $PythonExe -m pip install -r $RequirementsFile
-        & $PythonExe -m playwright install webkit
+        & $PythonExe -m playwright install chromium
         if (-not (Test-Path $EnvFile)) {
             @"
 # Five minutes is deliberately conservative.
 XOPLAY_POLL_SECONDS=300
 XOPLAY_MAX_PAGES=20
-XOPLAY_BROWSER=webkit
+XOPLAY_BROWSER=chromium
 XOPLAY_HEADLESS=false
 XOPLAY_GITHUB_SYNC=true
 GITHUB_REPOSITORY=Jasa-S/pokemon-product-monitor
 PYTHONUNBUFFERED=1
 "@ | Set-Content -Encoding UTF8 $EnvFile
         }
+        Set-WindowsBrowserConfig
         & gh auth status
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Run: gh auth login --web --git-protocol https"
@@ -104,7 +118,13 @@ PYTHONUNBUFFERED=1
     }
     "update" {
         Save-CurrentMonitor
-        if (Test-Path $PythonExe) { & $PythonExe -m pip install -r $RequirementsFile }
+        if (Test-Path $PythonExe) {
+            & $PythonExe -m pip install -r $RequirementsFile
+            & $PythonExe -m playwright install chromium
+        }
+        Set-WindowsBrowserConfig
+        Write-Host "Windows browser set to Chromium. Run the monitor again with:"
+        Write-Host ".\xoplay-monitor-windows.ps1 start"
     }
     "start" {
         Assert-Ready
@@ -120,7 +140,7 @@ PYTHONUNBUFFERED=1
             -RedirectStandardOutput $LogFile -RedirectStandardError $ErrorLogFile
         Set-Content -Encoding ASCII $PidFile $Process.Id
         Write-Host "Monitor started (PID $($Process.Id))."
-        Write-Host "A WebKit window will open. Complete Naver login or verification yourself if requested."
+        Write-Host "A Chromium window will open. Complete Naver login or verification yourself if requested."
         Write-Host "Important: leave the Mac monitor stopped while this Windows monitor is running."
     }
     "once" {

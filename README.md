@@ -58,9 +58,9 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\xoplay-monitor-windows.ps1 start
 ```
 
-The setup installs an isolated environment under `%LOCALAPPDATA%\PokemonProductMonitor`, downloads the current monitor, installs Playwright WebKit, and retains the Naver browser profile there. Python 3 and GitHub CLI are required; the script prints the relevant `winget` command if either is missing. Authenticate once with `gh auth login --web --git-protocol https`. No Discord webhook or Naver API secret needs to be copied to Windows because notifications are queued through the repository's existing GitHub Actions secrets.
+The setup installs an isolated environment under `%LOCALAPPDATA%\PokemonProductMonitor`, downloads the current monitor, installs Playwright Chromium, and retains the Naver browser profile there. Chromium is used on Windows because Naver may return “service unavailable” to Playwright WebKit there; the Mac launcher continues to use WebKit. Python 3 and GitHub CLI are required; the script prints the relevant `winget` command if either is missing. Authenticate once with `gh auth login --web --git-protocol https`. No Discord webhook or Naver API secret needs to be copied to Windows because notifications are queued through the repository's existing GitHub Actions secrets.
 
-Use `status`, `logs`, `stop`, `once`, or `update` in place of `start` as needed. **Stop the Mac monitor before starting Windows, and stop Windows before returning to the Mac.** Both instances publish the same `docs/local-naver.json`; they must not run simultaneously. The Windows laptop must remain awake, signed in, and online. The visible WebKit window must remain open, and any Naver login or CAPTCHA must be completed manually.
+Use `status`, `logs`, `stop`, `once`, or `update` in place of `start` as needed. The `update` command also migrates an existing Windows installation from WebKit to Chromium. **Stop the Mac monitor before starting Windows, and stop Windows before returning to the Mac.** Both instances publish the same `docs/local-naver.json`; they must not run simultaneously. The Windows laptop must remain awake, signed in, and online. The visible Chromium window must remain open, and any Naver login or CAPTCHA must be completed manually.
 
 ## GitHub configuration
 
