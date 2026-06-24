@@ -479,10 +479,18 @@ def run() -> None:
     shared_state = newer_dashboard_state(
         previous_state, load_dashboard_state(token), current_categories
     )
-    if shared_state is not previous_state:
+    # If the shared dashboard was newer than the local state, adopt it as a
+    # silent baseline for this cycle so we don't fire alerts for products the
+    # local machine has never scanned before.
+    synced_from_remote = shared_state is not previous_state
+    if synced_from_remote:
         previous_state = shared_state
         save_json(STATE_PATH, previous_state)
-        logging.info("Resumed from the newer shared Naver baseline")
+        logging.info(
+            "Resumed from the newer shared Naver baseline (%s products); "
+            "notifications suppressed this cycle.",
+            len(previous_state.get("products", [])),
+        )
     previous_list = previous_state.get("products", [])
     previous_categories = set(previous_state.get("categories", []))
     previous = {product["key"]: product for product in previous_list}
@@ -524,7 +532,9 @@ def run() -> None:
 
     combined = deduplicate_products(combined)
     if combined and not stopping:
-        events = scan_events(previous, combined, previous_categories, current_categories)
+        events = [] if synced_from_remote else scan_events(
+            previous, combined, previous_categories, current_categories
+        )
         save_json(STATE_PATH, {
             "updatedAt": datetime.now(timezone.utc).isoformat(),
             "categories": sorted(current_categories),
