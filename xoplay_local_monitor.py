@@ -24,14 +24,12 @@ ROOT = Path(__file__).resolve().parent
 STATE_PATH = ROOT / ".naver-local-monitor-state.json"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
 
-# Realistic Windows Chrome user-agent to avoid Playwright automation fingerprint
 BROWSER_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/126.0.0.0 Safari/537.36"
 )
 
-# Script injected into every page to hide the navigator.webdriver automation flag
 STEALTH_SCRIPT = "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
 
 NAVER_CATEGORIES = (
@@ -45,13 +43,8 @@ NAVER_CATEGORIES = (
     },
 )
 
-# Pause between scraping each category so Naver doesn't return empty pages
 CATEGORY_COOLDOWN_SECONDS = 3
-# How long to wait for the user to solve a CAPTCHA before giving up and skipping
-CAPTCHA_TIMEOUT_SECONDS = 300  # 5 minutes
-# After a CAPTCHA clears, navigate away and wait this long before retrying
-POST_CAPTCHA_COOLDOWN_SECONDS = 45
-# If a category returns 0 products but previously had some, wait then retry once
+CAPTCHA_TIMEOUT_SECONDS = 300
 EMPTY_RESULT_RETRY_SECONDS = 60
 
 
@@ -243,7 +236,6 @@ def dispatch_alert(event: str, product: dict[str, Any]) -> None:
 
 
 def dispatch_captcha_alert(category_label: str) -> None:
-    """Send a Discord alert directly via webhook when a CAPTCHA is detected."""
     webhook_url = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
     if not webhook_url:
         env_file = ROOT / ".env.xoplay"
@@ -295,7 +287,6 @@ def login_present(page: Any) -> bool:
 def wait_for_access(
     page: Any, should_stop: Callable[[], bool], category_label: str = ""
 ) -> bool:
-    """Wait for CAPTCHA/login to clear, then cool down on the Naver homepage."""
     needs_login, needs_captcha = login_present(page), captcha_present(page)
     if not needs_login and not needs_captcha:
         return True
@@ -319,20 +310,7 @@ def wait_for_access(
         time.sleep(2)
     if should_stop():
         return False
-    logging.info(
-        "CAPTCHA cleared for %s; cooling down %ss on Naver homepage before retrying.",
-        category_label, POST_CAPTCHA_COOLDOWN_SECONDS,
-    )
-    try:
-        page.goto("https://www.naver.com", wait_until="domcontentloaded", timeout=15000)
-    except Exception:
-        pass
-    deadline = time.monotonic() + POST_CAPTCHA_COOLDOWN_SECONDS
-    while not should_stop() and time.monotonic() < deadline:
-        time.sleep(1)
-    if should_stop():
-        return False
-    logging.info("Post-CAPTCHA cooldown complete; continuing scrape for %s.", category_label)
+    logging.info("Naver access completed; continuing")
     return True
 
 
@@ -344,9 +322,6 @@ def collect_products_from_page(
     page: Any, category: dict[str, str],
     should_stop: Callable[[], bool] = lambda: False,
 ) -> Optional[list[dict[str, Any]]]:
-    """Extract product links from the current page.
-    Returns None on unresolved CAPTCHA, [] on genuinely empty page.
-    """
     slug = category["slug"]
     selector = f'a[href*="/{slug}/products/"]'
 
@@ -391,7 +366,6 @@ def scrape_catalog(
     page: Any, category: dict[str, str], max_pages: int,
     should_stop: Callable[[], bool] = lambda: False,
 ) -> list[dict[str, Any]]:
-    """Paginate through category pages with human-like delays."""
     params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": 1, "size": 80})
     page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
     if not wait_for_access(page, should_stop, category["label"]):
@@ -451,7 +425,6 @@ def scrape_with_retry(
     previous_list: list[dict[str, Any]],
     should_stop: Callable[[], bool] = lambda: False,
 ) -> tuple[list[dict[str, Any]], bool]:
-    """Run scrape_catalog; if 0 products and cache exists, wait and retry once."""
     cached = [p for p in previous_list if p.get("source") == category["source"]]
     products = scrape_catalog(page, category, max_pages, should_stop)
 
@@ -481,30 +454,12 @@ def scrape_with_retry(
     return cached, True
 
 
-def open_fresh_context(playwright: Any, browser_name: str, headless: bool) -> Any:
-    """Launch a brand-new throwaway browser context with no saved session.
-    A fresh context means no cookies or localStorage from previous scans,
-    so Naver cannot track us across scan cycles.
-    """
-    browser = getattr(playwright, browser_name).launch(
-        headless=headless,
-        args=["--disable-blink-features=AutomationControlled"],
-    )
-    context = browser.new_context(
-        locale="ko-KR",
-        viewport={"width": 1280, "height": 900},
-        user_agent=BROWSER_USER_AGENT,
-    )
-    context.add_init_script(STEALTH_SCRIPT)
-    return context
-
-
 def run() -> None:
     from playwright.sync_api import sync_playwright
 
-    poll_seconds = max(60, int(os.getenv("XOPLAY_POLL_SECONDS", "480")))
+    # Always run exactly one scan cycle then exit.
+    # The PowerShell wrapper handles the wait-and-restart loop.
     max_pages = max(1, int(os.getenv("XOPLAY_MAX_PAGES", "20")))
-    run_once = os.getenv("XOPLAY_RUN_ONCE", "false").casefold() == "true"
     headless = os.getenv("XOPLAY_HEADLESS", "false").casefold() == "true"
     browser_name = os.getenv("XOPLAY_BROWSER", "chromium").casefold()
     if browser_name not in {"webkit", "chromium"}:
@@ -517,6 +472,7 @@ def run() -> None:
 
     signal.signal(signal.SIGINT, stop)
     signal.signal(signal.SIGTERM, stop)
+
     token = gh_token()
     previous_state = load_json(STATE_PATH, {})
     current_categories = {category["url"].rsplit("/", 1)[-1] for category in NAVER_CATEGORIES}
@@ -529,67 +485,55 @@ def run() -> None:
         logging.info("Resumed from the newer shared Naver baseline")
     previous_list = previous_state.get("products", [])
     previous_categories = set(previous_state.get("categories", []))
+    previous = {product["key"]: product for product in previous_list}
 
     with sync_playwright() as playwright:
-        while not stopping:
-            # Open a fresh browser for every scan cycle so Naver sees a new
-            # session each time and cannot use cookie/session history to
-            # trigger a CAPTCHA on repeat visits.
-            context = open_fresh_context(playwright, browser_name, headless)
-            page = context.new_page()
-            previous = {product["key"]: product for product in previous_list}
-            combined = []
-            try:
-                for index, category in enumerate(NAVER_CATEGORIES):
-                    if index > 0 and not stopping:
-                        logging.info("Cooling down %ss before next category...", CATEGORY_COOLDOWN_SECONDS)
-                        time.sleep(CATEGORY_COOLDOWN_SECONDS)
-                    try:
-                        products, used_cache = scrape_with_retry(
-                            page, category, max_pages, previous_list, lambda: stopping
-                        )
-                        combined.extend(products)
-                        if used_cache:
-                            logging.warning(
-                                "No %s products found after retry; previous state retained",
-                                category["label"],
-                            )
-                    except Exception:
-                        logging.exception("%s check failed; previous state retained", category["label"])
-                        combined.extend(
-                            p for p in previous_list if p.get("source") == category["source"]
-                        )
-            finally:
-                # Always close the browser after each scan cycle
-                try:
-                    context.browser.close()
-                except Exception:
-                    pass
-                logging.info("Browser closed after scan cycle.")
+        profile = ROOT / f".naver-{browser_name}-profile"
+        context = getattr(playwright, browser_name).launch_persistent_context(
+            str(profile), headless=headless, locale="ko-KR",
+            viewport={"width": 1280, "height": 900},
+            user_agent=BROWSER_USER_AGENT,
+        )
+        context.add_init_script(STEALTH_SCRIPT)
+        page = context.pages[0] if context.pages else context.new_page()
 
-            combined = deduplicate_products(combined)
+        combined = []
+        for index, category in enumerate(NAVER_CATEGORIES):
             if stopping:
                 break
-            if combined:
-                events = scan_events(
-                    previous, combined, previous_categories, current_categories
+            if index > 0:
+                logging.info("Cooling down %ss before next category...", CATEGORY_COOLDOWN_SECONDS)
+                time.sleep(CATEGORY_COOLDOWN_SECONDS)
+            try:
+                products, used_cache = scrape_with_retry(
+                    page, category, max_pages, previous_list, lambda: stopping
                 )
-                previous_list = combined
-                save_json(STATE_PATH, {
-                    "updatedAt": datetime.now(timezone.utc).isoformat(),
-                    "categories": sorted(current_categories),
-                    "products": combined,
-                })
-                sync_dashboard(combined, token)
-                previous_categories = current_categories
-                logging.info("Local Naver check complete: %s products", len(combined))
-                for event, product in events:
-                    dispatch_alert(event, product)
-            if run_once:
-                break
-            deadline = time.monotonic() + poll_seconds
-            while not stopping and time.monotonic() < deadline:
-                time.sleep(1)
+                combined.extend(products)
+                if used_cache:
+                    logging.warning(
+                        "No %s products found after retry; previous state retained",
+                        category["label"],
+                    )
+            except Exception:
+                logging.exception("%s check failed; previous state retained", category["label"])
+                combined.extend(
+                    p for p in previous_list if p.get("source") == category["source"]
+                )
+
+        context.close()
+
+    combined = deduplicate_products(combined)
+    if combined and not stopping:
+        events = scan_events(previous, combined, previous_categories, current_categories)
+        save_json(STATE_PATH, {
+            "updatedAt": datetime.now(timezone.utc).isoformat(),
+            "categories": sorted(current_categories),
+            "products": combined,
+        })
+        sync_dashboard(combined, token)
+        logging.info("Local Naver check complete: %s products", len(combined))
+        for event, product in events:
+            dispatch_alert(event, product)
 
 
 if __name__ == "__main__":
