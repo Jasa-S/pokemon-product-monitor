@@ -49,6 +49,10 @@ NAVER_CATEGORIES = (
 CATEGORY_COOLDOWN_SECONDS = 3
 # How long to wait for the user to solve a CAPTCHA before giving up and skipping
 CAPTCHA_TIMEOUT_SECONDS = 300  # 5 minutes
+# After a CAPTCHA clears, navigate away and wait this long before retrying
+POST_CAPTCHA_COOLDOWN_SECONDS = 45
+# If a category returns 0 products but previously had some, wait this long then retry once
+EMPTY_RESULT_RETRY_SECONDS = 60
 
 
 def load_json(path: Path, fallback: Any) -> Any:
@@ -239,8 +243,7 @@ def dispatch_alert(event: str, product: dict[str, Any]) -> None:
 
 
 def dispatch_captcha_alert(category_label: str) -> None:
-    """Send a Discord alert directly via webhook when a CAPTCHA times out.
-    Bypasses the GitHub workflow (which only accepts 'new'/'restock' events).
+    """Send a Discord alert directly via webhook when a CAPTCHA is detected.
     Reads DISCORD_WEBHOOK_URL from the environment or .env.xoplay file.
     """
     webhook_url = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
@@ -294,8 +297,11 @@ def login_present(page: Any) -> bool:
 def wait_for_access(
     page: Any, should_stop: Callable[[], bool], category_label: str = ""
 ) -> bool:
-    """Wait for CAPTCHA/login to clear. Times out after CAPTCHA_TIMEOUT_SECONDS and
-    fires a Discord alert directly via webhook so the user knows to intervene."""
+    """Wait for CAPTCHA/login to clear.
+    - Sends a Discord alert immediately on detection.
+    - After it clears, navigates away and waits POST_CAPTCHA_COOLDOWN_SECONDS
+      so Naver's rate-limiter resets before the next scrape attempt.
+    """
     needs_login, needs_captcha = login_present(page), captcha_present(page)
     if not needs_login and not needs_captcha:
         return True
@@ -319,7 +325,22 @@ def wait_for_access(
         time.sleep(2)
     if should_stop():
         return False
-    logging.info("Naver access completed; continuing")
+    # CAPTCHA cleared — navigate to Naver homepage and cool down so the next
+    # request to the store doesn't immediately trigger another block.
+    logging.info(
+        "CAPTCHA cleared for %s; cooling down %ss on Naver homepage before retrying.",
+        category_label, POST_CAPTCHA_COOLDOWN_SECONDS,
+    )
+    try:
+        page.goto("https://www.naver.com", wait_until="domcontentloaded", timeout=15000)
+    except Exception:
+        pass
+    deadline = time.monotonic() + POST_CAPTCHA_COOLDOWN_SECONDS
+    while not should_stop() and time.monotonic() < deadline:
+        time.sleep(1)
+    if should_stop():
+        return False
+    logging.info("Post-CAPTCHA cooldown complete; continuing scrape for %s.", category_label)
     return True
 
 
@@ -339,17 +360,15 @@ def collect_products_from_page(
     slug = category["slug"]
     selector = f'a[href*="/{slug}/products/"]'
 
-    # Check for CAPTCHA before waiting for products — Naver sometimes injects
-    # it mid-session after the page has already loaded past the initial goto.
+    # Check for CAPTCHA before waiting for products
     if captcha_present(page) or login_present(page):
         logging.warning("Mid-scrape CAPTCHA/login detected on %s", category["label"])
         if not wait_for_access(page, should_stop, category["label"]):
-            return None  # Signal caller to abort this category
+            return None
 
     try:
         page.wait_for_selector(selector, timeout=8000)
     except Exception:
-        # Double-check: maybe CAPTCHA appeared while we were waiting
         if captcha_present(page) or login_present(page):
             logging.warning("CAPTCHA appeared while waiting for products on %s", category["label"])
             if not wait_for_access(page, should_stop, category["label"]):
@@ -384,10 +403,7 @@ def scrape_catalog(
     page: Any, category: dict[str, str], max_pages: int,
     should_stop: Callable[[], bool] = lambda: False,
 ) -> list[dict[str, Any]]:
-    """Paginate by clicking numbered page buttons with human-like random delays.
-    Both smartstore and brand.naver.com use:
-      <a data-shp-area-id="pgn" data-shp-contents-id="{page_number}">
-    """
+    """Paginate through category pages with human-like delays."""
     params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": 1, "size": 80})
     page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
     if not wait_for_access(page, should_stop, category["label"]):
@@ -399,7 +415,6 @@ def scrape_catalog(
     while page_number <= max_pages and not should_stop():
         products = collect_products_from_page(page, category, should_stop)
 
-        # None means a mid-scrape CAPTCHA timed out — abort this category
         if products is None:
             logging.warning("%s scrape aborted due to unresolved CAPTCHA", category["label"])
             return []
@@ -423,29 +438,69 @@ def scrape_catalog(
         except Exception:
             break
 
-        # Random delay before clicking the next page button
         human_delay(1.0, 3.0)
         next_btn.click()
-        # Wait for the SPA to re-render, then check for CAPTCHA before continuing
         page.wait_for_timeout(2500)
         human_delay(0.5, 1.5)
 
-        # Check for CAPTCHA injected after a page click
         if captcha_present(page) or login_present(page):
             logging.warning("CAPTCHA appeared after page click on %s page %s", category["label"], next_page)
             if not wait_for_access(page, should_stop, category["label"]):
                 logging.warning("%s scrape aborted; returning %s products collected so far", category["label"], len(found))
                 return list(found.values())
+            # After cooldown, re-navigate to where we were
+            page.goto(
+                f"{category['url']}?{urlencode({'st': 'RECENT', 'dt': 'IMAGE', 'page': next_page, 'size': 80})}",
+                wait_until="domcontentloaded",
+            )
 
         page_number += 1
 
     return list(found.values())
 
 
+def scrape_with_retry(
+    page: Any, category: dict[str, str], max_pages: int,
+    previous_list: list[dict[str, Any]],
+    should_stop: Callable[[], bool] = lambda: False,
+) -> tuple[list[dict[str, Any]], bool]:
+    """Wrap scrape_catalog with a single retry when 0 products are returned
+    but the category previously had products (likely a transient Naver block).
+    Returns (products, used_cache) where used_cache=True means we fell back.
+    """
+    cached = [p for p in previous_list if p.get("source") == category["source"]]
+    products = scrape_catalog(page, category, max_pages, should_stop)
+
+    if products or should_stop():
+        return products, False
+
+    if not cached:
+        # No prior data — nothing to retry against
+        return [], False
+
+    logging.warning(
+        "No %s products found but %s cached; waiting %ss then retrying once.",
+        category["label"], len(cached), EMPTY_RESULT_RETRY_SECONDS,
+    )
+    deadline = time.monotonic() + EMPTY_RESULT_RETRY_SECONDS
+    while not should_stop() and time.monotonic() < deadline:
+        time.sleep(1)
+    if should_stop():
+        return [], True
+
+    logging.info("Retrying %s after empty-result backoff...", category["label"])
+    products = scrape_catalog(page, category, max_pages, should_stop)
+    if products:
+        logging.info("%s retry succeeded: %s products", category["label"], len(products))
+        return products, False
+
+    logging.warning("%s retry also returned 0 products; using cached state.", category["label"])
+    return cached, True
+
+
 def run() -> None:
     from playwright.sync_api import sync_playwright
 
-    # Default poll interval raised to 8 minutes to reduce bot fingerprinting
     poll_seconds = max(60, int(os.getenv("XOPLAY_POLL_SECONDS", "480")))
     max_pages = max(1, int(os.getenv("XOPLAY_MAX_PAGES", "20")))
     run_once = os.getenv("XOPLAY_RUN_ONCE", "false").casefold() == "true"
@@ -480,7 +535,6 @@ def run() -> None:
             viewport={"width": 1280, "height": 900},
             user_agent=BROWSER_USER_AGENT,
         )
-        # Hide the navigator.webdriver flag that Naver's JS checks for automation
         context.add_init_script(STEALTH_SCRIPT)
         page = context.pages[0] if context.pages else context.new_page()
         while not stopping:
@@ -491,15 +545,15 @@ def run() -> None:
                     logging.info("Cooling down %ss before next category...", CATEGORY_COOLDOWN_SECONDS)
                     time.sleep(CATEGORY_COOLDOWN_SECONDS)
                 try:
-                    products = scrape_catalog(page, category, max_pages, lambda: stopping)
-                    if products:
-                        combined.extend(products)
-                    else:
-                        combined.extend(
-                            product for product in previous_list
-                            if product.get("source") == category["source"]
+                    products, used_cache = scrape_with_retry(
+                        page, category, max_pages, previous_list, lambda: stopping
+                    )
+                    combined.extend(products)
+                    if used_cache:
+                        logging.warning(
+                            "No %s products found after retry; previous state retained",
+                            category["label"],
                         )
-                        logging.warning("No %s products found; previous state retained", category["label"])
                 except Exception:
                     logging.exception("%s check failed; previous state retained", category["label"])
                     if page.is_closed():
@@ -507,8 +561,7 @@ def run() -> None:
                         stopping = True
                         break
                     combined.extend(
-                        product for product in previous_list
-                        if product.get("source") == category["source"]
+                        p for p in previous_list if p.get("source") == category["source"]
                     )
             combined = deduplicate_products(combined)
             if stopping:
