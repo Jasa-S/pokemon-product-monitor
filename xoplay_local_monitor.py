@@ -64,7 +64,6 @@ def save_json(path: Path, payload: Any) -> None:
     with temporary.open("w", encoding="utf-8") as output:
         json.dump(payload, output, ensure_ascii=False, indent=2)
         output.write("\n")
-        output.write("\n")
     temporary.replace(path)
 
 
@@ -240,28 +239,51 @@ def dispatch_alert(event: str, product: dict[str, Any]) -> None:
 
 
 def dispatch_captcha_alert(category_label: str) -> None:
-    """Send a Discord alert when a CAPTCHA times out so the user knows to intervene."""
-    repository = os.getenv("GITHUB_REPOSITORY", "Jasa-S/pokemon-product-monitor")
-    product = {
-        "productName": f"\u26a0\ufe0f CAPTCHA timeout on {category_label}",
-        "source": "monitor",
-        "url": "https://www.naver.com",
-        "stockStatus": "AVAILABLE",
-        "isSoldOut": False,
-    }
+    """Send a Discord alert directly via webhook when a CAPTCHA times out.
+    Bypasses the GitHub workflow (which only accepts 'new'/'restock' events).
+    Reads DISCORD_WEBHOOK_URL from the environment or .env.xoplay file.
+    """
+    webhook_url = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
+    if not webhook_url:
+        env_file = ROOT / ".env.xoplay"
+        if env_file.exists():
+            for line in env_file.read_text(encoding="utf-8").splitlines():
+                if line.startswith("DISCORD_WEBHOOK_URL="):
+                    webhook_url = line.split("=", 1)[1].strip().strip('"').strip("'")
+                    break
+    if not webhook_url:
+        logging.warning("DISCORD_WEBHOOK_URL not set; CAPTCHA Discord alert skipped")
+        return
+    payload = json.dumps({
+        "embeds": [{
+            "title": "\u26a0\ufe0f Naver CAPTCHA \u2014 action required",
+            "description": (
+                f"The monitor hit a CAPTCHA for **{category_label}** "
+                f"and could not resolve it within {CAPTCHA_TIMEOUT_SECONDS // 60} minutes.\n\n"
+                "Open the Chromium window on your PC and complete the verification "
+                "so the next scan can proceed normally."
+            ),
+            "color": 0xFF6B35,
+        }]
+    }).encode()
     try:
-        subprocess.run([
-            "gh", "workflow", "run", "naver-notify.yml", "--repo", repository,
-            "-f", "event=captcha",
-            "-f", f"product_json={json.dumps(product, ensure_ascii=False)}",
-        ], check=True, stdout=subprocess.DEVNULL)
-        logging.info("Queued CAPTCHA Discord alert for %s", category_label)
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        logging.warning("Could not queue CAPTCHA Discord alert")
+        req = Request(
+            webhook_url, data=payload,
+            headers={"Content-Type": "application/json", "User-Agent": USER_AGENT},
+            method="POST",
+        )
+        with urlopen(req, timeout=10):
+            pass
+        logging.info("Sent CAPTCHA Discord alert for %s", category_label)
+    except (HTTPError, OSError) as exc:
+        logging.warning("CAPTCHA Discord alert failed: %s", exc)
 
 
 def captcha_present(page: Any) -> bool:
-    content = page.locator("body").inner_text().casefold()
+    try:
+        content = page.locator("body").inner_text(timeout=3000).casefold()
+    except Exception:
+        return False
     return "security verification" in content or "captcha" in content or "\ubcf4\uc548 \ud655\uc778" in content
 
 
@@ -273,7 +295,7 @@ def wait_for_access(
     page: Any, should_stop: Callable[[], bool], category_label: str = ""
 ) -> bool:
     """Wait for CAPTCHA/login to clear. Times out after CAPTCHA_TIMEOUT_SECONDS and
-    fires a Discord alert so the user knows to intervene manually."""
+    fires a Discord alert directly via webhook so the user knows to intervene."""
     needs_login, needs_captcha = login_present(page), captcha_present(page)
     if not needs_login and not needs_captcha:
         return True
@@ -285,6 +307,7 @@ def wait_for_access(
             "Will skip after %s seconds if not resolved.",
             category_label, CAPTCHA_TIMEOUT_SECONDS,
         )
+        dispatch_captcha_alert(category_label)
     deadline = time.monotonic() + CAPTCHA_TIMEOUT_SECONDS
     while not should_stop() and (login_present(page) or captcha_present(page)):
         if time.monotonic() > deadline:
@@ -292,7 +315,6 @@ def wait_for_access(
                 "CAPTCHA not resolved within %ss for %s; skipping this cycle.",
                 CAPTCHA_TIMEOUT_SECONDS, category_label,
             )
-            dispatch_captcha_alert(category_label)
             return False
         time.sleep(2)
     if should_stop():
@@ -307,22 +329,41 @@ def human_delay(min_s: float = 1.0, max_s: float = 3.0) -> None:
 
 
 def collect_products_from_page(
-    page: Any, category: dict[str, str]
-) -> list[dict[str, Any]]:
-    """Scroll down then extract all product links currently visible on the page."""
+    page: Any, category: dict[str, str],
+    should_stop: Callable[[], bool] = lambda: False,
+) -> Optional[list[dict[str, Any]]]:
+    """Scroll down then extract all product links currently visible on the page.
+    Returns None if a mid-scrape CAPTCHA is detected (caller should abort).
+    Returns [] if the page genuinely has no products.
+    """
     slug = category["slug"]
     selector = f'a[href*="/{slug}/products/"]'
+
+    # Check for CAPTCHA before waiting for products — Naver sometimes injects
+    # it mid-session after the page has already loaded past the initial goto.
+    if captcha_present(page) or login_present(page):
+        logging.warning("Mid-scrape CAPTCHA/login detected on %s", category["label"])
+        if not wait_for_access(page, should_stop, category["label"]):
+            return None  # Signal caller to abort this category
+
     try:
         page.wait_for_selector(selector, timeout=8000)
     except Exception:
+        # Double-check: maybe CAPTCHA appeared while we were waiting
+        if captcha_present(page) or login_present(page):
+            logging.warning("CAPTCHA appeared while waiting for products on %s", category["label"])
+            if not wait_for_access(page, should_stop, category["label"]):
+                return None
         return []
-    # Scroll down to mimic human browsing and trigger lazy-loaded images
+
+    # Scroll to mimic human browsing and trigger lazy-loaded images
     page.evaluate("window.scrollTo({top: document.body.scrollHeight / 2, behavior: 'smooth'})")
     page.wait_for_timeout(600)
     page.evaluate("window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})")
     page.wait_for_timeout(800)
     page.evaluate("window.scrollTo({top: 0, behavior: 'smooth'})")
     page.wait_for_timeout(400)
+
     raw_products = page.locator(selector).evaluate_all("""
         links => links.map(link => {
           const card = link.closest('li') || link.closest('article') || link.parentElement?.parentElement || link;
@@ -356,7 +397,13 @@ def scrape_catalog(
     page_number = 1
 
     while page_number <= max_pages and not should_stop():
-        products = collect_products_from_page(page, category)
+        products = collect_products_from_page(page, category, should_stop)
+
+        # None means a mid-scrape CAPTCHA timed out — abort this category
+        if products is None:
+            logging.warning("%s scrape aborted due to unresolved CAPTCHA", category["label"])
+            return []
+
         new_count = sum(p["productNo"] not in found for p in products)
         found.update({p["productNo"]: p for p in products})
         logging.info(
@@ -375,12 +422,21 @@ def scrape_catalog(
             next_btn.wait_for(state="visible", timeout=3000)
         except Exception:
             break
+
         # Random delay before clicking the next page button
         human_delay(1.0, 3.0)
         next_btn.click()
-        # Wait for the SPA to re-render, then add a small extra random pause
+        # Wait for the SPA to re-render, then check for CAPTCHA before continuing
         page.wait_for_timeout(2500)
         human_delay(0.5, 1.5)
+
+        # Check for CAPTCHA injected after a page click
+        if captcha_present(page) or login_present(page):
+            logging.warning("CAPTCHA appeared after page click on %s page %s", category["label"], next_page)
+            if not wait_for_access(page, should_stop, category["label"]):
+                logging.warning("%s scrape aborted; returning %s products collected so far", category["label"], len(found))
+                return list(found.values())
+
         page_number += 1
 
     return list(found.values())
