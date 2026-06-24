@@ -13,6 +13,7 @@ $EnvFile = Join-Path $InstallDir ".env.xoplay"
 $PidFile = Join-Path $InstallDir ".xoplay-monitor.pid"
 $LogFile = Join-Path $InstallDir "xoplay-monitor.log"
 $ErrorLogFile = Join-Path $InstallDir "xoplay-monitor-error.log"
+$StateFile = Join-Path $InstallDir ".naver-local-monitor-state.json"
 $RawBase = "https://raw.githubusercontent.com/Jasa-S/pokemon-product-monitor/main"
 $GithubRepository = "Jasa-S/pokemon-product-monitor"
 
@@ -33,9 +34,11 @@ function Write-Usage {
 
 function Get-MonitorProcess {
     if (-not (Test-Path $PidFile)) { return $null }
-    $MonitorPid = (Get-Content $PidFile -Raw).Trim()
-    if ($MonitorPid -notmatch '^\d+$') { return $null }
-    return Get-Process -Id ([int]$MonitorPid) -ErrorAction SilentlyContinue
+    $StoredPid = (Get-Content $PidFile -Raw).Trim()
+    if ($StoredPid -notmatch '^\d+$') { return $null }
+    # The PID belongs to a PowerShell process (the loop), not Python
+    return Get-Process -Id ([int]$StoredPid) -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match 'powershell|pwsh' }
 }
 
 function Save-CurrentMonitor {
@@ -60,9 +63,7 @@ function Set-WindowsBrowserConfig {
     $Lines = @(Get-Content $EnvFile)
     $Found = @($Lines | Where-Object { $_ -match '^\s*XOPLAY_BROWSER=' }).Count -gt 0
     $Lines = $Lines | ForEach-Object {
-        if ($_ -match '^\s*XOPLAY_BROWSER=') {
-            "XOPLAY_BROWSER=chromium"
-        } else { $_ }
+        if ($_ -match '^\s*XOPLAY_BROWSER=') { "XOPLAY_BROWSER=chromium" } else { $_ }
     }
     if (-not $Found) { $Lines += "XOPLAY_BROWSER=chromium" }
     $Lines | Set-Content -Encoding UTF8 $EnvFile
@@ -79,15 +80,14 @@ function Sync-DiscordWebhook {
     Write-Host ""
     Write-Host "DISCORD_WEBHOOK_URL is not set. The monitor needs it to send CAPTCHA alerts."
     Write-Host "Find it in: Discord > Server Settings > Integrations > Webhooks"
-    $WebhookUrl = Read-Host "Paste your Discord webhook URL (input is hidden after entry)"
+    $WebhookUrl = Read-Host "Paste your Discord webhook URL"
     $WebhookUrl = $WebhookUrl.Trim()
     if ($WebhookUrl -match '^https://discord(app)?\.com/api/webhooks/') {
         $Lines += "DISCORD_WEBHOOK_URL=$WebhookUrl"
         $Lines | Set-Content -Encoding UTF8 $EnvFile
         Write-Host "DISCORD_WEBHOOK_URL saved to .env.xoplay."
     } else {
-        Write-Host "Invalid or empty URL; skipping. You can add it manually later:"
-        Write-Host "  Add-Content '$EnvFile' 'DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...' "
+        Write-Host "Invalid or empty URL; skipping. Add it manually to: $EnvFile"
     }
 }
 
@@ -102,6 +102,19 @@ function Assert-Ready {
     if ($LASTEXITCODE -ne 0) {
         throw "Sign in first with: gh auth login --web --git-protocol https"
     }
+}
+
+function Show-Countdown {
+    param([int]$Seconds)
+    $Deadline = (Get-Date).AddSeconds($Seconds)
+    while ((Get-Date) -lt $Deadline) {
+        $Remaining = [int](($Deadline - (Get-Date)).TotalSeconds)
+        $Mins = [int]($Remaining / 60)
+        $Secs = $Remaining % 60
+        Write-Host -NoNewline "`r  Next scan in: $($Mins.ToString('D2')):$($Secs.ToString('D2'))  "
+        Start-Sleep -Seconds 1
+    }
+    Write-Host "`r                              "  # clear the countdown line
 }
 
 switch ($Action) {
@@ -124,8 +137,6 @@ switch ($Action) {
         & $PythonExe -m playwright install chromium
         if (-not (Test-Path $EnvFile)) {
             @"
-# Five minutes is deliberately conservative.
-XOPLAY_POLL_SECONDS=300
 XOPLAY_MAX_PAGES=20
 XOPLAY_BROWSER=chromium
 XOPLAY_HEADLESS=false
@@ -141,8 +152,7 @@ PYTHONUNBUFFERED=1
             Write-Host "Run: gh auth login --web --git-protocol https"
             throw "GitHub sign-in is required for dashboard updates and Discord alerts."
         }
-        Write-Host "Setup complete. Stop the Mac monitor, then run:"
-        Write-Host ".\xoplay-monitor-windows.ps1 start"
+        Write-Host "Setup complete. Run: .\xoplay-monitor-windows.ps1 start"
     }
     "update" {
         Save-CurrentMonitor
@@ -152,8 +162,7 @@ PYTHONUNBUFFERED=1
         }
         Set-WindowsBrowserConfig
         Sync-DiscordWebhook
-        Write-Host "Windows browser set to Chromium. Run the monitor again with:"
-        Write-Host ".\xoplay-monitor-windows.ps1 start"
+        Write-Host "Updated. Run: .\xoplay-monitor-windows.ps1 start"
     }
     "start" {
         Assert-Ready
@@ -162,28 +171,29 @@ PYTHONUNBUFFERED=1
             break
         }
 
-        # Write this PowerShell process's own PID so 'stop' can kill the loop.
+        # Store this PowerShell loop's own PID so 'stop' and 'status' can find it.
         Set-Content -Encoding ASCII $PidFile $PID
-        Write-Host "Monitor loop started (PID $PID). Press Ctrl+C or run 'stop' to quit."
-        Write-Host "A Chromium window will open for each scan, then close when done."
+        Write-Host "Monitor started (PID $PID). Press Ctrl+C or run 'stop' in another window to quit."
+        Write-Host "Chromium will open for each scan, then close automatically when done."
 
         Import-MonitorEnvironment
 
         try {
+            $ScanNumber = 0
             while ($true) {
+                $ScanNumber++
+                $Timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
                 Write-Host ""
-                Write-Host "--- Scan started at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ---"
+                Write-Host "=== Scan #$ScanNumber started at $Timestamp ==="
 
-                # Run one full scan cycle. Python exits when done.
+                # Run one full scan. Python exits when the scan is complete.
                 & $PythonExe $MonitorFile *>> $LogFile
 
-                Write-Host "--- Scan complete. Waiting $([int]($WaitBetweenScans/60)) min before next scan ---"
+                $FinishTime = Get-Date -Format 'HH:mm:ss'
+                Write-Host "=== Scan #$ScanNumber finished at $FinishTime. Next in $([int]($WaitBetweenScans/60)) min ==="
 
-                # Wait $WaitBetweenScans seconds, checking every second so Ctrl+C is responsive.
-                $Deadline = (Get-Date).AddSeconds($WaitBetweenScans)
-                while ((Get-Date) -lt $Deadline) {
-                    Start-Sleep -Seconds 1
-                }
+                # Live countdown in the terminal
+                Show-Countdown -Seconds $WaitBetweenScans
             }
         } finally {
             Remove-Item $PidFile -Force -ErrorAction SilentlyContinue
@@ -199,7 +209,7 @@ PYTHONUNBUFFERED=1
         $Existing = Get-MonitorProcess
         if ($Existing) {
             & taskkill.exe /PID $Existing.Id /T /F | Out-Null
-            Write-Host "Monitor loop stopped."
+            Write-Host "Monitor stopped (PID $($Existing.Id))."
         } else {
             Write-Host "Monitor is not running."
         }
@@ -207,12 +217,34 @@ PYTHONUNBUFFERED=1
     }
     "status" {
         $Existing = Get-MonitorProcess
-        if ($Existing) { Write-Host "Monitor is running (PID $($Existing.Id))." }
-        else { Write-Host "Monitor is stopped." }
+        if ($Existing) {
+            Write-Host "Monitor is RUNNING (PID $($Existing.Id), started $($Existing.StartTime.ToString('HH:mm:ss')))." 
+        } else {
+            Write-Host "Monitor is STOPPED."
+        }
+        # Show last scan time and product count from state file
+        if (Test-Path $StateFile) {
+            try {
+                $State = Get-Content $StateFile -Raw | ConvertFrom-Json
+                $Updated = [datetime]::Parse($State.updatedAt).ToLocalTime().ToString('yyyy-MM-dd HH:mm:ss')
+                $Count = @($State.products).Count
+                Write-Host "Last scan:    $Updated"
+                Write-Host "Products:     $Count"
+            } catch {}
+        }
+        if (Test-Path $LogFile) {
+            Write-Host ""
+            Write-Host "--- Last 5 log lines ---"
+            Get-Content $LogFile -Tail 5
+        }
     }
     "logs" {
         if (Test-Path $LogFile) { Get-Content $LogFile -Tail 80 }
-        if (Test-Path $ErrorLogFile) { Get-Content $ErrorLogFile -Tail 80 }
+        if ((Test-Path $ErrorLogFile) -and (Get-Item $ErrorLogFile).Length -gt 0) {
+            Write-Host ""
+            Write-Host "--- Error log ---"
+            Get-Content $ErrorLogFile -Tail 20
+        }
     }
     "help" { Write-Usage }
 }
