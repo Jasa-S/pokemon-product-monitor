@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""User-controlled local Naver category monitor using persistent WebKit."""
+"""User-controlled local Naver category monitor using persistent Chromium."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import base64
 import json
 import logging
 import os
+import random
 import re
 import signal
 import subprocess
@@ -22,9 +23,20 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parent
 STATE_PATH = ROOT / ".naver-local-monitor-state.json"
 USER_AGENT = "PokemonStoreAvailabilityMonitor/2.0 (+personal-use)"
+
+# Realistic Windows Chrome user-agent to avoid Playwright automation fingerprint
+BROWSER_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/126.0.0.0 Safari/537.36"
+)
+
+# Script injected into every page to hide the navigator.webdriver automation flag
+STEALTH_SCRIPT = "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+
 NAVER_CATEGORIES = (
     {
-        "label": "Pokémon Brand cards", "source": "naver-pokemon", "slug": "pokemon",
+        "label": "Pok\u00e9mon Brand cards", "source": "naver-pokemon", "slug": "pokemon",
         "url": "https://brand.naver.com/pokemon/category/c94139abcef14362997090c5da975e28",
     },
     {
@@ -32,8 +44,11 @@ NAVER_CATEGORIES = (
         "url": "https://smartstore.naver.com/xoplay/category/b6472710a7524259aae727a12b3495a3",
     },
 )
+
 # Pause between scraping each category so Naver doesn't return empty pages
 CATEGORY_COOLDOWN_SECONDS = 3
+# How long to wait for the user to solve a CAPTCHA before giving up and skipping
+CAPTCHA_TIMEOUT_SECONDS = 300  # 5 minutes
 
 
 def load_json(path: Path, fallback: Any) -> Any:
@@ -48,6 +63,7 @@ def save_json(path: Path, payload: Any) -> None:
     temporary = path.with_suffix(path.suffix + ".tmp")
     with temporary.open("w", encoding="utf-8") as output:
         json.dump(payload, output, ensure_ascii=False, indent=2)
+        output.write("\n")
         output.write("\n")
     temporary.replace(path)
 
@@ -74,15 +90,15 @@ def normalize_raw_product(
         return None
     text = re.sub(r"\s+", " ", raw.get("text", "")).strip()
     name = re.sub(r"\s+", " ", raw.get("name", "")).strip()
-    if not name or name.casefold() in {slug.casefold(), "상품 이미지", "product image"}:
+    if not name or name.casefold() in {slug.casefold(), "\uc0c1\ud488 \uc774\ubbf8\uc9c0", "product image"}:
         lines = [
             line.strip() for line in raw.get("text", "").splitlines()
-            if line.strip() and not re.fullmatch(r"[\d,]+\s*원?", line.strip())
-            and "품절" not in line
+            if line.strip() and not re.fullmatch(r"[\d,]+\s*\uc6d0?", line.strip())
+            and "\ud488\uc808" not in line
         ]
         name = max(lines, key=len, default=f"Naver product {match.group(1)}")
-    prices = [int(value.replace(",", "")) for value in re.findall(r"([\d,]+)\s*원", text)]
-    sold_out = any(word in text.casefold() for word in ("품절", "sold out", "판매중지"))
+    prices = [int(value.replace(",", "")) for value in re.findall(r"([\d,]+)\s*\uc6d0", text)]
+    sold_out = any(word in text.casefold() for word in ("\ud488\uc808", "sold out", "\ud310\ub9e4\uc911\uc9c0"))
     return {
         "key": f"{source}:{match.group(1)}", "source": source,
         "productNo": match.group(1), "productName": name,
@@ -223,24 +239,61 @@ def dispatch_alert(event: str, product: dict[str, Any]) -> None:
         logging.warning("Could not queue Discord alert; check `gh auth status`")
 
 
+def dispatch_captcha_alert(category_label: str) -> None:
+    """Send a Discord alert when a CAPTCHA times out so the user knows to intervene."""
+    repository = os.getenv("GITHUB_REPOSITORY", "Jasa-S/pokemon-product-monitor")
+    product = {
+        "productName": f"\u26a0\ufe0f CAPTCHA timeout on {category_label}",
+        "source": "monitor",
+        "url": "https://www.naver.com",
+        "stockStatus": "AVAILABLE",
+        "isSoldOut": False,
+    }
+    try:
+        subprocess.run([
+            "gh", "workflow", "run", "naver-notify.yml", "--repo", repository,
+            "-f", "event=captcha",
+            "-f", f"product_json={json.dumps(product, ensure_ascii=False)}",
+        ], check=True, stdout=subprocess.DEVNULL)
+        logging.info("Queued CAPTCHA Discord alert for %s", category_label)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        logging.warning("Could not queue CAPTCHA Discord alert")
+
+
 def captcha_present(page: Any) -> bool:
     content = page.locator("body").inner_text().casefold()
-    return "security verification" in content or "captcha" in content or "보안 확인" in content
+    return "security verification" in content or "captcha" in content or "\ubcf4\uc548 \ud655\uc778" in content
 
 
 def login_present(page: Any) -> bool:
     return "nid.naver.com/nidlogin" in page.url
 
 
-def wait_for_access(page: Any, should_stop: Callable[[], bool]) -> bool:
+def wait_for_access(
+    page: Any, should_stop: Callable[[], bool], category_label: str = ""
+) -> bool:
+    """Wait for CAPTCHA/login to clear. Times out after CAPTCHA_TIMEOUT_SECONDS and
+    fires a Discord alert so the user knows to intervene manually."""
     needs_login, needs_captcha = login_present(page), captcha_present(page)
     if not needs_login and not needs_captcha:
         return True
     if needs_login:
-        logging.warning("Naver login required. Log in yourself in the open WebKit window.")
+        logging.warning("Naver login required. Log in yourself in the open Chromium window.")
     if needs_captcha:
-        logging.warning("Naver needs verification. Complete the CAPTCHA in the open window.")
+        logging.warning(
+            "Naver CAPTCHA detected for %s. Complete it in the open Chromium window. "
+            "Will skip after %s seconds if not resolved.",
+            category_label, CAPTCHA_TIMEOUT_SECONDS,
+        )
+    deadline = time.monotonic() + CAPTCHA_TIMEOUT_SECONDS
     while not should_stop() and (login_present(page) or captcha_present(page)):
+        if time.monotonic() > deadline:
+            logging.warning(
+                "CAPTCHA not resolved within %ss for %s; skipping this cycle.",
+                CAPTCHA_TIMEOUT_SECONDS, category_label,
+            )
+            dispatch_captcha_alert(category_label)
+            return False
         time.sleep(2)
     if should_stop():
         return False
@@ -248,17 +301,28 @@ def wait_for_access(page: Any, should_stop: Callable[[], bool]) -> bool:
     return True
 
 
+def human_delay(min_s: float = 1.0, max_s: float = 3.0) -> None:
+    """Random sleep to mimic human browsing pace."""
+    time.sleep(random.uniform(min_s, max_s))
+
+
 def collect_products_from_page(
     page: Any, category: dict[str, str]
 ) -> list[dict[str, Any]]:
-    """Extract all product links currently visible on the page."""
+    """Scroll down then extract all product links currently visible on the page."""
     slug = category["slug"]
     selector = f'a[href*="/{slug}/products/"]'
     try:
         page.wait_for_selector(selector, timeout=8000)
     except Exception:
         return []
-    page.wait_for_timeout(1000)
+    # Scroll down to mimic human browsing and trigger lazy-loaded images
+    page.evaluate("window.scrollTo({top: document.body.scrollHeight / 2, behavior: 'smooth'})")
+    page.wait_for_timeout(600)
+    page.evaluate("window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})")
+    page.wait_for_timeout(800)
+    page.evaluate("window.scrollTo({top: 0, behavior: 'smooth'})")
+    page.wait_for_timeout(400)
     raw_products = page.locator(selector).evaluate_all("""
         links => links.map(link => {
           const card = link.closest('li') || link.closest('article') || link.parentElement?.parentElement || link;
@@ -279,12 +343,13 @@ def scrape_catalog(
     page: Any, category: dict[str, str], max_pages: int,
     should_stop: Callable[[], bool] = lambda: False,
 ) -> list[dict[str, Any]]:
-    """Paginate by clicking numbered page buttons — works for both smartstore and brand.naver.com.
-    Both use <a data-shp-area-id="pgn" data-shp-contents-id="{page_number}"> buttons.
+    """Paginate by clicking numbered page buttons with human-like random delays.
+    Both smartstore and brand.naver.com use:
+      <a data-shp-area-id="pgn" data-shp-contents-id="{page_number}">
     """
     params = urlencode({"st": "RECENT", "dt": "IMAGE", "page": 1, "size": 80})
     page.goto(f"{category['url']}?{params}", wait_until="domcontentloaded")
-    if not wait_for_access(page, should_stop):
+    if not wait_for_access(page, should_stop, category["label"]):
         return []
 
     found = {}
@@ -303,19 +368,19 @@ def scrape_catalog(
             break
 
         next_page = page_number + 1
-        # Both smartstore and brand.naver.com use this button structure:
-        # <a data-shp-area-id="pgn" data-shp-contents-id="2">2</a>
         next_btn = page.locator(
             f'a[data-shp-area-id="pgn"][data-shp-contents-id="{next_page}"]'
         ).first
         try:
             next_btn.wait_for(state="visible", timeout=3000)
         except Exception:
-            # No button for the next page — we are on the last page
             break
+        # Random delay before clicking the next page button
+        human_delay(1.0, 3.0)
         next_btn.click()
-        # Wait for the SPA to re-render the product list
+        # Wait for the SPA to re-render, then add a small extra random pause
         page.wait_for_timeout(2500)
+        human_delay(0.5, 1.5)
         page_number += 1
 
     return list(found.values())
@@ -324,11 +389,12 @@ def scrape_catalog(
 def run() -> None:
     from playwright.sync_api import sync_playwright
 
-    poll_seconds = max(60, int(os.getenv("XOPLAY_POLL_SECONDS", "300")))
+    # Default poll interval raised to 8 minutes to reduce bot fingerprinting
+    poll_seconds = max(60, int(os.getenv("XOPLAY_POLL_SECONDS", "480")))
     max_pages = max(1, int(os.getenv("XOPLAY_MAX_PAGES", "20")))
     run_once = os.getenv("XOPLAY_RUN_ONCE", "false").casefold() == "true"
     headless = os.getenv("XOPLAY_HEADLESS", "false").casefold() == "true"
-    browser_name = os.getenv("XOPLAY_BROWSER", "webkit").casefold()
+    browser_name = os.getenv("XOPLAY_BROWSER", "chromium").casefold()
     if browser_name not in {"webkit", "chromium"}:
         raise ValueError("XOPLAY_BROWSER must be webkit or chromium")
     stopping = False
@@ -356,7 +422,10 @@ def run() -> None:
         context = getattr(playwright, browser_name).launch_persistent_context(
             str(profile), headless=headless, locale="ko-KR",
             viewport={"width": 1280, "height": 900},
+            user_agent=BROWSER_USER_AGENT,
         )
+        # Hide the navigator.webdriver flag that Naver's JS checks for automation
+        context.add_init_script(STEALTH_SCRIPT)
         page = context.pages[0] if context.pages else context.new_page()
         while not stopping:
             previous = {product["key"]: product for product in previous_list}
