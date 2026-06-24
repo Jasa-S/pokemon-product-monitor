@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-06-24T08:46:43.623745+00:00",
+  "updatedAt": "2026-06-24T16:11:09.008621+00:00",
   "exchangeRate": {
     "base": "KRW",
     "quote": "EUR",
     "rate": 0.00057,
-    "date": "2026-06-23",
+    "date": "2026-06-24",
     "source": "Frankfurter (ECB reference rate)"
   },
   "watchProductNos": [],
