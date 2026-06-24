@@ -17,7 +17,6 @@ $StateFile = Join-Path $InstallDir ".naver-local-monitor-state.json"
 $RawBase = "https://raw.githubusercontent.com/Jasa-S/pokemon-product-monitor/main"
 $GithubRepository = "Jasa-S/pokemon-product-monitor"
 
-# How long to wait between scan cycles (seconds)
 $WaitBetweenScans = 420  # 7 minutes
 
 function Write-Usage {
@@ -116,20 +115,6 @@ function Show-Countdown {
     Write-Host ""  # newline after countdown
 }
 
-function Invoke-Scan {
-    param([string]$LogPath)
-    # Run Python, merge stderr into stdout, tee to log file so output is
-    # visible in the terminal live AND saved to disk. The $ErrorActionPreference
-    # is locally set to Continue so a non-zero Python exit code does not throw.
-    $prev = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-    try {
-        & $PythonExe $MonitorFile 2>&1 | Tee-Object -Append -FilePath $LogPath
-    } finally {
-        $ErrorActionPreference = $prev
-    }
-}
-
 switch ($Action) {
     "setup" {
         if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
@@ -190,6 +175,9 @@ PYTHONUNBUFFERED=1
 
         Import-MonitorEnvironment
 
+        # Use Continue so Python stderr output does not terminate the loop
+        $ErrorActionPreference = "Continue"
+
         try {
             $ScanNumber = 0
             while ($true) {
@@ -197,7 +185,14 @@ PYTHONUNBUFFERED=1
                 Write-Host ""
                 Write-Host "=== Scan #$ScanNumber started at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ==="
 
-                Invoke-Scan -LogPath $LogFile
+                & $PythonExe $MonitorFile 2>&1 | ForEach-Object {
+                    $_ | Out-File -Append -Encoding utf8 $LogFile
+                    if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                        Write-Host $_.Exception.Message
+                    } else {
+                        Write-Host $_
+                    }
+                }
 
                 Write-Host "=== Scan #$ScanNumber done at $(Get-Date -Format 'HH:mm:ss'). Next in $([int]($WaitBetweenScans/60)) min ==="
 
@@ -211,7 +206,15 @@ PYTHONUNBUFFERED=1
         Assert-Ready
         if (Get-MonitorProcess) { throw "Stop the background monitor before running a one-time scan." }
         Import-MonitorEnvironment
-        Invoke-Scan -LogPath $LogFile
+        $ErrorActionPreference = "Continue"
+        & $PythonExe $MonitorFile 2>&1 | ForEach-Object {
+            $_ | Out-File -Append -Encoding utf8 $LogFile
+            if ($_ -is [System.Management.Automation.ErrorRecord]) {
+                Write-Host $_.Exception.Message
+            } else {
+                Write-Host $_
+            }
+        }
     }
     "stop" {
         $Existing = Get-MonitorProcess
