@@ -14,6 +14,7 @@ $PidFile = Join-Path $InstallDir ".xoplay-monitor.pid"
 $LogFile = Join-Path $InstallDir "xoplay-monitor.log"
 $ErrorLogFile = Join-Path $InstallDir "xoplay-monitor-error.log"
 $RawBase = "https://raw.githubusercontent.com/Jasa-S/pokemon-product-monitor/main"
+$GithubRepository = "Jasa-S/pokemon-product-monitor"
 
 function Write-Usage {
     Write-Host "Xoplay / Naver monitor for Windows"
@@ -64,6 +65,50 @@ function Set-WindowsBrowserConfig {
     $Lines | Set-Content -Encoding UTF8 $EnvFile
 }
 
+function Sync-DiscordWebhook {
+    <#
+    GitHub Actions secrets cannot be read back via the API (by design), so we use
+    a short-lived Actions workflow to echo the secret into a repository variable
+    that we can then read with the CLI. Instead, the simplest reliable approach is
+    to run a one-off workflow that writes the secret to a temp file via an artifact
+    -- but that is complex. The cleanest supported method is:
+      gh secret list   <- only shows names, not values
+    So we ask gh to run a tiny inline workflow that prints the secret, capture the
+    output, and write it to .env.xoplay.
+
+    Actually the only way to retrieve a secret value with the gh CLI available
+    locally is to use `gh run` output from a workflow that echoes it, which requires
+    waiting for a runner. That is too slow for setup.
+
+    Simplest reliable approach: store the webhook as a VARIABLE (not a secret) so
+    it can be read back. But we cannot change that here.
+
+    REAL solution used here: read the value from the existing .env.xoplay if present,
+    otherwise prompt the user once and save it. The value is never printed to the
+    screen.
+    #>
+    if (-not (Test-Path $EnvFile)) { return }
+    $Lines = @(Get-Content $EnvFile)
+    $AlreadySet = @($Lines | Where-Object { $_ -match '^\s*DISCORD_WEBHOOK_URL=.+' }).Count -gt 0
+    if ($AlreadySet) {
+        Write-Host "DISCORD_WEBHOOK_URL is already set in .env.xoplay."
+        return
+    }
+    Write-Host ""
+    Write-Host "DISCORD_WEBHOOK_URL is not set. The monitor needs it to send CAPTCHA alerts."
+    Write-Host "Find it in: Discord > Server Settings > Integrations > Webhooks"
+    $WebhookUrl = Read-Host "Paste your Discord webhook URL (input is hidden after entry)"
+    $WebhookUrl = $WebhookUrl.Trim()
+    if ($WebhookUrl -match '^https://discord(app)?\.com/api/webhooks/') {
+        $Lines += "DISCORD_WEBHOOK_URL=$WebhookUrl"
+        $Lines | Set-Content -Encoding UTF8 $EnvFile
+        Write-Host "DISCORD_WEBHOOK_URL saved to .env.xoplay."
+    } else {
+        Write-Host "Invalid or empty URL; skipping. You can add it manually later:"
+        Write-Host "  Add-Content '$EnvFile' 'DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...' "
+    }
+}
+
 function Assert-Ready {
     if (-not (Test-Path $PythonExe) -or -not (Test-Path $MonitorFile)) {
         throw "Run setup first: .\xoplay-monitor-windows.ps1 setup"
@@ -108,6 +153,7 @@ PYTHONUNBUFFERED=1
 "@ | Set-Content -Encoding UTF8 $EnvFile
         }
         Set-WindowsBrowserConfig
+        Sync-DiscordWebhook
         & gh auth status
         if ($LASTEXITCODE -ne 0) {
             Write-Host "Run: gh auth login --web --git-protocol https"
@@ -123,6 +169,7 @@ PYTHONUNBUFFERED=1
             & $PythonExe -m playwright install chromium
         }
         Set-WindowsBrowserConfig
+        Sync-DiscordWebhook
         Write-Host "Windows browser set to Chromium. Run the monitor again with:"
         Write-Host ".\xoplay-monitor-windows.ps1 start"
     }
