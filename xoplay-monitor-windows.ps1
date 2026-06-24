@@ -36,7 +36,6 @@ function Get-MonitorProcess {
     if (-not (Test-Path $PidFile)) { return $null }
     $StoredPid = (Get-Content $PidFile -Raw).Trim()
     if ($StoredPid -notmatch '^\d+$') { return $null }
-    # The PID belongs to a PowerShell process (the loop), not Python
     return Get-Process -Id ([int]$StoredPid) -ErrorAction SilentlyContinue |
         Where-Object { $_.Name -match 'powershell|pwsh' }
 }
@@ -114,7 +113,21 @@ function Show-Countdown {
         Write-Host -NoNewline "`r  Next scan in: $($Mins.ToString('D2')):$($Secs.ToString('D2'))  "
         Start-Sleep -Seconds 1
     }
-    Write-Host "`r                              "  # clear the countdown line
+    Write-Host ""  # newline after countdown
+}
+
+function Invoke-Scan {
+    param([string]$LogPath)
+    # Run Python, merge stderr into stdout, tee to log file so output is
+    # visible in the terminal live AND saved to disk. The $ErrorActionPreference
+    # is locally set to Continue so a non-zero Python exit code does not throw.
+    $prev = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & $PythonExe $MonitorFile 2>&1 | Tee-Object -Append -FilePath $LogPath
+    } finally {
+        $ErrorActionPreference = $prev
+    }
 }
 
 switch ($Action) {
@@ -171,7 +184,6 @@ PYTHONUNBUFFERED=1
             break
         }
 
-        # Store this PowerShell loop's own PID so 'stop' and 'status' can find it.
         Set-Content -Encoding ASCII $PidFile $PID
         Write-Host "Monitor started (PID $PID). Press Ctrl+C or run 'stop' in another window to quit."
         Write-Host "Chromium will open for each scan, then close automatically when done."
@@ -182,17 +194,13 @@ PYTHONUNBUFFERED=1
             $ScanNumber = 0
             while ($true) {
                 $ScanNumber++
-                $Timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
                 Write-Host ""
-                Write-Host "=== Scan #$ScanNumber started at $Timestamp ==="
+                Write-Host "=== Scan #$ScanNumber started at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ==="
 
-                # Run one full scan. Python exits when the scan is complete.
-                & $PythonExe $MonitorFile *>> $LogFile
+                Invoke-Scan -LogPath $LogFile
 
-                $FinishTime = Get-Date -Format 'HH:mm:ss'
-                Write-Host "=== Scan #$ScanNumber finished at $FinishTime. Next in $([int]($WaitBetweenScans/60)) min ==="
+                Write-Host "=== Scan #$ScanNumber done at $(Get-Date -Format 'HH:mm:ss'). Next in $([int]($WaitBetweenScans/60)) min ==="
 
-                # Live countdown in the terminal
                 Show-Countdown -Seconds $WaitBetweenScans
             }
         } finally {
@@ -203,7 +211,7 @@ PYTHONUNBUFFERED=1
         Assert-Ready
         if (Get-MonitorProcess) { throw "Stop the background monitor before running a one-time scan." }
         Import-MonitorEnvironment
-        & $PythonExe $MonitorFile
+        Invoke-Scan -LogPath $LogFile
     }
     "stop" {
         $Existing = Get-MonitorProcess
@@ -218,11 +226,10 @@ PYTHONUNBUFFERED=1
     "status" {
         $Existing = Get-MonitorProcess
         if ($Existing) {
-            Write-Host "Monitor is RUNNING (PID $($Existing.Id), started $($Existing.StartTime.ToString('HH:mm:ss')))." 
+            Write-Host "Monitor is RUNNING (PID $($Existing.Id), started $($Existing.StartTime.ToString('HH:mm:ss')))."
         } else {
             Write-Host "Monitor is STOPPED."
         }
-        # Show last scan time and product count from state file
         if (Test-Path $StateFile) {
             try {
                 $State = Get-Content $StateFile -Raw | ConvertFrom-Json
