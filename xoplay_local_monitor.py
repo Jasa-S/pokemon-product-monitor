@@ -51,7 +51,7 @@ CATEGORY_COOLDOWN_SECONDS = 3
 CAPTCHA_TIMEOUT_SECONDS = 300  # 5 minutes
 # After a CAPTCHA clears, navigate away and wait this long before retrying
 POST_CAPTCHA_COOLDOWN_SECONDS = 45
-# If a category returns 0 products but previously had some, wait this long then retry once
+# If a category returns 0 products but previously had some, wait then retry once
 EMPTY_RESULT_RETRY_SECONDS = 60
 
 
@@ -243,9 +243,7 @@ def dispatch_alert(event: str, product: dict[str, Any]) -> None:
 
 
 def dispatch_captcha_alert(category_label: str) -> None:
-    """Send a Discord alert directly via webhook when a CAPTCHA is detected.
-    Reads DISCORD_WEBHOOK_URL from the environment or .env.xoplay file.
-    """
+    """Send a Discord alert directly via webhook when a CAPTCHA is detected."""
     webhook_url = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
     if not webhook_url:
         env_file = ROOT / ".env.xoplay"
@@ -297,11 +295,7 @@ def login_present(page: Any) -> bool:
 def wait_for_access(
     page: Any, should_stop: Callable[[], bool], category_label: str = ""
 ) -> bool:
-    """Wait for CAPTCHA/login to clear.
-    - Sends a Discord alert immediately on detection.
-    - After it clears, navigates away and waits POST_CAPTCHA_COOLDOWN_SECONDS
-      so Naver's rate-limiter resets before the next scrape attempt.
-    """
+    """Wait for CAPTCHA/login to clear, then cool down on the Naver homepage."""
     needs_login, needs_captcha = login_present(page), captcha_present(page)
     if not needs_login and not needs_captcha:
         return True
@@ -325,8 +319,6 @@ def wait_for_access(
         time.sleep(2)
     if should_stop():
         return False
-    # CAPTCHA cleared — navigate to Naver homepage and cool down so the next
-    # request to the store doesn't immediately trigger another block.
     logging.info(
         "CAPTCHA cleared for %s; cooling down %ss on Naver homepage before retrying.",
         category_label, POST_CAPTCHA_COOLDOWN_SECONDS,
@@ -345,7 +337,6 @@ def wait_for_access(
 
 
 def human_delay(min_s: float = 1.0, max_s: float = 3.0) -> None:
-    """Random sleep to mimic human browsing pace."""
     time.sleep(random.uniform(min_s, max_s))
 
 
@@ -353,14 +344,12 @@ def collect_products_from_page(
     page: Any, category: dict[str, str],
     should_stop: Callable[[], bool] = lambda: False,
 ) -> Optional[list[dict[str, Any]]]:
-    """Scroll down then extract all product links currently visible on the page.
-    Returns None if a mid-scrape CAPTCHA is detected (caller should abort).
-    Returns [] if the page genuinely has no products.
+    """Extract product links from the current page.
+    Returns None on unresolved CAPTCHA, [] on genuinely empty page.
     """
     slug = category["slug"]
     selector = f'a[href*="/{slug}/products/"]'
 
-    # Check for CAPTCHA before waiting for products
     if captcha_present(page) or login_present(page):
         logging.warning("Mid-scrape CAPTCHA/login detected on %s", category["label"])
         if not wait_for_access(page, should_stop, category["label"]):
@@ -375,7 +364,6 @@ def collect_products_from_page(
                 return None
         return []
 
-    # Scroll to mimic human browsing and trigger lazy-loaded images
     page.evaluate("window.scrollTo({top: document.body.scrollHeight / 2, behavior: 'smooth'})")
     page.wait_for_timeout(600)
     page.evaluate("window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})")
@@ -446,9 +434,8 @@ def scrape_catalog(
         if captcha_present(page) or login_present(page):
             logging.warning("CAPTCHA appeared after page click on %s page %s", category["label"], next_page)
             if not wait_for_access(page, should_stop, category["label"]):
-                logging.warning("%s scrape aborted; returning %s products collected so far", category["label"], len(found))
+                logging.warning("%s scrape aborted; returning %s products so far", category["label"], len(found))
                 return list(found.values())
-            # After cooldown, re-navigate to where we were
             page.goto(
                 f"{category['url']}?{urlencode({'st': 'RECENT', 'dt': 'IMAGE', 'page': next_page, 'size': 80})}",
                 wait_until="domcontentloaded",
@@ -464,10 +451,7 @@ def scrape_with_retry(
     previous_list: list[dict[str, Any]],
     should_stop: Callable[[], bool] = lambda: False,
 ) -> tuple[list[dict[str, Any]], bool]:
-    """Wrap scrape_catalog with a single retry when 0 products are returned
-    but the category previously had products (likely a transient Naver block).
-    Returns (products, used_cache) where used_cache=True means we fell back.
-    """
+    """Run scrape_catalog; if 0 products and cache exists, wait and retry once."""
     cached = [p for p in previous_list if p.get("source") == category["source"]]
     products = scrape_catalog(page, category, max_pages, should_stop)
 
@@ -475,7 +459,6 @@ def scrape_with_retry(
         return products, False
 
     if not cached:
-        # No prior data — nothing to retry against
         return [], False
 
     logging.warning(
@@ -494,8 +477,26 @@ def scrape_with_retry(
         logging.info("%s retry succeeded: %s products", category["label"], len(products))
         return products, False
 
-    logging.warning("%s retry also returned 0 products; using cached state.", category["label"])
+    logging.warning("%s retry also returned 0; using cached state.", category["label"])
     return cached, True
+
+
+def open_fresh_context(playwright: Any, browser_name: str, headless: bool) -> Any:
+    """Launch a brand-new throwaway browser context with no saved session.
+    A fresh context means no cookies or localStorage from previous scans,
+    so Naver cannot track us across scan cycles.
+    """
+    browser = getattr(playwright, browser_name).launch(
+        headless=headless,
+        args=["--disable-blink-features=AutomationControlled"],
+    )
+    context = browser.new_context(
+        locale="ko-KR",
+        viewport={"width": 1280, "height": 900},
+        user_agent=BROWSER_USER_AGENT,
+    )
+    context.add_init_script(STEALTH_SCRIPT)
+    return context
 
 
 def run() -> None:
@@ -528,41 +529,44 @@ def run() -> None:
         logging.info("Resumed from the newer shared Naver baseline")
     previous_list = previous_state.get("products", [])
     previous_categories = set(previous_state.get("categories", []))
+
     with sync_playwright() as playwright:
-        profile = ROOT / f".naver-{browser_name}-profile"
-        context = getattr(playwright, browser_name).launch_persistent_context(
-            str(profile), headless=headless, locale="ko-KR",
-            viewport={"width": 1280, "height": 900},
-            user_agent=BROWSER_USER_AGENT,
-        )
-        context.add_init_script(STEALTH_SCRIPT)
-        page = context.pages[0] if context.pages else context.new_page()
         while not stopping:
+            # Open a fresh browser for every scan cycle so Naver sees a new
+            # session each time and cannot use cookie/session history to
+            # trigger a CAPTCHA on repeat visits.
+            context = open_fresh_context(playwright, browser_name, headless)
+            page = context.new_page()
             previous = {product["key"]: product for product in previous_list}
             combined = []
-            for index, category in enumerate(NAVER_CATEGORIES):
-                if index > 0 and not stopping:
-                    logging.info("Cooling down %ss before next category...", CATEGORY_COOLDOWN_SECONDS)
-                    time.sleep(CATEGORY_COOLDOWN_SECONDS)
-                try:
-                    products, used_cache = scrape_with_retry(
-                        page, category, max_pages, previous_list, lambda: stopping
-                    )
-                    combined.extend(products)
-                    if used_cache:
-                        logging.warning(
-                            "No %s products found after retry; previous state retained",
-                            category["label"],
+            try:
+                for index, category in enumerate(NAVER_CATEGORIES):
+                    if index > 0 and not stopping:
+                        logging.info("Cooling down %ss before next category...", CATEGORY_COOLDOWN_SECONDS)
+                        time.sleep(CATEGORY_COOLDOWN_SECONDS)
+                    try:
+                        products, used_cache = scrape_with_retry(
+                            page, category, max_pages, previous_list, lambda: stopping
                         )
+                        combined.extend(products)
+                        if used_cache:
+                            logging.warning(
+                                "No %s products found after retry; previous state retained",
+                                category["label"],
+                            )
+                    except Exception:
+                        logging.exception("%s check failed; previous state retained", category["label"])
+                        combined.extend(
+                            p for p in previous_list if p.get("source") == category["source"]
+                        )
+            finally:
+                # Always close the browser after each scan cycle
+                try:
+                    context.browser.close()
                 except Exception:
-                    logging.exception("%s check failed; previous state retained", category["label"])
-                    if page.is_closed():
-                        logging.error("Browser window was closed; stopping the local monitor")
-                        stopping = True
-                        break
-                    combined.extend(
-                        p for p in previous_list if p.get("source") == category["source"]
-                    )
+                    pass
+                logging.info("Browser closed after scan cycle.")
+
             combined = deduplicate_products(combined)
             if stopping:
                 break
@@ -586,8 +590,6 @@ def run() -> None:
             deadline = time.monotonic() + poll_seconds
             while not stopping and time.monotonic() < deadline:
                 time.sleep(1)
-        if not page.is_closed():
-            context.close()
 
 
 if __name__ == "__main__":
