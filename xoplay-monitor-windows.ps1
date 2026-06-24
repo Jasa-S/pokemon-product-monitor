@@ -16,13 +16,16 @@ $ErrorLogFile = Join-Path $InstallDir "xoplay-monitor-error.log"
 $RawBase = "https://raw.githubusercontent.com/Jasa-S/pokemon-product-monitor/main"
 $GithubRepository = "Jasa-S/pokemon-product-monitor"
 
+# How long to wait between scan cycles (seconds)
+$WaitBetweenScans = 420  # 7 minutes
+
 function Write-Usage {
     Write-Host "Xoplay / Naver monitor for Windows"
     Write-Host ""
     Write-Host "  .\xoplay-monitor-windows.ps1 setup   One-time installation"
-    Write-Host "  .\xoplay-monitor-windows.ps1 start   Run in the background"
+    Write-Host "  .\xoplay-monitor-windows.ps1 start   Run continuously (scan, wait 7 min, repeat)"
     Write-Host "  .\xoplay-monitor-windows.ps1 once    Run one visible scan"
-    Write-Host "  .\xoplay-monitor-windows.ps1 stop    Stop monitor and browser"
+    Write-Host "  .\xoplay-monitor-windows.ps1 stop    Stop the monitor loop"
     Write-Host "  .\xoplay-monitor-windows.ps1 status  Show current state"
     Write-Host "  .\xoplay-monitor-windows.ps1 logs    Show recent logs"
     Write-Host "  .\xoplay-monitor-windows.ps1 update  Download the latest monitor"
@@ -66,27 +69,6 @@ function Set-WindowsBrowserConfig {
 }
 
 function Sync-DiscordWebhook {
-    <#
-    GitHub Actions secrets cannot be read back via the API (by design), so we use
-    a short-lived Actions workflow to echo the secret into a repository variable
-    that we can then read with the CLI. Instead, the simplest reliable approach is
-    to run a one-off workflow that writes the secret to a temp file via an artifact
-    -- but that is complex. The cleanest supported method is:
-      gh secret list   <- only shows names, not values
-    So we ask gh to run a tiny inline workflow that prints the secret, capture the
-    output, and write it to .env.xoplay.
-
-    Actually the only way to retrieve a secret value with the gh CLI available
-    locally is to use `gh run` output from a workflow that echoes it, which requires
-    waiting for a runner. That is too slow for setup.
-
-    Simplest reliable approach: store the webhook as a VARIABLE (not a secret) so
-    it can be read back. But we cannot change that here.
-
-    REAL solution used here: read the value from the existing .env.xoplay if present,
-    otherwise prompt the user once and save it. The value is never printed to the
-    screen.
-    #>
     if (-not (Test-Path $EnvFile)) { return }
     $Lines = @(Get-Content $EnvFile)
     $AlreadySet = @($Lines | Where-Object { $_ -match '^\s*DISCORD_WEBHOOK_URL=.+' }).Count -gt 0
@@ -175,33 +157,49 @@ PYTHONUNBUFFERED=1
     }
     "start" {
         Assert-Ready
-        $Existing = Get-MonitorProcess
-        if ($Existing) {
-            Write-Host "Monitor is already running (PID $($Existing.Id))."
+        if (Get-MonitorProcess) {
+            Write-Host "Monitor is already running (PID $((Get-MonitorProcess).Id))."
             break
         }
-        Remove-Item $PidFile -Force -ErrorAction SilentlyContinue
+
+        # Write this PowerShell process's own PID so 'stop' can kill the loop.
+        Set-Content -Encoding ASCII $PidFile $PID
+        Write-Host "Monitor loop started (PID $PID). Press Ctrl+C or run 'stop' to quit."
+        Write-Host "A Chromium window will open for each scan, then close when done."
+
         Import-MonitorEnvironment
-        $Process = Start-Process -FilePath $PythonExe -ArgumentList @("`"$MonitorFile`"") `
-            -WorkingDirectory $InstallDir -WindowStyle Hidden -PassThru `
-            -RedirectStandardOutput $LogFile -RedirectStandardError $ErrorLogFile
-        Set-Content -Encoding ASCII $PidFile $Process.Id
-        Write-Host "Monitor started (PID $($Process.Id))."
-        Write-Host "A Chromium window will open. Complete Naver login or verification yourself if requested."
-        Write-Host "Important: leave the Mac monitor stopped while this Windows monitor is running."
+
+        try {
+            while ($true) {
+                Write-Host ""
+                Write-Host "--- Scan started at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') ---"
+
+                # Run one full scan cycle. Python exits when done.
+                & $PythonExe $MonitorFile *>> $LogFile
+
+                Write-Host "--- Scan complete. Waiting $([int]($WaitBetweenScans/60)) min before next scan ---"
+
+                # Wait $WaitBetweenScans seconds, checking every second so Ctrl+C is responsive.
+                $Deadline = (Get-Date).AddSeconds($WaitBetweenScans)
+                while ((Get-Date) -lt $Deadline) {
+                    Start-Sleep -Seconds 1
+                }
+            }
+        } finally {
+            Remove-Item $PidFile -Force -ErrorAction SilentlyContinue
+        }
     }
     "once" {
         Assert-Ready
         if (Get-MonitorProcess) { throw "Stop the background monitor before running a one-time scan." }
         Import-MonitorEnvironment
-        [Environment]::SetEnvironmentVariable("XOPLAY_RUN_ONCE", "true", "Process")
         & $PythonExe $MonitorFile
     }
     "stop" {
         $Existing = Get-MonitorProcess
         if ($Existing) {
             & taskkill.exe /PID $Existing.Id /T /F | Out-Null
-            Write-Host "Monitor and its browser were stopped."
+            Write-Host "Monitor loop stopped."
         } else {
             Write-Host "Monitor is not running."
         }
