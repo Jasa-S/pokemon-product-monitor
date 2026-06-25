@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-25T12:38:17.033770+00:00",
+  "updatedAt": "2026-06-25T13:46:56.003217+00:00",
   "products": [
     {
       "key": "naver-pokemon:9654269293",
@@ -1673,9 +1673,9 @@
       "salePrice": 3000,
       "currency": "KRW",
       "image": "https://shop-phinf.pstatic.net/20251128_50/1764305498548Y4O01_PNG/6987052315199116_125183143.png?type=f750_750",
-      "isSoldOut": false,
-      "saleStatusType": "SALE",
-      "stockStatus": "AVAILABLE",
+      "isSoldOut": true,
+      "saleStatusType": "OUTOFSTOCK",
+      "stockStatus": "SOLD_OUT",
       "url": "https://brand.naver.com/pokemon/products/12747512108"
     },
     {
