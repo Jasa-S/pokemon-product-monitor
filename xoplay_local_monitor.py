@@ -47,6 +47,9 @@ CATEGORY_COOLDOWN_SECONDS = 3
 CAPTCHA_TIMEOUT_SECONDS = 300
 EMPTY_RESULT_RETRY_SECONDS = 60
 
+# Prices below this threshold are loyalty points / badges, not real sale prices.
+MIN_VALID_PRICE_KRW = 1000
+
 
 def load_json(path: Path, fallback: Any) -> Any:
     try:
@@ -78,6 +81,22 @@ def deduplicate_products(products: list[dict[str, Any]]) -> list[dict[str, Any]]
     return list({product["key"]: product for product in products}.values())
 
 
+def extract_sale_price(text: str) -> Optional[int]:
+    """Return the first price >= MIN_VALID_PRICE_KRW found in card text.
+
+    Naver cards often contain multiple 원-suffixed numbers: the real sale
+    price, a crossed-out original price, and a small loyalty-point reward
+    (e.g. 150원).  Taking min() previously caused the loyalty-point value
+    to be selected.  We now return the first price that looks like a real
+    product price (>= 1,000 KRW), falling back to the first price found.
+    """
+    prices = [int(v.replace(",", "")) for v in re.findall(r"([\d,]+)\s*\uc6d0", text)]
+    if not prices:
+        return None
+    valid = [p for p in prices if p >= MIN_VALID_PRICE_KRW]
+    return valid[0] if valid else prices[0]
+
+
 def normalize_raw_product(
     raw: dict[str, Any], source: str = "naver-xoplay", slug: str = "xoplay"
 ) -> Optional[dict[str, Any]]:
@@ -93,12 +112,11 @@ def normalize_raw_product(
             and "\ud488\uc808" not in line
         ]
         name = max(lines, key=len, default=f"Naver product {match.group(1)}")
-    prices = [int(value.replace(",", "")) for value in re.findall(r"([\d,]+)\s*\uc6d0", text)]
     sold_out = any(word in text.casefold() for word in ("\ud488\uc808", "sold out", "\ud310\ub9e4\uc911\uc9c0"))
     return {
         "key": f"{source}:{match.group(1)}", "source": source,
         "productNo": match.group(1), "productName": name,
-        "salePrice": min(prices) if prices else None, "currency": "KRW",
+        "salePrice": extract_sale_price(text), "currency": "KRW",
         "image": high_resolution_naver_image(raw.get("image")), "isSoldOut": sold_out,
         "saleStatusType": "OUTOFSTOCK" if sold_out else "SALE",
         "stockStatus": "SOLD_OUT" if sold_out else "AVAILABLE",
