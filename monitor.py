@@ -24,6 +24,10 @@ LIVE_SOURCES = {
     "spielwaren-onepiece-kor",
     "spielwaren-pokemon-kor",
 }
+ALLOW_EMPTY_SOURCES = {
+    "spielwaren-onepiece-kor",
+    "spielwaren-pokemon-kor",
+}
 
 
 @dataclass(frozen=True)
@@ -293,6 +297,9 @@ def observe_products(
 def checked_products(source: str, products: list[dict[str, Any]], state: State) -> list[dict[str, Any]]:
     if products:
         return products
+    if source in ALLOW_EMPTY_SOURCES:
+        logging.info("%s returned zero products and is allowed to be empty", source)
+        return []
     previous_count = state.source_product_count(source)
     if previous_count:
         raise ValueError(
