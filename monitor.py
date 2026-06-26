@@ -98,6 +98,12 @@ class State:
     def all(self) -> list[dict[str, Any]]:
         return [json.loads(row[0]) for row in self.db.execute("SELECT payload FROM observations")]
 
+    def source_product_count(self, source: str) -> int:
+        return int(self.db.execute(
+            "SELECT COUNT(*) FROM observations WHERE product_key LIKE ?",
+            (f"{source}:%",),
+        ).fetchone()[0])
+
     def feed_initialized(self, feed: str) -> bool:
         return self.db.execute(
             "SELECT 1 FROM initialized_feeds WHERE feed = ?", (feed,)
@@ -111,11 +117,7 @@ class State:
         self, source_to_feeds: dict[str, list[str]]
     ) -> None:
         for source, feeds in source_to_feeds.items():
-            has_products = self.db.execute(
-                "SELECT 1 FROM observations WHERE product_key LIKE ? LIMIT 1",
-                (f"{source}:%",),
-            ).fetchone() is not None
-            if has_products:
+            if self.source_product_count(source):
                 for feed in feeds:
                     self.mark_feed_initialized(feed)
 
@@ -274,6 +276,18 @@ def observe_products(
     state.mark_feed_initialized(feed)
 
 
+def checked_products(source: str, products: list[dict[str, Any]], state: State) -> list[dict[str, Any]]:
+    if products:
+        return products
+    previous_count = state.source_product_count(source)
+    if previous_count:
+        raise ValueError(
+            f"{source} returned zero products but {previous_count} products are already tracked; "
+            "treating this as a scan failure to avoid wiping dashboard state"
+        )
+    raise ValueError(f"{source} returned zero products on first scan")
+
+
 def check_once(config: Config, state: State) -> None:
     clients = requested_category_clients()
     state.ensure_feeds_initialized_from_existing_products(
@@ -289,7 +303,7 @@ def check_once(config: Config, state: State) -> None:
             logging.info("External category %s is not due yet", client.source)
             continue
         try:
-            products = client.products()
+            products = checked_products(client.source, client.products(), state)
             state.retain_source_products(client.source, {product["key"] for product in products})
             observe_products(config, state, products, feed=feed)
             if state.clear_feed_error(feed):
