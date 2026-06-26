@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: store-monitor
+  group: monitor-state-writes
   cancel-in-progress: false
 
 permissions:
