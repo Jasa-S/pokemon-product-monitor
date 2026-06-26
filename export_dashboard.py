@@ -17,8 +17,8 @@ def iso_from_timestamp(value: float | None) -> str | None:
     return datetime.fromtimestamp(value, timezone.utc).isoformat() if value is not None else None
 
 
-def feed_checked_at(state: State, feed: str) -> str | None:
-    row = state.db.execute("SELECT checked_at FROM check_times WHERE feed = ?", (feed,)).fetchone()
+def feed_timestamp(state: State, table: str, column: str, feed: str) -> str | None:
+    row = state.db.execute(f"SELECT {column} FROM {table} WHERE feed = ?", (feed,)).fetchone()
     return iso_from_timestamp(float(row[0])) if row else None
 
 
@@ -46,7 +46,8 @@ def source_summaries(state: State, products: list[dict]) -> list[dict[str, Any]]
             "productCount": len(source_products),
             "availableCount": sum(is_available(product) for product in source_products),
             "soldOutCount": sum(bool(product.get("isSoldOut")) for product in source_products),
-            "checkedAt": feed_checked_at(state, feed),
+            "checkedAt": feed_timestamp(state, "check_times", "checked_at", feed),
+            "successAt": feed_timestamp(state, "success_times", "succeeded_at", feed),
             "failing": error["failing"],
             "errorMessage": error["message"] if error["failing"] else None,
             "errorUpdatedAt": error["updatedAt"] if error["failing"] else None,
