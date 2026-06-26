@@ -5,7 +5,7 @@ import json
 import os
 from datetime import datetime, timezone
 
-from monitor import LIVE_SOURCES, State, load_watchlist
+from monitor import LIVE_SOURCES, State
 
 
 def previous_status(path: str) -> dict:
@@ -33,10 +33,7 @@ def main() -> None:
         (product for product in state.all() if dashboard_product(product)),
         key=lambda item: (item["source"], item["productName"]),
     )
-    content = {
-        "watchProductNos": sorted(str(value) for value in load_watchlist("watchlist.json")),
-        "products": products,
-    }
+    content = {"products": products}
     now = datetime.now(timezone.utc).isoformat()
     payload = {"updatedAt": dashboard_updated_at(previous, content, now), **content}
     os.makedirs("docs", exist_ok=True)
