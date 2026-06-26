@@ -4,7 +4,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from export_dashboard import dashboard_product, dashboard_updated_at
+from export_dashboard import dashboard_product, source_summaries
 from external_stores import CrazyCardsCategoryClient, WooCommerceCategoryClient, requested_category_clients
 from monitor import LIVE_SOURCES, State, checked_products, is_available, keyword_match, observe_products
 
@@ -109,11 +109,17 @@ class MonitorTests(unittest.TestCase):
         self.assertFalse(dashboard_product(sample_product(source="pokemonstore")))
         self.assertFalse(dashboard_product(sample_product(source="naver-xoplay")))
 
-    def test_dashboard_timestamp_stays_stable_without_changes(self):
-        content = {"products": []}
-        previous = {"updatedAt": "old", **content}
-        self.assertEqual(dashboard_updated_at(previous, content, "new"), "old")
-        self.assertEqual(dashboard_updated_at({}, content, "new"), "new")
+    def test_source_summaries_include_health(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = State(os.path.join(directory, "state.db"))
+            product = sample_product("1")
+            state.put(product)
+            state.mark_checked("external:crazycards-pokemon", checked_at=1000)
+            summary = {item["source"]: item for item in source_summaries(state, [product])}["crazycards-pokemon"]
+            self.assertEqual(summary["productCount"], 1)
+            self.assertEqual(summary["availableCount"], 1)
+            self.assertEqual(summary["checkedAt"], "1970-01-01T00:16:40+00:00")
+            self.assertFalse(summary["failing"])
 
     def test_woocommerce_normalization_and_pagination(self):
         first_page = [
