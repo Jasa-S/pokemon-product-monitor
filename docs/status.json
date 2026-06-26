@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-06-26T23:40:40.559973+00:00",
+  "updatedAt": "2026-06-26T23:50:43.107566+00:00",
   "sources": [
     {
       "source": "crazycards-onepiece",
       "productCount": 10,
       "availableCount": 4,
       "soldOutCount": 6,
-      "checkedAt": "2026-06-26T23:40:34.752002+00:00",
-      "successAt": "2026-06-26T23:40:34.752002+00:00",
+      "checkedAt": "2026-06-26T23:50:36.256715+00:00",
+      "successAt": "2026-06-26T23:50:36.256715+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -17,8 +17,8 @@
       "productCount": 15,
       "availableCount": 6,
       "soldOutCount": 9,
-      "checkedAt": "2026-06-26T23:40:34.752002+00:00",
-      "successAt": "2026-06-26T23:40:34.752002+00:00",
+      "checkedAt": "2026-06-26T23:50:36.256715+00:00",
+      "successAt": "2026-06-26T23:50:36.256715+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -28,8 +28,8 @@
       "productCount": 0,
       "availableCount": 0,
       "soldOutCount": 0,
-      "checkedAt": "2026-06-26T23:40:34.752002+00:00",
-      "successAt": "2026-06-26T23:40:34.752002+00:00",
+      "checkedAt": "2026-06-26T23:50:36.256715+00:00",
+      "successAt": "2026-06-26T23:50:36.256715+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -39,8 +39,8 @@
       "productCount": 4,
       "availableCount": 4,
       "soldOutCount": 0,
-      "checkedAt": "2026-06-26T23:40:34.752002+00:00",
-      "successAt": "2026-06-26T23:40:34.752002+00:00",
+      "checkedAt": "2026-06-26T23:50:36.256715+00:00",
+      "successAt": "2026-06-26T23:50:36.256715+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
