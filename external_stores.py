@@ -139,6 +139,7 @@ class CrazyCardsCategoryClient:
         html = _request(self.url, as_json=False)
         chunks = self.PRODUCT_ITEM_RE.findall(html)
         products: dict[str, dict[str, Any]] = {}
+        parse_failures = 0
         for chunk in chunks:
             slug_match = re.search(r'data-slug="([^"]+)"', chunk[:500])
             url_match = re.search(r'href="(https://www\.crazycards\.eu/product-page/[^"]+)"', chunk)
@@ -147,6 +148,7 @@ class CrazyCardsCategoryClient:
             )
             image_match = re.search(r'<img[^>]+src="([^"]+)"[^>]*>', chunk)
             if not (slug_match and url_match and name_match):
+                parse_failures += 1
                 continue
             slug = unescape(slug_match.group(1))
             sold_out = self._is_sold_out(chunk)
@@ -161,6 +163,8 @@ class CrazyCardsCategoryClient:
             )
         if not products and 'data-hook="product-list"' not in html:
             raise ValueError(f"CrazyCards product gallery missing from {self.url}")
+        if chunks and parse_failures == len(chunks):
+            raise ValueError(f"CrazyCards product items were present but could not be parsed from {self.url}")
         return list(products.values())
 
 
