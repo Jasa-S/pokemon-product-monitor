@@ -63,13 +63,11 @@ class MonitorTests(unittest.TestCase):
             self.assertFalse(state.check_due("external:crazycards-pokemon", 300, now=1299))
             self.assertTrue(state.check_due("external:crazycards-pokemon", 300, now=1300))
 
-    def test_empty_scan_fails_safe_instead_of_wiping_existing_products(self):
+    def test_zero_product_scan_is_valid(self):
         with tempfile.TemporaryDirectory() as directory:
             state = State(os.path.join(directory, "state.db"))
             state.put(sample_product("1"))
-            with self.assertRaisesRegex(ValueError, "returned zero products"):
-                checked_products("crazycards-pokemon", [], state)
-            self.assertEqual(state.source_product_count("crazycards-pokemon"), 1)
+            self.assertEqual(checked_products("crazycards-pokemon", [], state), [])
 
     def test_store_error_state_only_alerts_on_transition(self):
         with tempfile.TemporaryDirectory() as directory:
