@@ -43,3 +43,30 @@ jobs:
           git add state/monitor.db
           git diff --cached --quiet || git commit -m "Record daily Discord report"
           git push
+      - name: Notify Discord on failure
+        if: failure()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL is not configured; skipping failure alert"
+            exit 0
+          fi
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+          payload = {"content": f"⚠️ Daily Discord report workflow failed: {os.environ['RUN_URL']}"}
+          request = urllib.request.Request(
+              os.environ["DISCORD_WEBHOOK_URL"],
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  print(f"Discord response: {response.status}")
+          except Exception as error:
+              print(f"Failed to send Discord failure alert: {error}")
+          PY
