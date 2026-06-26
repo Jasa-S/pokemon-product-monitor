@@ -187,10 +187,10 @@ def format_price(product: dict[str, Any]) -> str:
     return "Unknown"
 
 
-def send_discord_payload(webhook_url: str, payload: dict[str, Any]) -> None:
+def send_discord_payload(webhook_url: str, payload: dict[str, Any]) -> bool:
     if not webhook_url:
         logging.info("Discord is not configured; skipped alert")
-        return
+        return False
     request = Request(
         webhook_url,
         data=json.dumps(payload).encode(),
@@ -202,7 +202,8 @@ def send_discord_payload(webhook_url: str, payload: dict[str, Any]) -> None:
             with urlopen(request, timeout=20) as response:
                 if response.status not in (200, 204):
                     logging.warning("Discord returned HTTP %s; alert skipped", response.status)
-            return
+                    return False
+            return True
         except HTTPError as error:
             if error.code == 429 and attempt == 0:
                 retry_after = min(float(error.headers.get("Retry-After", "2")), 10)
@@ -210,13 +211,14 @@ def send_discord_payload(webhook_url: str, payload: dict[str, Any]) -> None:
                 time.sleep(retry_after)
                 continue
             logging.warning("Discord alert failed with HTTP %s; monitor will continue", error.code)
-            return
+            return False
         except (URLError, TimeoutError, ValueError):
             logging.warning("Discord alert failed; monitor will continue", exc_info=True)
-            return
+            return False
+    return False
 
 
-def send_discord(webhook_url: str, title: str, product: dict[str, Any], color: int) -> None:
+def send_discord(webhook_url: str, title: str, product: dict[str, Any], color: int) -> bool:
     embed: dict[str, Any] = {
         "title": title,
         "description": product["productName"],
@@ -231,11 +233,11 @@ def send_discord(webhook_url: str, title: str, product: dict[str, Any], color: i
     }
     if product.get("image"):
         embed["thumbnail"] = {"url": product["image"]}
-    send_discord_payload(webhook_url, {"embeds": [embed]})
+    return send_discord_payload(webhook_url, {"embeds": [embed]})
 
 
-def send_store_status(webhook_url: str, title: str, source: str, description: str, color: int) -> None:
-    send_discord_payload(
+def send_store_status(webhook_url: str, title: str, source: str, description: str, color: int) -> bool:
+    return send_discord_payload(
         webhook_url,
         {
             "embeds": [
