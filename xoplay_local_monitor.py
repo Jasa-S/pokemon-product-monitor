@@ -127,6 +127,8 @@ def normalize_raw_product(
 def product_events(
     previous: dict[str, dict[str, Any]], products: list[dict[str, Any]]
 ) -> list[tuple[str, dict[str, Any]]]:
+    # When previous is empty this is a genuine first run — return nothing so
+    # we don't flood Discord with every product in the catalogue on startup.
     if not previous:
         return []
     events = []
@@ -141,11 +143,24 @@ def product_events(
 
 def scan_events(
     previous: dict[str, dict[str, Any]], products: list[dict[str, Any]],
-    previous_categories: set[str], current_categories: set[str],
 ) -> list[tuple[str, dict[str, Any]]]:
-    if current_categories - previous_categories:
-        logging.info("New category scope detected; establishing a silent baseline")
-        return []
+    """Return alert-worthy events comparing previous state to current products.
+
+    The old category-set guard (suppressing all alerts when current_categories
+    differed from previous_categories) has been removed.  It was intended to
+    silence false positives when a brand-new store is added to NAVER_CATEGORIES,
+    but it also fired on every fresh machine start or after an OS reboot where
+    the local state file was absent — because previous_categories would be an
+    empty set while current_categories was non-empty.
+
+    The guard is now redundant:
+    - Genuine first run (no local state): product_events() returns [] because
+      previous is empty.
+    - Remote-baseline sync on startup: run() suppresses alerts for keys already
+      present in the adopted remote state via remote_baseline_keys.
+    - New store added to NAVER_CATEGORIES: same remote_baseline_keys path
+      handles it, since the new store's products will be in the dashboard.
+    """
     return product_events(previous, products)
 
 
@@ -513,7 +528,6 @@ def run() -> None:
             len(previous_state.get("products", [])),
         )
     previous_list = previous_state.get("products", [])
-    previous_categories = set(previous_state.get("categories", []))
     previous = {product["key"]: product for product in previous_list}
     # Keys present in the adopted remote baseline; used to filter suppression below.
     remote_baseline_keys: set[str] = set(previous) if synced_from_remote else set()
@@ -555,7 +569,7 @@ def run() -> None:
 
     combined = deduplicate_products(combined)
     if combined and not stopping:
-        events = scan_events(previous, combined, previous_categories, current_categories)
+        events = scan_events(previous, combined)
         if synced_from_remote and remote_baseline_keys:
             # Suppress alerts only for products that were already known in the
             # remote baseline; new products not present there still alert.
