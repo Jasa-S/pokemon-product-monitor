@@ -107,7 +107,9 @@ def main() -> None:
     if not force and already_sent(state, key):
         print(f"Daily report already sent for {key}")
         return
-    send_discord_payload(os.environ["DISCORD_WEBHOOK_URL"], build_report(state, now))
+    sent = send_discord_payload(os.environ["DISCORD_WEBHOOK_URL"], build_report(state, now))
+    if not sent:
+        raise RuntimeError("Daily Discord report was not delivered")
     mark_sent(state, key, now)
     print(f"Daily report sent for {key}")
 
