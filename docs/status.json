@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-26T01:36:09.418418+00:00",
+  "updatedAt": "2026-06-26T05:54:58.264482+00:00",
   "exchangeRate": {
     "base": "KRW",
     "quote": "EUR",
@@ -752,6 +752,32 @@
     },
     {
       "currency": "KRW",
+      "image": "https://shopping-phinf.pstatic.net/main_9118751/91187518144.jpg",
+      "isSoldOut": false,
+      "key": "naver-pokemon:13643007432",
+      "productName": "포켓몬 카드 게임 카드 실드「둔갑 숨기」",
+      "productNo": "13643007432",
+      "salePrice": 8000,
+      "saleStatusType": "SEARCH_RESULT",
+      "source": "naver-pokemon",
+      "stockStatus": "UNKNOWN",
+      "url": "https://smartstore.naver.com/main/products/13643007432"
+    },
+    {
+      "currency": "KRW",
+      "image": "https://shopping-phinf.pstatic.net/main_9118751/91187519159.jpg",
+      "isSoldOut": false,
+      "key": "naver-pokemon:13643008447",
+      "productName": "포켓몬 카드 게임 카드 실드「메가다크라이」",
+      "productNo": "13643008447",
+      "salePrice": 8000,
+      "saleStatusType": "SEARCH_RESULT",
+      "source": "naver-pokemon",
+      "stockStatus": "UNKNOWN",
+      "url": "https://smartstore.naver.com/main/products/13643008447"
+    },
+    {
+      "currency": "KRW",
       "image": "https://shopping-phinf.pstatic.net/main_9113019/91130190354.jpg",
       "isSoldOut": false,
       "key": "naver-pokemon:13585679942",
@@ -762,6 +788,32 @@
       "source": "naver-pokemon",
       "stockStatus": "UNKNOWN",
       "url": "https://smartstore.naver.com/main/products/13585679942"
+    },
+    {
+      "currency": "KRW",
+      "image": "https://shopping-phinf.pstatic.net/main_9118751/91187516801.jpg",
+      "isSoldOut": false,
+      "key": "naver-pokemon:13643006089",
+      "productName": "포켓몬 카드 게임 카드 실드「모르페코」",
+      "productNo": "13643006089",
+      "salePrice": 8000,
+      "saleStatusType": "SEARCH_RESULT",
+      "source": "naver-pokemon",
+      "stockStatus": "UNKNOWN",
+      "url": "https://smartstore.naver.com/main/products/13643006089"
+    },
+    {
+      "currency": "KRW",
+      "image": "https://shopping-phinf.pstatic.net/main_9118751/91187512711.jpg",
+      "isSoldOut": false,
+      "key": "naver-pokemon:13643001999",
+      "productName": "포켓몬 카드 게임 카드 실드「무쿠&메가샹델라」",
+      "productNo": "13643001999",
+      "salePrice": 8000,
+      "saleStatusType": "SEARCH_RESULT",
+      "source": "naver-pokemon",
+      "stockStatus": "UNKNOWN",
+      "url": "https://smartstore.naver.com/main/products/13643001999"
     },
     {
       "currency": "KRW",
@@ -1025,6 +1077,19 @@
       "source": "pokemonstore",
       "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=131608745"
+    },
+    {
+      "currency": "KRW",
+      "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260625/161231.629278489/8800286279532.png",
+      "isSoldOut": true,
+      "key": "pokemonstore:133843162",
+      "productName": "포켓몬 카드 게임 MEGA 확장팩 「어비스아이」",
+      "productNo": "133843162",
+      "salePrice": 45000.0,
+      "saleStatusType": "ONSALE",
+      "source": "pokemonstore",
+      "stockStatus": "SOLD_OUT",
+      "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133843162"
     },
     {
       "currency": "KRW",
@@ -3978,16 +4043,68 @@
     },
     {
       "currency": "KRW",
-      "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/121124.378189263/메가플라엣테.png",
+      "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260625/163110.197252882/둔갑숨기.png",
       "isSoldOut": false,
+      "key": "pokemonstore:133843257",
+      "productName": "포켓몬 카드 게임 카드 실드「둔갑 숨기」",
+      "productNo": "133843257",
+      "salePrice": 8000.0,
+      "saleStatusType": "ONSALE",
+      "source": "pokemonstore",
+      "stockStatus": "AVAILABLE",
+      "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133843257"
+    },
+    {
+      "currency": "KRW",
+      "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260625/163225.570823820/메가다크라이.png",
+      "isSoldOut": false,
+      "key": "pokemonstore:133843260",
+      "productName": "포켓몬 카드 게임 카드 실드「메가다크라이」",
+      "productNo": "133843260",
+      "salePrice": 8000.0,
+      "saleStatusType": "ONSALE",
+      "source": "pokemonstore",
+      "stockStatus": "AVAILABLE",
+      "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133843260"
+    },
+    {
+      "currency": "KRW",
+      "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260528/121124.378189263/메가플라엣테.png",
+      "isSoldOut": true,
       "key": "pokemonstore:133683486",
       "productName": "포켓몬 카드 게임 카드 실드「메가플라엣테」",
       "productNo": "133683486",
       "salePrice": 8000.0,
       "saleStatusType": "ONSALE",
       "source": "pokemonstore",
-      "stockStatus": "AVAILABLE",
+      "stockStatus": "SOLD_OUT",
       "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133683486"
+    },
+    {
+      "currency": "KRW",
+      "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260625/162101.800050871/모르페코.png",
+      "isSoldOut": false,
+      "key": "pokemonstore:133843203",
+      "productName": "포켓몬 카드 게임 카드 실드「모르페코」",
+      "productNo": "133843203",
+      "salePrice": 8000.0,
+      "saleStatusType": "ONSALE",
+      "source": "pokemonstore",
+      "stockStatus": "AVAILABLE",
+      "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133843203"
+    },
+    {
+      "currency": "KRW",
+      "image": "https://shopby-images.cdn-nhncommerce.com/Mall-No-h6Ss/20260625/161916.407801560/무쿠메가샹델라.png",
+      "isSoldOut": false,
+      "key": "pokemonstore:133843196",
+      "productName": "포켓몬 카드 게임 카드 실드「무쿠&amp;메가샹델라」",
+      "productNo": "133843196",
+      "salePrice": 8000.0,
+      "saleStatusType": "ONSALE",
+      "source": "pokemonstore",
+      "stockStatus": "AVAILABLE",
+      "url": "https://www.pokemonstore.co.kr/pages/product/product-detail.html?productNo=133843196"
     },
     {
       "currency": "KRW",
