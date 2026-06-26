@@ -11,6 +11,7 @@ from monitor import State, USER_AGENT, load_watchlist
 
 
 RATE_URL = "https://api.frankfurter.dev/v2/rate/KRW/EUR?providers=ECB"
+ARCHIVED_SOURCE_PREFIXES = ("naver-",)
 
 
 def previous_status(path: str) -> dict:
@@ -49,11 +50,19 @@ def dashboard_updated_at(previous: dict, content: dict, now: str) -> str:
     return previous.get("updatedAt", now) if unchanged else now
 
 
+def dashboard_product(product: dict) -> bool:
+    source = str(product.get("source", ""))
+    return not source.startswith(ARCHIVED_SOURCE_PREFIXES)
+
+
 def main() -> None:
     status_path = "docs/status.json"
     previous = previous_status(status_path)
     state = State(os.getenv("DATABASE_PATH", "state/monitor.db"))
-    products = sorted(state.all(), key=lambda item: (item["source"], item["productName"]))
+    products = sorted(
+        (product for product in state.all() if dashboard_product(product)),
+        key=lambda item: (item["source"], item["productName"]),
+    )
     content = {
         "exchangeRate": fetch_exchange_rate(status_path),
         "watchProductNos": sorted(str(value) for value in load_watchlist("watchlist.json")),
