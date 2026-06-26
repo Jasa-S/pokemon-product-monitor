@@ -7,6 +7,12 @@ on:
     # sends only during 18:00-20:59 local time and records a daily marker to avoid duplicates.
     - cron: "5,20,35,50 16-19 * * *"
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Send immediately even outside the normal report window"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: monitor-state-writes
@@ -32,7 +38,7 @@ jobs:
         env:
           DATABASE_PATH: state/monitor.db
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          FORCE_DAILY_REPORT: ${{ github.event_name == 'workflow_dispatch' }}
+          FORCE_DAILY_REPORT: ${{ inputs.force }}
         run: python daily_report.py
       - name: Persist report marker
         run: |
