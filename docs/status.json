@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-06-26T15:11:29.066777+00:00",
+  "updatedAt": "2026-06-26T16:28:36.867648+00:00",
   "sources": [
     {
       "source": "crazycards-onepiece",
       "productCount": 10,
       "availableCount": 4,
       "soldOutCount": 6,
-      "checkedAt": "2026-06-26T15:11:19.910794+00:00",
-      "successAt": "2026-06-26T15:11:19.910794+00:00",
+      "checkedAt": "2026-06-26T16:28:30.707877+00:00",
+      "successAt": "2026-06-26T16:28:30.707877+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -17,8 +17,8 @@
       "productCount": 15,
       "availableCount": 6,
       "soldOutCount": 9,
-      "checkedAt": "2026-06-26T15:11:19.910794+00:00",
-      "successAt": "2026-06-26T15:11:19.910794+00:00",
+      "checkedAt": "2026-06-26T16:28:30.707877+00:00",
+      "successAt": "2026-06-26T16:28:30.707877+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -28,19 +28,19 @@
       "productCount": 0,
       "availableCount": 0,
       "soldOutCount": 0,
-      "checkedAt": "2026-06-26T15:11:19.910794+00:00",
-      "successAt": null,
-      "failing": true,
-      "errorMessage": "ValueError: spielwaren-onepiece-kor returned zero products on first scan",
-      "errorUpdatedAt": "2026-06-26T15:11:28.026595+00:00"
+      "checkedAt": "2026-06-26T16:28:30.707877+00:00",
+      "successAt": "2026-06-26T16:28:30.707877+00:00",
+      "failing": false,
+      "errorMessage": null,
+      "errorUpdatedAt": null
     },
     {
       "source": "spielwaren-pokemon-kor",
       "productCount": 4,
       "availableCount": 4,
       "soldOutCount": 0,
-      "checkedAt": "2026-06-26T15:11:19.910794+00:00",
-      "successAt": "2026-06-26T15:11:19.910794+00:00",
+      "checkedAt": "2026-06-26T16:28:30.707877+00:00",
+      "successAt": "2026-06-26T16:28:30.707877+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
