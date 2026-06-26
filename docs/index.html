@@ -45,7 +45,7 @@ h1{margin:0;font-size:1.7rem;font-weight:600;display:flex;align-items:center}
 .health-lines{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:.4rem;margin-top:.55rem}
 .line{background:var(--hover);border-radius:.55rem;padding:.45rem;color:var(--muted);font-size:.68rem;line-height:1.45}
 .line.fail{color:var(--bad)}
-.controls{display:grid;grid-template-columns:minmax(15rem,2fr) repeat(4,minmax(8rem,1fr)) repeat(2,minmax(7rem,.8fr)) auto;gap:.55rem;margin:.85rem 0 1rem}
+.controls{display:grid;grid-template-columns:minmax(15rem,2fr) repeat(3,minmax(8rem,1fr)) repeat(2,minmax(7rem,.8fr)) auto;gap:.55rem;margin:.85rem 0 1rem}
 .drawer-head,.drawer-done{display:none}
 input,select,.controls button{width:100%;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:.55rem;padding:.65rem .75rem;font-size:.75rem}
 #stats{color:var(--muted);font-size:.72rem;margin:0 0 1rem}
@@ -83,7 +83,6 @@ body.gallery h2{font-size:.78rem;line-height:1.1;min-height:2.2em;max-height:2.2
   <div class="drawer-head"><span>Filters</span></div>
   <input id="search" type="search" placeholder="Search name or product number…">
   <select id="source"><option value="">All stores</option></select>
-  <select id="currency"><option value="">Any currency</option><option value="EUR">EUR</option></select>
   <select id="availability"><option value="">Any stock status</option><option value="available">In stock</option><option value="unavailable">Sold out</option></select>
   <select id="sort"><option value="name">Name A–Z</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option><option value="stock">In stock first</option></select>
   <input id="minprice" type="number" min="0" step="1" placeholder="Min €">
