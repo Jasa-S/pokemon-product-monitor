@@ -1,6 +1,51 @@
 {
-  "updatedAt": "2026-06-26T11:59:34.120123+00:00",
-  "watchProductNos": [],
+  "updatedAt": "2026-06-26T15:11:29.066777+00:00",
+  "sources": [
+    {
+      "source": "crazycards-onepiece",
+      "productCount": 10,
+      "availableCount": 4,
+      "soldOutCount": 6,
+      "checkedAt": "2026-06-26T15:11:19.910794+00:00",
+      "successAt": "2026-06-26T15:11:19.910794+00:00",
+      "failing": false,
+      "errorMessage": null,
+      "errorUpdatedAt": null
+    },
+    {
+      "source": "crazycards-pokemon",
+      "productCount": 15,
+      "availableCount": 6,
+      "soldOutCount": 9,
+      "checkedAt": "2026-06-26T15:11:19.910794+00:00",
+      "successAt": "2026-06-26T15:11:19.910794+00:00",
+      "failing": false,
+      "errorMessage": null,
+      "errorUpdatedAt": null
+    },
+    {
+      "source": "spielwaren-onepiece-kor",
+      "productCount": 0,
+      "availableCount": 0,
+      "soldOutCount": 0,
+      "checkedAt": "2026-06-26T15:11:19.910794+00:00",
+      "successAt": null,
+      "failing": true,
+      "errorMessage": "ValueError: spielwaren-onepiece-kor returned zero products on first scan",
+      "errorUpdatedAt": "2026-06-26T15:11:28.026595+00:00"
+    },
+    {
+      "source": "spielwaren-pokemon-kor",
+      "productCount": 4,
+      "availableCount": 4,
+      "soldOutCount": 0,
+      "checkedAt": "2026-06-26T15:11:19.910794+00:00",
+      "successAt": "2026-06-26T15:11:19.910794+00:00",
+      "failing": false,
+      "errorMessage": null,
+      "errorUpdatedAt": null
+    }
+  ],
   "products": [
     {
       "currency": "EUR",
@@ -48,7 +93,7 @@
       "key": "crazycards-onepiece:one-piece-card-game-egghead-crisis-booster-box-display-eb-04-japanisch",
       "productName": "One Piece Card Game - Egghead Crisis Booster Box Display (EB-04) - Japanisch",
       "productNo": "one-piece-card-game-egghead-crisis-booster-box-display-eb-04-japanisch",
-      "salePrice": 0.0,
+      "salePrice": null,
       "saleStatusType": "OUTOFSTOCK",
       "source": "crazycards-onepiece",
       "stockStatus": "SOLD_OUT",
