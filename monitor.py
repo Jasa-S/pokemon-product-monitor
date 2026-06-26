@@ -170,16 +170,6 @@ class State:
         return was_failing
 
 
-def load_watchlist(path: str) -> set[int]:
-    """Retained for dashboard export compatibility; EU shops do not use numeric watchlists."""
-    try:
-        with open(path, encoding="utf-8") as source:
-            values = json.load(source).get("productNos", [])
-        return {int(value) for value in values}
-    except (FileNotFoundError, OSError, ValueError, TypeError, json.JSONDecodeError):
-        return set()
-
-
 def is_available(product: dict[str, Any]) -> bool:
     return (
         product.get("stockStatus") == "AVAILABLE"
