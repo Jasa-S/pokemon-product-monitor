@@ -2,8 +2,9 @@ name: Daily Discord report
 
 on:
   schedule:
-    # GitHub cron uses UTC. These two candidates cover 18:00 Europe/Berlin
-    # in both CET and CEST; daily_report.py sends only when local Berlin hour is 18.
+    # GitHub cron uses UTC. These two candidates cover the normal 18:00
+    # Europe/Berlin report time in both CET and CEST. daily_report.py allows
+    # a short local evening window so delayed scheduled runs can still send once.
     - cron: "5 16 * * *"
     - cron: "5 17 * * *"
   workflow_dispatch:
