@@ -24,7 +24,7 @@ permissions:
 jobs:
   report:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
         with:
@@ -34,31 +34,18 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - name: Refresh monitor state
-        env:
-          DATABASE_PATH: state/monitor.db
-          RUN_ONCE: "true"
-          POLL_SECONDS: "300"
-          EXTERNAL_STORE_INTERVAL_SECONDS: "300"
-          DISCORD_WEBHOOK_URL: ""
-          WATCH_KEYWORDS: ${{ vars.WATCH_KEYWORDS }}
-        run: python monitor.py
-      - name: Refresh dashboard data
-        env:
-          DATABASE_PATH: state/monitor.db
-        run: python export_dashboard.py
       - name: Send daily report
         env:
           DATABASE_PATH: state/monitor.db
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           FORCE_DAILY_REPORT: ${{ inputs.force }}
         run: python daily_report.py
-      - name: Persist state and report marker
+      - name: Persist report marker
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase --autostash origin main
-          git add state/monitor.db docs/status.json
+          git add state/monitor.db
           git diff --cached --quiet || git commit -m "Record daily Discord report"
           git push
       - name: Notify Discord on failure
