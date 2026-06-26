@@ -9,19 +9,6 @@ from typing import Any
 from monitor import LIVE_SOURCES, State, is_available
 
 
-def previous_status(path: str) -> dict:
-    try:
-        with open(path, encoding="utf-8") as source:
-            return json.load(source)
-    except (FileNotFoundError, json.JSONDecodeError, OSError):
-        return {}
-
-
-def dashboard_updated_at(previous: dict, content: dict, now: str) -> str:
-    unchanged = all(previous.get(key) == value for key, value in content.items())
-    return previous.get("updatedAt", now) if unchanged else now
-
-
 def dashboard_product(product: dict) -> bool:
     return str(product.get("source", "")) in LIVE_SOURCES
 
@@ -69,18 +56,16 @@ def source_summaries(state: State, products: list[dict]) -> list[dict[str, Any]]
 
 def main() -> None:
     status_path = "docs/status.json"
-    previous = previous_status(status_path)
     state = State(os.getenv("DATABASE_PATH", "state/monitor.db"))
     products = sorted(
         (product for product in state.all() if dashboard_product(product)),
         key=lambda item: (item["source"], item["productName"]),
     )
-    content = {
+    payload = {
+        "updatedAt": datetime.now(timezone.utc).isoformat(),
         "sources": source_summaries(state, products),
         "products": products,
     }
-    now = datetime.now(timezone.utc).isoformat()
-    payload = {"updatedAt": dashboard_updated_at(previous, content, now), **content}
     os.makedirs("docs", exist_ok=True)
     with open(status_path, "w", encoding="utf-8") as output:
         json.dump(payload, output, ensure_ascii=False, indent=2)
