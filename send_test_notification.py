@@ -12,7 +12,7 @@ sample = {
     "productName": "Test Pokémon card product",
     "salePrice": 9.99,
     "currency": "EUR",
-    "image": "https://static.wixstatic.com/media/placeholder.jpg",
+    "image": None,
     "isSoldOut": False,
     "saleStatusType": "SALE",
     "stockStatus": "AVAILABLE",
