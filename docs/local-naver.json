@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-26T01:03:48.152025+00:00",
+  "updatedAt": "2026-06-26T01:11:25.444892+00:00",
   "products": [
     {
       "key": "naver-pokemon:9654269293",
@@ -2010,7 +2010,7 @@
       "productName": "포켓몬 카드 게임 컬렉션 파일 프리미엄 「제크로무・레시라무」",
       "salePrice": 25000,
       "currency": "KRW",
-      "image": "https://shop-phinf.pstatic.net/20250801_297/1754025704279fggq0_PNG/37641079242900179_656200875.png?type=f750_750",
+      "image": "https://shop-phinf.pstatic.net/20250801_160/1754025709181Va4xH_PNG/88158539567160040_2031905639.png?type=f750_750",
       "isSoldOut": true,
       "saleStatusType": "OUTOFSTOCK",
       "stockStatus": "SOLD_OUT",
@@ -2327,6 +2327,19 @@
       "saleStatusType": "OUTOFSTOCK",
       "stockStatus": "SOLD_OUT",
       "url": "https://smartstore.naver.com/xoplay/products/13436072327"
+    },
+    {
+      "key": "naver-xoplay:13641889077",
+      "source": "naver-xoplay",
+      "productNo": "13641889077",
+      "productName": "원피스 카드 게임 부스터팩 13탄 계승되는 의지 OPK-13 보드게임 캐릭터카드 TCG",
+      "salePrice": 48000,
+      "currency": "KRW",
+      "image": "https://shop-phinf.pstatic.net/20260624_217/1782269867583EnHqp_PNG/88109166396137104_878375008.png?type=f750_750",
+      "isSoldOut": true,
+      "saleStatusType": "OUTOFSTOCK",
+      "stockStatus": "SOLD_OUT",
+      "url": "https://smartstore.naver.com/xoplay/products/13641889077"
     },
     {
       "key": "naver-xoplay:10628834234",
