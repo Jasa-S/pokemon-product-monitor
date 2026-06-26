@@ -11,7 +11,6 @@ concurrency:
 
 permissions:
   contents: write
-  models: read
 
 jobs:
   monitor:
@@ -22,16 +21,14 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
-      - name: Check stores
+      - name: Check EU card shops
         env:
           DATABASE_PATH: state/monitor.db
           RUN_ONCE: "true"
-          CHECK_NAVER_PUBLIC: "false"
+          POLL_SECONDS: "300"
+          EXTERNAL_STORE_INTERVAL_SECONDS: "300"
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WATCH_PRODUCT_NOS: ${{ vars.WATCH_PRODUCT_NOS }}
           WATCH_KEYWORDS: ${{ vars.WATCH_KEYWORDS }}
-          WATCHLIST_PATH: watchlist.json
         run: python monitor.py
       - name: Update Pages data
         env:
