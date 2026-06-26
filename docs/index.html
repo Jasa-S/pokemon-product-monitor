@@ -190,7 +190,8 @@ document.querySelector('#clear').addEventListener('click', () => { ['search','so
 document.querySelector('#view').addEventListener('click', () => setGallery(!document.body.classList.contains('gallery')));
 document.querySelector('#theme-toggle').addEventListener('click', () => { const dark = document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', dark ? 'dark' : 'light'); });
 if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
-setGallery(localStorage.getItem('galleryView') === 'true');
+const savedGalleryView = localStorage.getItem('galleryView');
+setGallery(savedGalleryView === null ? true : savedGalleryView === 'true');
 </script>
 </body>
 </html>
