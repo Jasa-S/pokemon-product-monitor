@@ -70,6 +70,10 @@ class State:
             "(feed TEXT PRIMARY KEY, checked_at REAL NOT NULL)"
         )
         self.db.execute(
+            "CREATE TABLE IF NOT EXISTS success_times "
+            "(feed TEXT PRIMARY KEY, succeeded_at REAL NOT NULL)"
+        )
+        self.db.execute(
             "CREATE TABLE IF NOT EXISTS feed_errors "
             "(feed TEXT PRIMARY KEY, failing INTEGER NOT NULL, message TEXT, updated_at REAL NOT NULL)"
         )
@@ -141,6 +145,14 @@ class State:
             "INSERT INTO check_times(feed, checked_at) VALUES(?, ?) "
             "ON CONFLICT(feed) DO UPDATE SET checked_at = excluded.checked_at",
             (feed, checked_at if checked_at is not None else time.time()),
+        )
+        self.db.commit()
+
+    def mark_succeeded(self, feed: str, succeeded_at: float | None = None) -> None:
+        self.db.execute(
+            "INSERT INTO success_times(feed, succeeded_at) VALUES(?, ?) "
+            "ON CONFLICT(feed) DO UPDATE SET succeeded_at = excluded.succeeded_at",
+            (feed, succeeded_at if succeeded_at is not None else time.time()),
         )
         self.db.commit()
 
@@ -308,6 +320,7 @@ def check_once(config: Config, state: State) -> None:
             products = checked_products(client.source, client.products(), state)
             state.retain_source_products(client.source, {product["key"] for product in products})
             observe_products(config, state, products, feed=feed)
+            state.mark_succeeded(feed, now)
             if state.clear_feed_error(feed):
                 send_store_status(
                     config.webhook_url,
