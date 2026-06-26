@@ -101,25 +101,38 @@ class MonitorTests(unittest.TestCase):
         self.assertFalse(dashboard_product(sample_product(source="naver-xoplay")))
 
     def test_dashboard_timestamp_stays_stable_without_changes(self):
-        content = {"products": [], "watchProductNos": []}
+        content = {"products": []}
         previous = {"updatedAt": "old", **content}
         self.assertEqual(dashboard_updated_at(previous, content, "new"), "old")
         self.assertEqual(dashboard_updated_at({}, content, "new"), "new")
 
-    def test_woocommerce_normalization(self):
-        payload = [{
-            "id": 42,
-            "name": "Booster",
-            "prices": {"currency_minor_unit": 2, "price": "1299"},
-            "images": [{"src": "https://example.com/p.png"}],
-            "is_in_stock": True,
-            "permalink": "https://spielwarenparadies24.de/p/booster",
+    def test_woocommerce_normalization_and_pagination(self):
+        first_page = [
+            {
+                "id": number,
+                "name": f"Booster {number}",
+                "prices": {"currency_minor_unit": 2, "price": "1299"},
+                "images": [{"src": "https://example.com/p.png"}],
+                "is_in_stock": True,
+                "permalink": f"https://spielwarenparadies24.de/p/booster-{number}",
+            }
+            for number in range(100)
+        ]
+        second_page = [{
+            "id": 101,
+            "name": "Final Booster",
+            "prices": {"currency_minor_unit": 2, "price": "999"},
+            "images": [],
+            "is_in_stock": False,
+            "permalink": "https://spielwarenparadies24.de/p/final-booster",
         }]
         client = WooCommerceCategoryClient("spielwaren-pokemon-kor", 208)
-        with patch("external_stores._request", return_value=payload):
+        with patch("external_stores._request", side_effect=[first_page, second_page]) as fetch:
             products = client.products()
+        self.assertEqual(len(products), 101)
+        self.assertIn("page=2", fetch.call_args_list[1].args[0])
         self.assertEqual(products[0]["salePrice"], 12.99)
-        self.assertEqual(products[0]["stockStatus"], "AVAILABLE")
+        self.assertEqual(products[-1]["stockStatus"], "SOLD_OUT")
 
     def test_crazycards_parser(self):
         html = '''
@@ -131,6 +144,12 @@ class MonitorTests(unittest.TestCase):
               <span data-wix-price="9,99 €"></span>
             </a>
           </li>
+          <li data-hook="product-list-grid-item" data-slug="sold-out-card">
+            <a href="https://www.crazycards.eu/product-page/sold-out-card" aria-label="Sold out">
+              <p data-hook="product-item-name">Sold Out Card</p>
+              <span data-wix-price="0,00 €"></span>
+            </a>
+          </li>
         </ul>
         '''
         client = CrazyCardsCategoryClient("crazycards-pokemon", "https://www.crazycards.eu/pokemon")
@@ -139,6 +158,8 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(products[0]["productNo"], "pikachu-card")
         self.assertEqual(products[0]["salePrice"], 9.99)
         self.assertEqual(products[0]["stockStatus"], "AVAILABLE")
+        self.assertEqual(products[1]["salePrice"], None)
+        self.assertEqual(products[1]["stockStatus"], "SOLD_OUT")
 
 
 if __name__ == "__main__":
