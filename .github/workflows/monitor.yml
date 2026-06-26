@@ -46,3 +46,40 @@ jobs:
           git add state/monitor.db docs/status.json
           git diff --cached --quiet || git commit -m "Update monitor state"
           git push
+      - name: Notify Discord on failure
+        if: failure()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          webhook = os.getenv("DISCORD_WEBHOOK_URL")
+          if not webhook:
+              print("DISCORD_WEBHOOK_URL is not configured; skipping failure alert")
+              raise SystemExit(0)
+
+          payload = {
+              "embeds": [{
+                  "title": "⚠️ TCG monitor workflow failed",
+                  "description": f"{os.getenv('WORKFLOW_NAME')} failed.\n{os.getenv('RUN_URL')}",
+                  "color": 0xF97316,
+                  "footer": {"text": "GitHub Actions"},
+              }]
+          }
+          try:
+              request = urllib.request.Request(
+                  webhook,
+                  data=json.dumps(payload).encode(),
+                  headers={"Content-Type": "application/json"},
+                  method="POST",
+              )
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  print(f"Discord response: {response.status}")
+          except Exception as error:
+              print(f"Failed to send Discord failure alert: {error}")
+          PY
