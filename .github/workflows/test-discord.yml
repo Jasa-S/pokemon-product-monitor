@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: read
-  models: read
 
 jobs:
   notify:
@@ -19,5 +18,4 @@ jobs:
       - name: Send test notification
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python send_test_notification.py
