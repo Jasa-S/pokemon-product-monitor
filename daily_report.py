@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import argparse
 import os
-import sqlite3
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from export_dashboard import source_summaries
+from export_dashboard import dashboard_product, source_summaries
 from monitor import State, send_discord_payload
 
 
@@ -29,18 +28,23 @@ def report_key(now: datetime) -> str:
     return now.strftime("%Y-%m-%d")
 
 
-def already_sent(state: State, key: str) -> bool:
+def ensure_report_table(state: State) -> None:
     state.db.execute(
         "CREATE TABLE IF NOT EXISTS daily_reports "
         "(report_date TEXT PRIMARY KEY, sent_at TEXT NOT NULL)"
     )
     state.db.commit()
+
+
+def already_sent(state: State, key: str) -> bool:
+    ensure_report_table(state)
     return state.db.execute(
         "SELECT 1 FROM daily_reports WHERE report_date = ?", (key,)
     ).fetchone() is not None
 
 
 def mark_sent(state: State, key: str, now: datetime) -> None:
+    ensure_report_table(state)
     state.db.execute(
         "INSERT OR REPLACE INTO daily_reports(report_date, sent_at) VALUES(?, ?)",
         (key, now.isoformat()),
@@ -48,12 +52,12 @@ def mark_sent(state: State, key: str, now: datetime) -> None:
     state.db.commit()
 
 
-def all_live_products(state: State) -> list[dict]:
-    return [product for product in state.all()]
+def live_products(state: State) -> list[dict]:
+    return [product for product in state.all() if dashboard_product(product)]
 
 
 def build_report(state: State, now: datetime) -> dict:
-    products = all_live_products(state)
+    products = live_products(state)
     sources = source_summaries(state, products)
     failing = [source for source in sources if source.get("failing")]
     total = sum(int(source.get("productCount") or 0) for source in sources)
