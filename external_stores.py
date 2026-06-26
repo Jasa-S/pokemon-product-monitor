@@ -104,6 +104,12 @@ class WooCommerceCategoryClient:
 class CrazyCardsCategoryClient:
     """Parse Wix's stable server-rendered product data-hooks without running JavaScript."""
 
+    PRODUCT_ITEM_RE = re.compile(
+        r'<li\b(?=[^>]*data-hook="product-list-grid-item")[^>]*>.*?'
+        r'(?=<li\b(?=[^>]*data-hook="product-list-grid-item")|</ul>|$)',
+        re.S,
+    )
+
     def __init__(self, source: str, url: str) -> None:
         self.source = source
         self.url = url
@@ -131,7 +137,7 @@ class CrazyCardsCategoryClient:
 
     def products(self) -> list[dict[str, Any]]:
         html = _request(self.url, as_json=False)
-        chunks = html.split('<li data-hook="product-list-grid-item">')[1:]
+        chunks = self.PRODUCT_ITEM_RE.findall(html)
         products: dict[str, dict[str, Any]] = {}
         for chunk in chunks:
             slug_match = re.search(r'data-slug="([^"]+)"', chunk[:500])
