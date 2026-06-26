@@ -29,8 +29,6 @@ jobs:
           CHECK_NAVER_PUBLIC: "false"
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
-          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
           WATCH_PRODUCT_NOS: ${{ vars.WATCH_PRODUCT_NOS }}
           WATCH_KEYWORDS: ${{ vars.WATCH_KEYWORDS }}
           WATCHLIST_PATH: watchlist.json
