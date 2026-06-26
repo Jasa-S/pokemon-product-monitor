@@ -14,6 +14,7 @@ from monitor import State, send_discord_payload
 
 REPORT_TZ = ZoneInfo("Europe/Berlin")
 REPORT_HOUR = 18
+REPORT_END_HOUR = 21
 
 
 def local_now() -> datetime:
@@ -21,7 +22,7 @@ def local_now() -> datetime:
 
 
 def should_send(now: datetime, force: bool) -> bool:
-    return force or now.hour == REPORT_HOUR
+    return force or REPORT_HOUR <= now.hour < REPORT_END_HOUR
 
 
 def report_key(now: datetime) -> str:
@@ -100,7 +101,7 @@ def main() -> None:
     now = local_now()
     force = args.force or os.getenv("FORCE_DAILY_REPORT", "false").casefold() == "true"
     if not should_send(now, force):
-        print(f"Not report time in Europe/Berlin: {now.isoformat()}")
+        print(f"Not in daily report window for Europe/Berlin: {now.isoformat()}")
         return
     state = State(os.getenv("DATABASE_PATH", "state/monitor.db"))
     key = report_key(now)
