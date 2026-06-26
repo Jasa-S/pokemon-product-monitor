@@ -16,7 +16,7 @@
 <title>TCG Monitor</title>
 <style>
 *{box-sizing:border-box}
-:root{color-scheme:light;font-family:Inter,system-ui,-apple-system,sans-serif;--bg:#fff;--text:#111827;--muted:#6b7280;--card:#f9fafb;--hover:#f0f0f0;--border:rgba(0,0,0,.08);--accent:#2563eb;--ok:#15803d;--bad:#b91c1c;background:var(--bg);color:var(--text)}
+:root{color-scheme:light;font-family:Inter,system-ui,-apple-system,sans-serif;--bg:#fff;--text:#111827;--muted:#6b7280;--card:#f9fafb;--hover:#f0f0f0;--border:rgba(0,0,0,.08);--accent:#2563eb;--ok:#15803d;--bad:#b91c1c;--warn:#b45309;background:var(--bg);color:var(--text)}
 :root.dark{color-scheme:dark;--bg:#0a0a0a;--text:#fff;--muted:#a1a1aa;--card:#141414;--hover:#1e1e1e;--border:rgba(255,255,255,.09)}
 body{max-width:76rem;margin:auto;padding:2.5rem 1.25rem 4rem;background:var(--bg);color:var(--text)}
 header{display:flex;gap:1.25rem;justify-content:space-between;align-items:center;margin-bottom:1rem}
@@ -34,6 +34,9 @@ h1{margin:0;font-size:1.7rem;font-weight:600;display:flex;align-items:center}
 #filter-toggle{display:none}
 .panel{border:1px solid var(--border);background:var(--card);border-radius:.75rem;padding:.7rem .85rem;margin:0 0 .65rem}
 .panel strong{font-size:.78rem}.panel span,.panel summary{color:var(--muted);font-size:.7rem}
+.stale-warning{display:none;border-color:rgba(180,83,9,.35);background:rgba(180,83,9,.08)}
+.stale-warning strong{color:var(--warn)}
+.stale-warning span{color:var(--warn)}
 .health summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:.75rem;align-items:center}
 .health summary::-webkit-details-marker{display:none}
 .pills{display:flex;gap:.35rem;flex-wrap:wrap;justify-content:flex-end}
@@ -74,6 +77,7 @@ body.gallery h2{font-size:.78rem;line-height:1.1;min-height:2.2em;max-height:2.2
   </div>
 </header>
 <section id="monitor" class="panel"><strong>Automatic monitoring</strong><br><span>Loading monitor status…</span></section>
+<section id="stale-warning" class="panel stale-warning" role="status"><strong>Dashboard data may be stale</strong><br><span id="stale-warning-text"></span></section>
 <details id="health" class="panel health"><summary><span><strong>Store health</strong><br><span id="health-meta">Loading…</span></span><span id="health-pills" class="pills"></span></summary><div id="health-lines" class="health-lines"></div></details>
 <div id="filters" class="controls">
   <div class="drawer-head"><span>Filters</span></div>
@@ -92,6 +96,7 @@ body.gallery h2{font-size:.78rem;line-height:1.1;min-height:2.2em;max-height:2.2
 let products = [];
 let sources = [];
 const sourceIds = ['crazycards-onepiece','crazycards-pokemon','spielwaren-onepiece-kor','spielwaren-pokemon-kor'];
+const STALE_AFTER_MINUTES = 20;
 const euro = new Intl.NumberFormat('en-IE', {style:'currency', currency:'EUR'});
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const rel = value => {
@@ -105,6 +110,24 @@ const rel = value => {
 };
 const stock = product => product.stockStatus || (product.isSoldOut ? 'SOLD_OUT' : 'AVAILABLE');
 const successTime = source => source.successAt || (!source.failing ? source.checkedAt : null);
+function renderStaleWarning(updatedAt) {
+  const warning = document.querySelector('#stale-warning');
+  const text = document.querySelector('#stale-warning-text');
+  const updated = updatedAt ? new Date(updatedAt) : null;
+  if (!updated || Number.isNaN(updated)) {
+    warning.style.display = 'block';
+    text.textContent = 'The dashboard could not verify when status data was last updated.';
+    return;
+  }
+  const ageMinutes = Math.round((Date.now() - updated.getTime()) / 60000);
+  if (ageMinutes > STALE_AFTER_MINUTES) {
+    warning.style.display = 'block';
+    text.textContent = `Last dashboard update was ${rel(updatedAt)}. Results may be out of date until the next successful monitor run.`;
+  } else {
+    warning.style.display = 'none';
+    text.textContent = '';
+  }
+}
 function setFilters(open) { document.body.classList.toggle('filters-open', open); document.querySelector('#filter-toggle').setAttribute('aria-expanded', String(open)); }
 function setGallery(on) { document.body.classList.toggle('gallery', on); document.querySelector('#view').setAttribute('aria-pressed', String(on)); document.querySelector('#view-label').textContent = on ? 'Details' : 'Gallery'; localStorage.setItem('galleryView', String(on)); }
 function renderHealth(last, fail) {
@@ -147,6 +170,7 @@ function render() {
 fetch(`status.json?ts=${Date.now()}`, {cache: 'no-store'})
   .then(response => response.json())
   .then(data => {
+    renderStaleWarning(data.updatedAt);
     products = (data.products || []).filter(product => sourceIds.includes(product.source));
     sources = (data.sources || sourceIds.map(source => ({source, productCount: products.filter(product => product.source === source).length, availableCount: products.filter(product => product.source === source && stock(product) === 'AVAILABLE').length, checkedAt: data.updatedAt, successAt: data.updatedAt, failing: false}))).filter(source => sourceIds.includes(source.source));
     const last = sources.map(successTime).filter(Boolean).map(value => new Date(value)).filter(date => !Number.isNaN(date)).sort((a,b) => b - a)[0];
