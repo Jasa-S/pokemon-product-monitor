@@ -427,6 +427,28 @@ class State:
         self.db.execute("INSERT OR IGNORE INTO initialized_feeds(feed) VALUES(?)", (feed,))
         self.db.commit()
 
+    def ensure_feeds_initialized_from_existing_products(
+        self, source_to_feeds: dict[str, list[str]]
+    ) -> None:
+        """Auto-mark feeds as initialized if the DB already holds products for that source.
+
+        Called once at the top of check_once() so that a container/process
+        restart that inherits a populated DB does not silently prime new
+        products instead of alerting for them.
+
+        Only marks feeds that are not already marked.  Does nothing when the
+        DB is genuinely empty (first ever run), preserving the silent-prime
+        behaviour that prevents a Discord flood on initial startup.
+        """
+        for source, feeds in source_to_feeds.items():
+            has_products = self.db.execute(
+                "SELECT 1 FROM observations WHERE product_key LIKE ? LIMIT 1",
+                (f"{source}:%",),
+            ).fetchone() is not None
+            if has_products:
+                for feed in feeds:
+                    self.mark_feed_initialized(feed)
+
     def clear_source_once(self, source: str, scope_marker: str) -> None:
         """Discard products from an older, broader scope once during migration."""
         if self.feed_initialized(scope_marker):
@@ -595,6 +617,24 @@ def observe_products(
 
 
 def check_once(config: Config, pokemon: PokemonStoreClient, state: State) -> None:
+    # On any restart that inherits an existing DB, auto-mark feeds as
+    # initialized for sources that already have products stored.  This
+    # prevents the first post-restart cycle from silently priming new
+    # releases instead of alerting for them.  On a genuinely empty DB
+    # (first ever run) nothing is marked and the normal silent-prime
+    # behaviour applies, avoiding a Discord flood of the back-catalogue.
+    state.ensure_feeds_initialized_from_existing_products({
+        "pokemonstore": [
+            "pokemonstore-card-arrivals",
+            "pokemonstore-card-catalog",
+            "pokemonstore-watchlist",
+        ],
+        "naver-pokemon": [
+            "naver-pokemon-card-category",
+            "naver-pokemon-tcg-search-v7",
+        ],
+    })
+
     state.clear_source_once("naver-pokemon", "scope:naver-pokemon-card-category-v1")
     observe_products(config, state, pokemon.new_arrivals(), feed="pokemonstore-card-arrivals")
     for product_no in config.product_nos:
