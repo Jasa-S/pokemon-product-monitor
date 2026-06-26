@@ -498,20 +498,25 @@ def run() -> None:
         previous_state, load_dashboard_state(token), current_categories
     )
     # If the shared dashboard was newer than the local state, adopt it as a
-    # silent baseline for this cycle so we don't fire alerts for products the
+    # baseline so we don't fire false-positive alerts for every product the
     # local machine has never scanned before.
+    # IMPORTANT: only suppress alerts for products already in the remote
+    # baseline — genuinely new products absent from the remote state must
+    # still fire immediately.
     synced_from_remote = shared_state is not previous_state
     if synced_from_remote:
         previous_state = shared_state
         save_json(STATE_PATH, previous_state)
         logging.info(
             "Resumed from the newer shared Naver baseline (%s products); "
-            "notifications suppressed this cycle.",
+            "alerts suppressed only for products already in that baseline.",
             len(previous_state.get("products", [])),
         )
     previous_list = previous_state.get("products", [])
     previous_categories = set(previous_state.get("categories", []))
     previous = {product["key"]: product for product in previous_list}
+    # Keys present in the adopted remote baseline; used to filter suppression below.
+    remote_baseline_keys: set[str] = set(previous) if synced_from_remote else set()
 
     with sync_playwright() as playwright:
         profile = ROOT / f".naver-{browser_name}-profile"
@@ -550,9 +555,19 @@ def run() -> None:
 
     combined = deduplicate_products(combined)
     if combined and not stopping:
-        events = [] if synced_from_remote else scan_events(
-            previous, combined, previous_categories, current_categories
-        )
+        events = scan_events(previous, combined, previous_categories, current_categories)
+        if synced_from_remote and remote_baseline_keys:
+            # Suppress alerts only for products that were already known in the
+            # remote baseline; new products not present there still alert.
+            before = len(events)
+            events = [(evt, p) for evt, p in events if p["key"] not in remote_baseline_keys]
+            suppressed = before - len(events)
+            if suppressed:
+                logging.info(
+                    "Suppressed %s alert(s) for products already in the remote baseline; "
+                    "%s new alert(s) will fire.",
+                    suppressed, len(events),
+                )
         save_json(STATE_PATH, {
             "updatedAt": datetime.now(timezone.utc).isoformat(),
             "categories": sorted(current_categories),

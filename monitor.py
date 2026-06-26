@@ -227,8 +227,11 @@ class PokemonStoreClient:
                 })
 
     def new_arrivals(self) -> list[dict[str, Any]]:
+        # pageSize 100: a single set release can drop 50+ products simultaneously;
+        # the previous limit of 20 caused new products beyond rank 20 to be missed
+        # until Naver's own index caught up hours later.
         data = self._get("/products/search", {
-            "pageNumber": 1, "pageSize": 20, "filter.soldout": "true",
+            "pageNumber": 1, "pageSize": 100, "filter.soldout": "true",
             "categoryNos": POKEMON_CARD_CATEGORY_NO, "order.by": "RECENT_PRODUCT",
         })
         return [self._normalize(product) for product in data.get("items", [])]
