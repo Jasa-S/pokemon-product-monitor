@@ -40,7 +40,7 @@ jobs:
           RUN_ONCE: "true"
           POLL_SECONDS: "300"
           EXTERNAL_STORE_INTERVAL_SECONDS: "300"
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ""
           WATCH_KEYWORDS: ${{ vars.WATCH_KEYWORDS }}
         run: python monitor.py
       - name: Refresh dashboard data
