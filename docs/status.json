@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-25T15:47:23.836255+00:00",
+  "updatedAt": "2026-06-26T01:36:09.418418+00:00",
   "exchangeRate": {
     "base": "KRW",
     "quote": "EUR",
@@ -12,14 +12,14 @@
     {
       "currency": "EUR",
       "image": "https://static.wixstatic.com/media/cb7d81_f283602adf4e440e92b9b88c7b4e3e5e~mv2.png",
-      "isSoldOut": true,
+      "isSoldOut": false,
       "key": "crazycards-onepiece:one-piece-card-game-a-fist-of-divine-speed-display-opk-11-koreanisch",
       "productName": "One Piece Card Game - A Fist of Divine Speed Display OPK-11 - Koreanisch",
       "productNo": "one-piece-card-game-a-fist-of-divine-speed-display-opk-11-koreanisch",
-      "salePrice": 49.95,
-      "saleStatusType": "OUTOFSTOCK",
+      "salePrice": 59.95,
+      "saleStatusType": "SALE",
       "source": "crazycards-onepiece",
-      "stockStatus": "SOLD_OUT",
+      "stockStatus": "AVAILABLE",
       "url": "https://www.crazycards.eu/product-page/one-piece-card-game-a-fist-of-divine-speed-display-opk-11-koreanisch"
     },
     {
@@ -181,14 +181,14 @@
     {
       "currency": "EUR",
       "image": "https://static.wixstatic.com/media/cb7d81_8a6b980af89942d083dce64c9c0a143f~mv2.png",
-      "isSoldOut": true,
+      "isSoldOut": false,
       "key": "crazycards-pokemon:pokémon-tcg-gem-pack-vol-5-booster-box-cbb5c-chinesisch",
       "productName": "Pokémon TCG - Gem Pack Vol. 5 Booster Box (CBB5C) - Chinesisch",
       "productNo": "pokémon-tcg-gem-pack-vol-5-booster-box-cbb5c-chinesisch",
       "salePrice": 44.95,
-      "saleStatusType": "OUTOFSTOCK",
+      "saleStatusType": "SALE",
       "source": "crazycards-pokemon",
-      "stockStatus": "SOLD_OUT",
+      "stockStatus": "AVAILABLE",
       "url": "https://www.crazycards.eu/product-page/pokémon-tcg-gem-pack-vol-5-booster-box-cbb5c-chinesisch"
     },
     {
@@ -207,14 +207,14 @@
     {
       "currency": "EUR",
       "image": "https://static.wixstatic.com/media/cb7d81_514513b729504dffaf9ba044e76a8e57~mv2.png",
-      "isSoldOut": true,
+      "isSoldOut": false,
       "key": "crazycards-pokemon:pokémon-tcg-ninja-spinner-m4-booster-box-display-koreanisch",
       "productName": "Pokémon TCG - Ninja Spinner m4 Booster Box Display - Koreanisch",
       "productNo": "pokémon-tcg-ninja-spinner-m4-booster-box-display-koreanisch",
-      "salePrice": 39.95,
-      "saleStatusType": "OUTOFSTOCK",
+      "salePrice": 59.95,
+      "saleStatusType": "SALE",
       "source": "crazycards-pokemon",
-      "stockStatus": "SOLD_OUT",
+      "stockStatus": "AVAILABLE",
       "url": "https://www.crazycards.eu/product-page/pokémon-tcg-ninja-spinner-m4-booster-box-display-koreanisch"
     },
     {
@@ -233,14 +233,14 @@
     {
       "currency": "EUR",
       "image": "https://static.wixstatic.com/media/cb7d81_bdf954fbf9ed4f118d2272e179bb02f0~mv2.png",
-      "isSoldOut": true,
+      "isSoldOut": false,
       "key": "crazycards-pokemon:pokémon-tcg-stellar-crystal-csv9-coin-set-chinesisch",
       "productName": "Pokémon TCG - Stellar Crystal (CSV9) Coin Set - Chinesisch",
       "productNo": "pokémon-tcg-stellar-crystal-csv9-coin-set-chinesisch",
       "salePrice": 9.95,
-      "saleStatusType": "OUTOFSTOCK",
+      "saleStatusType": "SALE",
       "source": "crazycards-pokemon",
-      "stockStatus": "SOLD_OUT",
+      "stockStatus": "AVAILABLE",
       "url": "https://www.crazycards.eu/product-page/pokémon-tcg-stellar-crystal-csv9-coin-set-chinesisch"
     },
     {
