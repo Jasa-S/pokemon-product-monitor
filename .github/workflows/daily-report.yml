@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: daily-discord-report
+  group: monitor-state-writes
   cancel-in-progress: false
 
 permissions:
