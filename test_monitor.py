@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from export_dashboard import dashboard_product, dashboard_updated_at
 from external_stores import CrazyCardsCategoryClient, WooCommerceCategoryClient, requested_category_clients
-from monitor import LIVE_SOURCES, State, is_available, keyword_match, observe_products
+from monitor import LIVE_SOURCES, State, checked_products, is_available, keyword_match, observe_products
 
 
 def sample_product(product_id="123", available=True, source="crazycards-pokemon"):
@@ -57,10 +57,19 @@ class MonitorTests(unittest.TestCase):
             state.put(product)
             self.assertEqual(state.get(product["key"]), product)
             self.assertEqual(len(state.all()), 1)
+            self.assertEqual(state.source_product_count("crazycards-pokemon"), 1)
             self.assertTrue(state.check_due("external:crazycards-pokemon", 300, now=1000))
             state.mark_checked("external:crazycards-pokemon", checked_at=1000)
             self.assertFalse(state.check_due("external:crazycards-pokemon", 300, now=1299))
             self.assertTrue(state.check_due("external:crazycards-pokemon", 300, now=1300))
+
+    def test_empty_scan_fails_safe_instead_of_wiping_existing_products(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = State(os.path.join(directory, "state.db"))
+            state.put(sample_product("1"))
+            with self.assertRaisesRegex(ValueError, "returned zero products"):
+                checked_products("crazycards-pokemon", [], state)
+            self.assertEqual(state.source_product_count("crazycards-pokemon"), 1)
 
     def test_store_error_state_only_alerts_on_transition(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -144,7 +153,7 @@ class MonitorTests(unittest.TestCase):
               <span data-wix-price="9,99 €"></span>
             </a>
           </li>
-          <li data-hook="product-list-grid-item" data-slug="sold-out-card">
+          <li class="x" data-hook="product-list-grid-item" data-slug="sold-out-card">
             <a href="https://www.crazycards.eu/product-page/sold-out-card" aria-label="Sold out">
               <p data-hook="product-item-name">Sold Out Card</p>
               <span data-wix-price="0,00 €"></span>
