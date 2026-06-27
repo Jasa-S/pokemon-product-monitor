@@ -5,7 +5,12 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from export_dashboard import dashboard_product, source_summaries
-from external_stores import CrazyCardsCategoryClient, WooCommerceCategoryClient, requested_category_clients
+from external_stores import (
+    CardmarketSellerOffersClient,
+    CrazyCardsCategoryClient,
+    WooCommerceCategoryClient,
+    requested_category_clients,
+)
 from monitor import LIVE_SOURCES, State, checked_products, is_available, keyword_match, observe_products
 
 
@@ -30,6 +35,10 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(
             LIVE_SOURCES,
             {
+                "cardmarket-cardcoffee-onepiece",
+                "cardmarket-cardcoffee-pokemon",
+                "cardmarket-crazycards-onepiece",
+                "cardmarket-crazycards-pokemon",
                 "crazycards-onepiece",
                 "crazycards-pokemon",
                 "spielwaren-onepiece-kor",
@@ -104,6 +113,7 @@ class MonitorTests(unittest.TestCase):
 
     def test_dashboard_exports_only_live_sources(self):
         self.assertTrue(dashboard_product(sample_product(source="crazycards-pokemon")))
+        self.assertTrue(dashboard_product(sample_product(source="cardmarket-crazycards-pokemon")))
         self.assertFalse(dashboard_product(sample_product(source="pokemonstore")))
         self.assertFalse(dashboard_product(sample_product(source="naver-xoplay")))
 
@@ -173,6 +183,33 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(products[0]["stockStatus"], "AVAILABLE")
         self.assertEqual(products[1]["salePrice"], None)
         self.assertEqual(products[1]["stockStatus"], "SOLD_OUT")
+
+    def test_cardmarket_parser_dedupes_product_links(self):
+        html = '''
+        <div class="article-row">
+          <a href="/en/Pokemon/Products/Booster-Boxes/Pikachu-Booster-Box" title="Pikachu Booster Box">
+            <img src="/img/items/pikachu.jpg">
+          </a>
+          <a href="/en/Pokemon/Products/Booster-Boxes/Pikachu-Booster-Box">Pikachu Booster Box</a>
+          <span>49,95 €</span>
+        </div>
+        '''
+        client = CardmarketSellerOffersClient(
+            "cardmarket-crazycards-pokemon",
+            ["https://www.cardmarket.com/en/Pokemon/Users/CrazyCardsEU/Offers/Booster-Boxes"],
+        )
+        with patch("external_stores._request", return_value=html):
+            products = client.products()
+        self.assertEqual(len(products), 1)
+        self.assertEqual(products[0]["productName"], "Pikachu Booster Box")
+        self.assertEqual(products[0]["productNo"], "Pokemon/Products/Booster-Boxes/Pikachu-Booster-Box")
+        self.assertEqual(products[0]["salePrice"], 49.95)
+        self.assertEqual(products[0]["stockStatus"], "AVAILABLE")
+        self.assertEqual(
+            products[0]["url"],
+            "https://www.cardmarket.com/en/Pokemon/Products/Booster-Boxes/Pikachu-Booster-Box",
+        )
+        self.assertEqual(products[0]["image"], "https://www.cardmarket.com/img/items/pikachu.jpg")
 
 
 if __name__ == "__main__":
