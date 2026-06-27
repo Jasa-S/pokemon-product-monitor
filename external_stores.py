@@ -192,7 +192,13 @@ class CrazyCardsCategoryClient:
 
 
 class CardmarketSellerOffersClient:
-    """Parse server-rendered Cardmarket seller offer pages by product link."""
+    """Parse server-rendered Cardmarket seller offer pages by product link.
+
+    This is kept for local experiments only. Cardmarket returns HTTP 403 to
+    GitHub-hosted runners, so these sources are intentionally not enabled in
+    requested_category_clients(). Use the official Cardmarket API if access is
+    approved.
+    """
 
     PRODUCT_LINK_RE = re.compile(r'href="(?P<href>/en/(?:Pokemon|OnePiece)/Products/[^"]+)"', re.I)
 
@@ -282,10 +288,6 @@ def requested_category_clients() -> list[Any]:
         WooCommerceCategoryClient("spielwaren-onepiece-kor", 230),
         CrazyCardsCategoryClient("crazycards-onepiece", "https://www.crazycards.eu/onepiece"),
         CrazyCardsCategoryClient("crazycards-pokemon", "https://www.crazycards.eu/pokemon"),
-        CardmarketSellerOffersClient("cardmarket-crazycards-pokemon", CARDMARKET_CRAZYCARDS_POKEMON_URLS),
-        CardmarketSellerOffersClient("cardmarket-cardcoffee-pokemon", CARDMARKET_CARDCOFFEE_POKEMON_URLS),
-        CardmarketSellerOffersClient("cardmarket-cardcoffee-onepiece", CARDMARKET_CARDCOFFEE_ONEPIECE_URLS),
-        CardmarketSellerOffersClient("cardmarket-crazycards-onepiece", CARDMARKET_CRAZYCARDS_ONEPIECE_URLS),
     ]
 
 
