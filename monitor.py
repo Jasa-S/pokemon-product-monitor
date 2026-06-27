@@ -19,6 +19,10 @@ from external_stores import EXPECTED_NETWORK_ERRORS, requested_category_clients
 
 USER_AGENT = "PokemonStoreAvailabilityMonitor/3.0 (+personal-use; EU-card-shops)"
 LIVE_SOURCES = {
+    "cardmarket-cardcoffee-onepiece",
+    "cardmarket-cardcoffee-pokemon",
+    "cardmarket-crazycards-onepiece",
+    "cardmarket-crazycards-pokemon",
     "crazycards-onepiece",
     "crazycards-pokemon",
     "spielwaren-onepiece-kor",
