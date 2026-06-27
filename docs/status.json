@@ -1,13 +1,57 @@
 {
-  "updatedAt": "2026-06-27T19:10:44.556715+00:00",
+  "updatedAt": "2026-06-27T19:20:45.529000+00:00",
   "sources": [
+    {
+      "source": "cardmarket-cardcoffee-onepiece",
+      "productCount": 0,
+      "availableCount": 0,
+      "soldOutCount": 0,
+      "checkedAt": "2026-06-27T19:20:37.622586+00:00",
+      "successAt": null,
+      "failing": true,
+      "errorMessage": "HTTPError: HTTP Error 403: Forbidden",
+      "errorUpdatedAt": "2026-06-27T19:20:44.942982+00:00"
+    },
+    {
+      "source": "cardmarket-cardcoffee-pokemon",
+      "productCount": 0,
+      "availableCount": 0,
+      "soldOutCount": 0,
+      "checkedAt": "2026-06-27T19:20:37.622586+00:00",
+      "successAt": null,
+      "failing": true,
+      "errorMessage": "HTTPError: HTTP Error 403: Forbidden",
+      "errorUpdatedAt": "2026-06-27T19:20:44.720873+00:00"
+    },
+    {
+      "source": "cardmarket-crazycards-onepiece",
+      "productCount": 0,
+      "availableCount": 0,
+      "soldOutCount": 0,
+      "checkedAt": "2026-06-27T19:20:37.622586+00:00",
+      "successAt": null,
+      "failing": true,
+      "errorMessage": "HTTPError: HTTP Error 403: Forbidden",
+      "errorUpdatedAt": "2026-06-27T19:20:45.159691+00:00"
+    },
+    {
+      "source": "cardmarket-crazycards-pokemon",
+      "productCount": 0,
+      "availableCount": 0,
+      "soldOutCount": 0,
+      "checkedAt": "2026-06-27T19:20:37.622586+00:00",
+      "successAt": null,
+      "failing": true,
+      "errorMessage": "HTTPError: HTTP Error 403: Forbidden",
+      "errorUpdatedAt": "2026-06-27T19:20:44.463014+00:00"
+    },
     {
       "source": "crazycards-onepiece",
       "productCount": 10,
       "availableCount": 4,
       "soldOutCount": 6,
-      "checkedAt": "2026-06-27T19:10:38.315150+00:00",
-      "successAt": "2026-06-27T19:10:38.315150+00:00",
+      "checkedAt": "2026-06-27T19:20:37.622586+00:00",
+      "successAt": "2026-06-27T19:20:37.622586+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -17,8 +61,8 @@
       "productCount": 15,
       "availableCount": 6,
       "soldOutCount": 9,
-      "checkedAt": "2026-06-27T19:10:38.315150+00:00",
-      "successAt": "2026-06-27T19:10:38.315150+00:00",
+      "checkedAt": "2026-06-27T19:20:37.622586+00:00",
+      "successAt": "2026-06-27T19:20:37.622586+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -28,8 +72,8 @@
       "productCount": 0,
       "availableCount": 0,
       "soldOutCount": 0,
-      "checkedAt": "2026-06-27T19:10:38.315150+00:00",
-      "successAt": "2026-06-27T19:10:38.315150+00:00",
+      "checkedAt": "2026-06-27T19:20:37.622586+00:00",
+      "successAt": "2026-06-27T19:20:37.622586+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -39,8 +83,8 @@
       "productCount": 4,
       "availableCount": 4,
       "soldOutCount": 0,
-      "checkedAt": "2026-06-27T19:10:38.315150+00:00",
-      "successAt": "2026-06-27T19:10:38.315150+00:00",
+      "checkedAt": "2026-06-27T19:20:37.622586+00:00",
+      "successAt": "2026-06-27T19:20:37.622586+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
