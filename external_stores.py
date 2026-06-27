@@ -9,7 +9,6 @@ import time
 from html import unescape
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urljoin
 from urllib.request import Request, urlopen
 
 
@@ -22,28 +21,6 @@ def _wix_original_image(url: str | None) -> str | None:
         return None
     match = re.match(r"(https://static\.wixstatic\.com/media/[^/?]+)", unescape(url))
     return match.group(1) if match else unescape(url)
-
-
-def _strip_html(value: str) -> str:
-    return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", value))).strip()
-
-
-def _slug_to_name(slug: str) -> str:
-    return unescape(slug.rsplit("/", 1)[-1].replace("-", " ")).strip().title()
-
-
-def _parse_euro_price(value: str) -> float | None:
-    text = unescape(value).replace("\xa0", " ")
-    price_match = re.search(r"(\d{1,3}(?:[.\s]\d{3})*,\d{2})\s*€", text)
-    if not price_match:
-        return None
-    return float(price_match.group(1).replace(".", "").replace(" ", "").replace(",", "."))
-
-
-def _absolute_url(url: str | None, base: str) -> str | None:
-    if not url:
-        return None
-    return urljoin(base, unescape(url))
 
 
 def _request(url: str, *, as_json: bool) -> Any:
@@ -189,97 +166,6 @@ class CrazyCardsCategoryClient:
         if chunks and parse_failures == len(chunks):
             raise ValueError(f"CrazyCards product items were present but could not be parsed from {self.url}")
         return list(products.values())
-
-
-class CardmarketSellerOffersClient:
-    """Parse server-rendered Cardmarket seller offer pages by product link.
-
-    This is kept for local experiments only. Cardmarket returns HTTP 403 to
-    GitHub-hosted runners, so these sources are intentionally not enabled in
-    requested_category_clients(). Use the official Cardmarket API if access is
-    approved.
-    """
-
-    PRODUCT_LINK_RE = re.compile(r'href="(?P<href>/en/(?:Pokemon|OnePiece)/Products/[^"]+)"', re.I)
-
-    def __init__(self, source: str, urls: list[str]) -> None:
-        self.source = source
-        self.urls = urls
-
-    @staticmethod
-    def _product_id(href: str) -> str:
-        return unescape(href.split("?", 1)[0].split("#", 1)[0]).removeprefix("/en/")
-
-    @staticmethod
-    def _name_from_chunk(href: str, chunk: str) -> str:
-        anchor_match = re.search(r'<a\b[^>]*href="' + re.escape(href) + r'"[^>]*>(.*?)</a>', chunk, re.S)
-        anchor = anchor_match.group(0) if anchor_match else ""
-        title_match = re.search(r'\btitle="([^"]+)"', anchor)
-        text = _strip_html(anchor_match.group(1)) if anchor_match else ""
-        if text and not text.startswith("/"):
-            return text
-        if title_match:
-            return unescape(title_match.group(1)).strip()
-        return _slug_to_name(href)
-
-    @staticmethod
-    def _image_from_chunk(chunk: str, page_url: str) -> str | None:
-        image_match = re.search(r'<img[^>]+(?:data-original|data-src|src)="([^"]+)"', chunk)
-        return _absolute_url(image_match.group(1), page_url) if image_match else None
-
-    def _page_products(self, page_url: str) -> dict[str, dict[str, Any]]:
-        html = _request(page_url, as_json=False)
-        matches = list(self.PRODUCT_LINK_RE.finditer(html))
-        products: dict[str, dict[str, Any]] = {}
-        for index, match in enumerate(matches):
-            href = unescape(match.group("href"))
-            end = matches[index + 1].start() if index + 1 < len(matches) else min(len(html), match.start() + 4000)
-            chunk = html[match.start():end]
-            product_id = self._product_id(href)
-            product = _product(
-                source=self.source,
-                product_id=product_id,
-                name=self._name_from_chunk(href, chunk),
-                price=_parse_euro_price(chunk),
-                image=self._image_from_chunk(chunk, page_url),
-                available=True,
-                url=_absolute_url(href, page_url) or page_url,
-            )
-            existing = products.get(product_id)
-            if existing:
-                if existing.get("salePrice") is None and product.get("salePrice") is not None:
-                    product["image"] = product.get("image") or existing.get("image")
-                    products[product_id] = product
-                elif existing.get("image") is None and product.get("image"):
-                    existing["image"] = product["image"]
-            else:
-                products[product_id] = product
-        if not products and not re.search(r"Offers|Angebote|No articles|Keine Artikel", html, re.I):
-            raise ValueError(f"Cardmarket seller offers could not be parsed from {page_url}")
-        return products
-
-    def products(self) -> list[dict[str, Any]]:
-        products: dict[str, dict[str, Any]] = {}
-        for page_url in self.urls:
-            products.update(self._page_products(page_url))
-        return list(products.values())
-
-
-CARDMARKET_CRAZYCARDS_POKEMON_URLS = [
-    "https://www.cardmarket.com/en/Pokemon/Users/CrazyCardsEU/Offers/Booster-Boxes?sortBy=name_asc&idLanguage=10",
-    "https://www.cardmarket.com/en/Pokemon/Users/CrazyCardsEU/Offers/Theme-Decks?sortBy=name_asc&idLanguage=10",
-    "https://www.cardmarket.com/en/Pokemon/Users/CrazyCardsEU/Offers/Box-Sets?sortBy=name_asc&idLanguage=10",
-]
-CARDMARKET_CARDCOFFEE_POKEMON_URLS = [
-    "https://www.cardmarket.com/en/Pokemon/Users/Card-Coffee/Offers/Booster-Boxes?sortBy=name_asc&idLanguage=10",
-    "https://www.cardmarket.com/en/Pokemon/Users/Card-Coffee/Offers/Box-Sets?sortBy=name_asc&idLanguage=10",
-]
-CARDMARKET_CARDCOFFEE_ONEPIECE_URLS = [
-    "https://www.cardmarket.com/en/OnePiece/Users/Card-Coffee/Offers/Booster-Boxes?sortBy=name_asc&idLanguage=10",
-]
-CARDMARKET_CRAZYCARDS_ONEPIECE_URLS = [
-    "https://www.cardmarket.com/en/OnePiece/Users/CrazyCardsEU/Offers/Booster-Boxes?sortBy=name_asc&idLanguage=10",
-]
 
 
 def requested_category_clients() -> list[Any]:
