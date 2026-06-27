@@ -94,7 +94,7 @@ body.gallery h2{font-size:.78rem;line-height:1.1;min-height:2.2em;max-height:2.2
 <script>
 let products = [];
 let sources = [];
-const sourceIds = ['cardmarket-cardcoffee-onepiece','cardmarket-cardcoffee-pokemon','cardmarket-crazycards-onepiece','cardmarket-crazycards-pokemon','crazycards-onepiece','crazycards-pokemon','spielwaren-onepiece-kor','spielwaren-pokemon-kor'];
+const sourceIds = ['crazycards-onepiece','crazycards-pokemon','spielwaren-onepiece-kor','spielwaren-pokemon-kor'];
 const STALE_AFTER_MINUTES = 20;
 const euro = new Intl.NumberFormat('en-IE', {style:'currency', currency:'EUR'});
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -132,7 +132,7 @@ function setGallery(on) { document.body.classList.toggle('gallery', on); documen
 function renderHealth(last, fail) {
   const ok = sources.length - fail;
   document.querySelector('#health-meta').textContent = `${ok}/${sources.length || sourceIds.length} stores OK · last successful scan ${last ? rel(last.toISOString()) : 'unknown'}`;
-  document.querySelector('#health-pills').innerHTML = sources.map(s => `<span class="pill ${s.failing ? 'fail' : ''}">${esc(s.source.replace('spielwaren-','spw-').replace('crazycards-','cc-').replace('cardmarket-','cm-'))}: ${s.failing ? 'FAIL' : 'OK'}</span>`).join('');
+  document.querySelector('#health-pills').innerHTML = sources.map(s => `<span class="pill ${s.failing ? 'fail' : ''}">${esc(s.source.replace('spielwaren-','spw-').replace('crazycards-','cc-'))}: ${s.failing ? 'FAIL' : 'OK'}</span>`).join('');
   document.querySelector('#health-lines').innerHTML = sources.map(s => `<div class="line ${s.failing ? 'fail' : ''}"><strong>${esc(s.source)}</strong><br>${Number(s.productCount || 0).toLocaleString()} products · ${Number(s.availableCount || 0).toLocaleString()} in stock · scan ${esc(rel(s.checkedAt))} · success ${esc(rel(successTime(s)))}${s.errorMessage ? `<br>${esc(s.errorMessage)}` : ''}</div>`).join('');
 }
 function renderMonitor(data, last, fail) {
