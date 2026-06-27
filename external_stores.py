@@ -240,7 +240,13 @@ class CardmarketSellerOffersClient:
                 url=_absolute_url(href, page_url) or page_url,
             )
             existing = products.get(product_id)
-            if not existing or (existing.get("salePrice") is None and product.get("salePrice") is not None):
+            if existing:
+                if existing.get("salePrice") is None and product.get("salePrice") is not None:
+                    product["image"] = product.get("image") or existing.get("image")
+                    products[product_id] = product
+                elif existing.get("image") is None and product.get("image"):
+                    existing["image"] = product["image"]
+            else:
                 products[product_id] = product
         if not products and not re.search(r"Offers|Angebote|No articles|Keine Artikel", html, re.I):
             raise ValueError(f"Cardmarket seller offers could not be parsed from {page_url}")
