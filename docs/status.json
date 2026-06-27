@@ -1,13 +1,13 @@
 {
-  "updatedAt": "2026-06-27T18:30:51.286666+00:00",
+  "updatedAt": "2026-06-27T18:41:35.879405+00:00",
   "sources": [
     {
       "source": "crazycards-onepiece",
       "productCount": 10,
       "availableCount": 4,
       "soldOutCount": 6,
-      "checkedAt": "2026-06-27T18:30:46.039132+00:00",
-      "successAt": "2026-06-27T18:30:46.039132+00:00",
+      "checkedAt": "2026-06-27T18:40:34.518630+00:00",
+      "successAt": "2026-06-27T18:40:34.518630+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -17,8 +17,8 @@
       "productCount": 15,
       "availableCount": 6,
       "soldOutCount": 9,
-      "checkedAt": "2026-06-27T18:30:46.039132+00:00",
-      "successAt": "2026-06-27T18:30:46.039132+00:00",
+      "checkedAt": "2026-06-27T18:40:34.518630+00:00",
+      "successAt": "2026-06-27T18:40:34.518630+00:00",
       "failing": false,
       "errorMessage": null,
       "errorUpdatedAt": null
@@ -28,22 +28,22 @@
       "productCount": 0,
       "availableCount": 0,
       "soldOutCount": 0,
-      "checkedAt": "2026-06-27T18:30:46.039132+00:00",
+      "checkedAt": "2026-06-27T18:40:34.518630+00:00",
       "successAt": "2026-06-27T18:30:46.039132+00:00",
-      "failing": false,
-      "errorMessage": null,
-      "errorUpdatedAt": null
+      "failing": true,
+      "errorMessage": "URLError: <urlopen error [Errno 101] Network is unreachable>",
+      "errorUpdatedAt": "2026-06-27T18:41:35.015830+00:00"
     },
     {
       "source": "spielwaren-pokemon-kor",
       "productCount": 4,
       "availableCount": 4,
       "soldOutCount": 0,
-      "checkedAt": "2026-06-27T18:30:46.039132+00:00",
+      "checkedAt": "2026-06-27T18:40:34.518630+00:00",
       "successAt": "2026-06-27T18:30:46.039132+00:00",
-      "failing": false,
-      "errorMessage": null,
-      "errorUpdatedAt": null
+      "failing": true,
+      "errorMessage": "URLError: <urlopen error [Errno 101] Network is unreachable>",
+      "errorUpdatedAt": "2026-06-27T18:41:04.818863+00:00"
     }
   ],
   "products": [
